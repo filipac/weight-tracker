@@ -1,19 +1,21 @@
+![Withings SDK Banner](assets/banner.png)
+
 # Withings SDK for Laravel
 
 A comprehensive Laravel package for integrating with the Withings API.
 
 ## Features
 
-- **Complete Withings API Coverage**: All endpoints including measures, heart, sleep, user, notifications, and dropshipment
-- **🎯 Type-Safe PHP 8.1+ Enums**: Eliminates magic strings with dedicated enums for API actions, measurement types, categories, and fields
-- **📦 Laravel Collections**: Fluent data manipulation with Collection methods instead of plain arrays
-- **🔧 Type-Safe Parameter DTOs**: Constructor property promotion with automatic enum conversion
-- **🔐 OAuth2 Authentication Flow**: Full authentication support with token refresh
-- **⚙️ Laravel Service Provider Integration**: Auto-discovery and configuration publishing
-- **🚀 Facade Support**: Clean, Laravel-style API access with full IDE completion
-- **⚡ Comprehensive Error Handling**: Detailed Withings API error mapping
-- **🛡️ Readonly DTOs**: Immutable data objects with automatic type conversion
-- **💪 Enhanced Measurement Types**: Support for all Withings measurement types with enum-based categorization
+-   **Complete Withings API Coverage**: All endpoints including measures, heart, sleep, user, notifications, and dropshipment
+-   **🎯 Type-Safe PHP 8.1+ Enums**: Eliminates magic strings with dedicated enums for API actions, measurement types, categories, and fields
+-   **📦 Laravel Collections**: Fluent data manipulation with Collection methods instead of plain arrays
+-   **🔧 Type-Safe Parameter DTOs**: Constructor property promotion with automatic enum conversion
+-   **🔐 OAuth2 Authentication Flow**: Full authentication support with token refresh
+-   **⚙️ Laravel Service Provider Integration**: Auto-discovery and configuration publishing
+-   **🚀 Facade Support**: Clean, Laravel-style API access with full IDE completion
+-   **⚡ Comprehensive Error Handling**: Detailed Withings API error mapping
+-   **🛡️ Readonly DTOs**: Immutable data objects with automatic type conversion
+-   **💪 Enhanced Measurement Types**: Support for all Withings measurement types with enum-based categorization
 
 ## Installation
 
@@ -79,7 +81,7 @@ $latestWeight = $measurementData->getLatestMeasurement(MeasurementType::WEIGHT);
 // Individual measurements are automatically converted to enums
 $measurement = $weightMeasurements->first();
 echo $measurement->type->getName(); // "Weight" (from enum)
-echo $measurement->type->getUnit(); // "kg" (from enum)  
+echo $measurement->type->getUnit(); // "kg" (from enum)
 echo $measurement->category?->getName(); // "Real measurement" (from enum)
 ```
 
@@ -107,10 +109,11 @@ $userInfo = Withings::user()->getInfo();
 ```
 
 The facade provides complete IDE autocompletion with:
-- ✅ **Method signatures** with parameter types and return types
-- ✅ **Enum suggestions** for type-safe parameters  
-- ✅ **Documentation** with usage examples
-- ✅ **Service method chaining** with full completion at each step
+
+-   ✅ **Method signatures** with parameter types and return types
+-   ✅ **Enum suggestions** for type-safe parameters
+-   ✅ **Documentation** with usage examples
+-   ✅ **Service method chaining** with full completion at each step
 
 ### 🎯 Type-Safe Enums
 
@@ -131,7 +134,7 @@ $manualEntry = MeasurementCategory::MANUAL;
 // ✅ Type-safe notification types
 $weightNotifications = NotificationApplication::WEIGHT;
 
-// ✅ Type-safe sleep fields  
+// ✅ Type-safe sleep fields
 $sleepFields = [SleepField::DEEP_SLEEP_DURATION, SleepField::REM_SLEEP_DURATION];
 
 // Get enum information
@@ -192,50 +195,56 @@ $refreshedTokens = $client->oauth2()->refreshToken();
 ### Available Services
 
 #### Measure Service
-- `getMeasures(?GetMeasuresParams $params)` - Get body measurements with type-safe parameters
-- `getWeight(?int $startdate, ?int $enddate, ?int $lastupdate)` - Get weight measurements
-- `getHeight(?int $startdate, ?int $enddate)` - Get height measurements  
-- `getBodyComposition(?int $startdate, ?int $enddate)` - Get body composition data
-- `getVitalSigns(?int $startdate, ?int $enddate)` - Get blood pressure and heart rate
-- `getTemperature(?int $startdate, ?int $enddate)` - Get temperature measurements
-- `getActivityMeasures(?GetActivityParams $params)` - Get activity data
-- `getWorkouts(?GetWorkoutsParams $params)` - Get workout data
-- `getIntradayActivity(?GetIntradayActivityParams $params)` - Get detailed activity data
+
+-   `getMeasures(?GetMeasuresParams $params)` - Get body measurements with type-safe parameters
+-   `getWeight(?int $startdate, ?int $enddate, ?int $lastupdate)` - Get weight measurements
+-   `getHeight(?int $startdate, ?int $enddate)` - Get height measurements
+-   `getBodyComposition(?int $startdate, ?int $enddate)` - Get body composition data
+-   `getVitalSigns(?int $startdate, ?int $enddate)` - Get blood pressure and heart rate
+-   `getTemperature(?int $startdate, ?int $enddate)` - Get temperature measurements
+-   `getActivityMeasures(?GetActivityParams $params)` - Get activity data
+-   `getWorkouts(?GetWorkoutsParams $params)` - Get workout data
+-   `getIntradayActivity(?GetIntradayActivityParams $params)` - Get detailed activity data
 
 #### Heart Service
-- `getHeartRate(?GetHeartParams $params)` - Get heart rate data with parameters
-- `list(?int $startdate, ?int $enddate)` - List heart rate measurements
-- `getEcg(int $signalid)` - Get ECG data by signal ID
-- `getDetailed(?int $startdate, ?int $enddate, ?int $offset)` - Get detailed heart data
+
+-   `getHeartRate(?GetHeartParams $params)` - Get heart rate data with parameters
+-   `list(?int $startdate, ?int $enddate)` - List heart rate measurements
+-   `getEcg(int $signalid)` - Get ECG data by signal ID
+-   `getDetailed(?int $startdate, ?int $enddate, ?int $offset)` - Get detailed heart data
 
 #### Sleep Service
-- `getSummary(?GetSleepParams $params)` - Get sleep summary with parameters
-- `get(?GetSleepParams $params)` - Get detailed sleep data with parameters
-- `getSummaryByDateRange(string $startdateymd, string $enddateymd)` - Get sleep summary for date range (Y-m-d format)
-- `getByDateRange(int $startdate, int $enddate)` - Get detailed sleep data for date range (Unix timestamps)
-- `getSleepWithFields(array $dataFields, ?int $startdate, ?int $enddate)` - Get specific sleep fields
+
+-   `getSummary(?GetSleepParams $params)` - Get sleep summary with parameters
+-   `get(?GetSleepParams $params)` - Get detailed sleep data with parameters
+-   `getSummaryByDateRange(string $startdateymd, string $enddateymd)` - Get sleep summary for date range (Y-m-d format)
+-   `getByDateRange(int $startdate, int $enddate)` - Get detailed sleep data for date range (Unix timestamps)
+-   `getSleepWithFields(array $dataFields, ?int $startdate, ?int $enddate)` - Get specific sleep fields
 
 #### User Service
-- `getInfo()` - Get user information
-- `getDevices()` - Get user devices
-- `getGoals()` - Get user goals
-- `getTimezone()` - Get user's timezone
-- `getPreferences()` - Get user preferences
+
+-   `getInfo()` - Get user information
+-   `getDevices()` - Get user devices
+-   `getGoals()` - Get user goals
+-   `getTimezone()` - Get user's timezone
+-   `getPreferences()` - Get user preferences
 
 #### Notification Service
-- `subscribe(string $callbackurl, ?string $comment, int $appli)` - Subscribe to notifications
-- `revoke(string $callbackurl, int $appli)` - Revoke notifications
-- `get(?int $appli)` - Get notification information
-- `list()` - List all notifications
+
+-   `subscribe(string $callbackurl, ?string $comment, int $appli)` - Subscribe to notifications
+-   `revoke(string $callbackurl, int $appli)` - Revoke notifications
+-   `get(?int $appli)` - Get notification information
+-   `list()` - List all notifications
 
 #### Dropshipment Service
-- `createOrder(array $orderData)` - Create a new dropshipment order
-- `updateOrder(string $orderId, array $updateData)` - Update existing order
-- `getOrder(string $orderId)` - Get order details
-- `listOrders(array $filters)` - List orders with filters
-- `cancelOrder(string $orderId)` - Cancel an order
-- `getProducts()` - Get available products
-- `getShippingMethods(array $shippingData)` - Get shipping options
+
+-   `createOrder(array $orderData)` - Create a new dropshipment order
+-   `updateOrder(string $orderId, array $updateData)` - Update existing order
+-   `getOrder(string $orderId)` - Get order details
+-   `listOrders(array $filters)` - List orders with filters
+-   `cancelOrder(string $orderId)` - Cancel an order
+-   `getProducts()` - Get available products
+-   `getShippingMethods(array $shippingData)` - Get shipping options
 
 ## 🛡️ Enhanced Data Transfer Objects
 
@@ -298,33 +307,37 @@ try {
 ## 🚀 What Makes This Package Special
 
 ### ✅ Complete Type Safety
-- **No magic strings or numbers** - Everything uses PHP 8.1+ enums
-- **Automatic type conversion** - Raw API responses become typed objects
-- **Full IDE completion** - Autocomplete for all methods, parameters, and enum values
+
+-   **No magic strings or numbers** - Everything uses PHP 8.1+ enums
+-   **Automatic type conversion** - Raw API responses become typed objects
+-   **Full IDE completion** - Autocomplete for all methods, parameters, and enum values
 
 ### ✅ Laravel-First Design
-- **Collections everywhere** - Powerful data manipulation with Collection methods
-- **Service provider integration** - Auto-discovery and configuration publishing  
-- **Facade support** - Clean, Laravel-style static access
-- **Follows Laravel conventions** - Feels native to Laravel applications
+
+-   **Collections everywhere** - Powerful data manipulation with Collection methods
+-   **Service provider integration** - Auto-discovery and configuration publishing
+-   **Facade support** - Clean, Laravel-style static access
+-   **Follows Laravel conventions** - Feels native to Laravel applications
 
 ### ✅ Developer Experience
-- **Rich factory methods** - `GetMeasuresParams::forWeight()`, `::forBodyComposition()`
-- **Fluent data analysis** - Chain filters, sorts, and aggregations
-- **Comprehensive error handling** - Detailed Withings API error mapping
-- **Immutable DTOs** - Readonly objects prevent accidental mutations
+
+-   **Rich factory methods** - `GetMeasuresParams::forWeight()`, `::forBodyComposition()`
+-   **Fluent data analysis** - Chain filters, sorts, and aggregations
+-   **Comprehensive error handling** - Detailed Withings API error mapping
+-   **Immutable DTOs** - Readonly objects prevent accidental mutations
 
 ### ✅ Production Ready
-- **Complete API coverage** - All Withings endpoints supported
-- **Robust authentication** - Full OAuth2 flow with token refresh
-- **Extensible design** - Easy to add custom methods and functionality
-- **Well documented** - Comprehensive examples and use cases
+
+-   **Complete API coverage** - All Withings endpoints supported
+-   **Robust authentication** - Full OAuth2 flow with token refresh
+-   **Extensible design** - Easy to add custom methods and functionality
+-   **Well documented** - Comprehensive examples and use cases
 
 ## Requirements
 
-- PHP 8.2+
-- Laravel 10.0+
-- Guzzle 7.0+
+-   PHP 8.2+
+-   Laravel 10.0+
+-   Guzzle 7.0+
 
 ## License
 
