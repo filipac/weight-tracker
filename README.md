@@ -160,9 +160,9 @@ The app automatically maintains a "weight" note in Notes.app:
 - Syncs whenever new weight entries are added
 - Uses AppleScript for reliable Notes.app automation
 
-## Withings Integration
+## Withings Integration (Optional)
 
-The app includes a custom PHP SDK for integrating with Withings health devices and API:
+The app includes optional integration with Withings health devices via a custom PHP SDK:
 
 ### Features
 - OAuth 2.0 authentication with Withings API
@@ -170,6 +170,28 @@ The app includes a custom PHP SDK for integrating with Withings health devices a
 - Support for multiple measurement types (weight, body composition, etc.)
 - Rate limiting and error handling
 - Comprehensive test coverage
+
+### Setup Withings Integration
+
+**Note:** Withings integration is completely optional. The app works fully without it - you can manually enter weight data through the web interface.
+
+1. **Create a Withings Developer App**
+   - Visit https://developer.withings.com/dashboard/
+   - Create a new application
+   - Set the redirect URL to: `{APP_URL}/oauth-callback/withings` (e.g., `http://localhost:8000/oauth-callback/withings`)
+
+2. **Configure Environment Variables**
+   - Add your Withings credentials to `.env`:
+     ```env
+     WITHINGS_CLIENT_ID=your_client_id_here
+     WITHINGS_CLIENT_SECRET=your_client_secret_here
+     WITHINGS_REDIRECT_URI=http://localhost:8000/oauth-callback/withings
+     ```
+
+3. **Initiate Login Flow**
+   - Start the development server: `composer run dev`
+   - Visit `{APP_URL}/w` (e.g., `http://localhost:8000/w`) to begin Withings authentication
+   - Complete the OAuth flow to authorize the app with your Withings account
 
 ### Withings SDK Package
 The Withings SDK (`packages/withings-sdk`) is developed as part of this project and will be published separately at:

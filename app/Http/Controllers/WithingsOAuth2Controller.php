@@ -12,6 +12,10 @@ class WithingsOAuth2Controller extends Controller
      */
     public function redirect()
     {
+        if (!Withings::isConfigured()) {
+            abort(503, 'Withings integration is not configured. Please set WITHINGS_CLIENT_ID, WITHINGS_CLIENT_SECRET, and WITHINGS_REDIRECT_URI in your .env file.');
+        }
+
         return redirect(Withings::oauth2()->getAuthorizationUrl(
             redirectUri: config('services.withings.redirect'),
             scopes: ['user.info', 'user.metrics'],
@@ -24,6 +28,10 @@ class WithingsOAuth2Controller extends Controller
      */
     public function callback(Request $request)
     {
+        if (!Withings::isConfigured()) {
+            abort(503, 'Withings integration is not configured. Please set WITHINGS_CLIENT_ID, WITHINGS_CLIENT_SECRET, and WITHINGS_REDIRECT_URI in your .env file.');
+        }
+
         try {
             $state = $request->session()->pull('state');
 
@@ -53,4 +61,5 @@ class WithingsOAuth2Controller extends Controller
             ], 500);
         }
     }
+
 }

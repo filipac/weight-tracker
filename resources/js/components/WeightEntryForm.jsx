@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import axios from 'axios'
 
 export default function WeightEntryForm() {
-    const { flash, weightFromWithings } = usePage().props
+    const { flash, weightFromWithings, withingsConfigured } = usePage().props
 
     const [weight, setWeight] = useState(weightFromWithings?.weight || '')
 
@@ -90,17 +90,19 @@ export default function WeightEntryForm() {
                                 </Button>
                             )}
                         </div>
-                        <div className="flex items-center justify-center mt-4 space-x-2">
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={handleGetFromWithings}
-                                disabled={isLoading}
-                            >
-                                {isLoading && <Spinner />}
-                                {!isLoading && 'Get from Withings'}
-                            </Button>
-                        </div>
+                        {withingsConfigured && (
+                            <div className="flex items-center justify-center mt-4 space-x-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={handleGetFromWithings}
+                                    disabled={isLoading}
+                                >
+                                    {isLoading && <Spinner />}
+                                    {!isLoading && 'Get from Withings'}
+                                </Button>
+                            </div>
+                        )}
                     </div>
 
                     <div>

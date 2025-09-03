@@ -154,6 +154,14 @@ class WithingsClient
         return $this->clientSecret;
     }
 
+    /**
+     * Check if the client is properly configured with required credentials
+     */
+    public function isConfigured(): bool
+    {
+        return !empty($this->clientId) && !empty($this->clientSecret);
+    }
+
     private function getAuthHeaders(): array
     {
         if (empty($this->accessToken)) {

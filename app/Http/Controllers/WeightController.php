@@ -10,6 +10,7 @@ use App\Models\WeightGoal;
 use App\Services\AchievementService;
 use App\Services\NotesAppService;
 use App\Services\WeightPredictionService;
+use Filipac\Withings\Facades\Withings;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -75,6 +76,7 @@ class WeightController extends Controller
             'currentStreak' => $currentStreak,
             'motivationalMessage' => $motivationalMessage,
             'weightFromWithings' => session()->get('weight'),
+            'withingsConfigured' => Withings::isConfigured(),
         ]);
     }
 
@@ -276,6 +278,12 @@ class WeightController extends Controller
 
     public function getFromWithings()
     {
+        if (!Withings::isConfigured()) {
+            return response()->json([
+                'error' => 'Withings integration is not configured. Please set WITHINGS_CLIENT_ID, WITHINGS_CLIENT_SECRET, and WITHINGS_REDIRECT_URI in your .env file.'
+            ], 503);
+        }
+
         try {
             app(RefreshWithingsAction::class)->execute();
         } catch (\Exception|\Throwable|\Error $e) {
@@ -313,4 +321,5 @@ class WeightController extends Controller
 
         return $resp;
     }
+
 }
