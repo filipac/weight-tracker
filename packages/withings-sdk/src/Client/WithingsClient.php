@@ -159,7 +159,7 @@ class WithingsClient
      */
     public function isConfigured(): bool
     {
-        return !empty($this->clientId) && !empty($this->clientSecret);
+        return ! empty($this->clientId) && ! empty($this->clientSecret);
     }
 
     private function getAuthHeaders(): array

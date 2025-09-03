@@ -5,14 +5,14 @@ namespace App\Http\Controllers;
 use Filipac\Withings\Facades\Withings;
 use Illuminate\Http\Request;
 
-class WithingsOAuth2Controller extends Controller
+final class WithingsOAuth2Controller
 {
     /**
      * Redirect to Withings OAuth2 authorization page
      */
     public function redirect()
     {
-        if (!Withings::isConfigured()) {
+        if (! Withings::isConfigured()) {
             abort(503, 'Withings integration is not configured. Please set WITHINGS_CLIENT_ID, WITHINGS_CLIENT_SECRET, and WITHINGS_REDIRECT_URI in your .env file.');
         }
 
@@ -28,7 +28,7 @@ class WithingsOAuth2Controller extends Controller
      */
     public function callback(Request $request)
     {
-        if (!Withings::isConfigured()) {
+        if (! Withings::isConfigured()) {
             abort(503, 'Withings integration is not configured. Please set WITHINGS_CLIENT_ID, WITHINGS_CLIENT_SECRET, and WITHINGS_REDIRECT_URI in your .env file.');
         }
 
@@ -61,5 +61,4 @@ class WithingsOAuth2Controller extends Controller
             ], 500);
         }
     }
-
 }

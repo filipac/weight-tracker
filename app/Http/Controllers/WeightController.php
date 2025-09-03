@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Inertia\Inertia;
 
-class WeightController extends Controller
+final class WeightController
 {
     public function __construct(
         private NotesAppService $notesAppService,
@@ -278,9 +278,9 @@ class WeightController extends Controller
 
     public function getFromWithings()
     {
-        if (!Withings::isConfigured()) {
+        if (! Withings::isConfigured()) {
             return response()->json([
-                'error' => 'Withings integration is not configured. Please set WITHINGS_CLIENT_ID, WITHINGS_CLIENT_SECRET, and WITHINGS_REDIRECT_URI in your .env file.'
+                'error' => 'Withings integration is not configured. Please set WITHINGS_CLIENT_ID, WITHINGS_CLIENT_SECRET, and WITHINGS_REDIRECT_URI in your .env file.',
             ], 503);
         }
 
@@ -321,5 +321,4 @@ class WeightController extends Controller
 
         return $resp;
     }
-
 }
