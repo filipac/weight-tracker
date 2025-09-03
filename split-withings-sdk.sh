@@ -8,6 +8,16 @@ REPO_URL="https://github.com/filipac/withings-sdk"
 TEMP_DIR="../withings-sdk-split"
 CURRENT_DIR=$(pwd)
 
+# Check for GitHub Personal Access Token
+if [ -z "$GITHUB_TOKEN" ]; then
+    echo "❌ Error: GITHUB_TOKEN environment variable is not set"
+    echo "💡 Set your Personal Access Token: export GITHUB_TOKEN=your_token_here"
+    exit 1
+fi
+
+# Use token for authentication
+AUTHENTICATED_REPO_URL="https://${GITHUB_TOKEN}@github.com/filipac/withings-sdk.git"
+
 echo "🚀 Starting Withings SDK split and publish process..."
 
 # Check if we're in a git repository
@@ -49,11 +59,18 @@ git filter-repo --subdirectory-filter "$PACKAGE_DIR" --force
 # Add remote for the new repository
 echo "🔗 Adding remote repository..."
 git remote remove origin 2>/dev/null || true
-git remote add origin "$REPO_URL"
+git remote add origin "$AUTHENTICATED_REPO_URL"
 
-# Push all branches to the new repository
+# Get all local branches
 echo "📤 Pushing all branches to $REPO_URL..."
-git push --force --mirror origin
+for branch in $(git branch | sed 's/^..//' | grep -v '^('); do
+    echo "🌿 Pushing branch: $branch"
+    git push --force origin "$branch:$branch"
+done
+
+# Push all tags
+echo "🏷️ Pushing all tags..."
+git push --force --tags origin
 
 # Return to original directory
 cd "$CURRENT_DIR"
