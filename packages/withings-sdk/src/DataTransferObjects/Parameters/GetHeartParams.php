@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Filipac\Withings\DataTransferObjects\Parameters;
 
 use Filipac\Withings\Enums\HeartApiAction;

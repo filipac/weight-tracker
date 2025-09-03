@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Filipac\Withings\Client;
 
 use Filipac\Withings\Exceptions\WithingsException;
@@ -160,6 +162,24 @@ class WithingsClient
     public function isConfigured(): bool
     {
         return ! empty($this->clientId) && ! empty($this->clientSecret);
+    }
+
+    /**
+     * Set the HTTP client (primarily for testing purposes)
+     */
+    public function setHttpClient(Client $httpClient): self
+    {
+        $this->httpClient = $httpClient;
+
+        return $this;
+    }
+
+    /**
+     * Get the HTTP client
+     */
+    public function getHttpClient(): Client
+    {
+        return $this->httpClient;
     }
 
     private function getAuthHeaders(): array
