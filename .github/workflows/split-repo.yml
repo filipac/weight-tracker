@@ -37,8 +37,8 @@ jobs:
         
       - name: Run split script
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SPLIT_REPO_TOKEN }}
         run: |
-          # Modify the script to use GitHub token for authentication
-          sed -i 's|https://github.com/filipac/withings-sdk|https://${{ secrets.GITHUB_TOKEN }}@github.com/filipac/withings-sdk|' split-withings-sdk.sh
+          # Modify the script to use Personal Access Token for authentication
+          sed -i 's|https://github.com/filipac/withings-sdk|https://${{ secrets.SPLIT_REPO_TOKEN }}@github.com/filipac/withings-sdk|' split-withings-sdk.sh
           ./split-withings-sdk.sh
