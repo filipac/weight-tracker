@@ -1,3 +1,5 @@
+![Weight Tracker Banner](public/banner.png)
+
 # Weight Tracker
 
 A personal weight tracking application built with Laravel, Inertia.js, and React. This app helps you log and visualize your weight data while automatically syncing with macOS Notes.app for seamless tracking across devices.
@@ -11,6 +13,12 @@ A personal weight tracking application built with Laravel, Inertia.js, and React
 - **Withings Integration**: Sync weight data from Withings smart scales and health devices
 - **Modern UI**: Clean, responsive interface built with Tailwind CSS and shadcn/ui components
 - **Data Visualization**: Monthly weight summaries with loss calculations and trend analysis
+
+## Screenshots
+
+![Weight Tracker Interface](public/ss1.png)
+
+![Weight History View](public/ss2.png)
 
 ## Tech Stack
 
