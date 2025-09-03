@@ -29,28 +29,22 @@ if [ -d "$TEMP_DIR" ]; then
     rm -rf "$TEMP_DIR"
 fi
 
-# Clone the current repository to temporary location with all branches and tags
-echo "📋 Cloning repository to temporary location (with all branches and tags)..."
-git clone --mirror . "$TEMP_DIR/.git"
+# Clone the current repository to temporary location
+echo "📋 Cloning repository to temporary location..."
+git clone . "$TEMP_DIR"
 cd "$TEMP_DIR"
-git config --bool core.bare false
-git reset --hard
 
-# Use git filter-branch to extract only the package subdirectory from all branches and tags
+# Check if git-filter-repo is available
+if ! command -v git-filter-repo &> /dev/null; then
+    echo "❌ Error: git-filter-repo is not installed"
+    echo "💡 Install with: pip install git-filter-repo"
+    echo "💡 Or on macOS: brew install git-filter-repo"
+    exit 1
+fi
+
+# Use git-filter-repo to extract only the package subdirectory
 echo "🔧 Filtering repository to extract $PACKAGE_DIR from all branches and tags..."
-git filter-branch --force --prune-empty --subdirectory-filter "$PACKAGE_DIR" -- --all
-
-# Clean up filter-branch backup refs
-echo "🧹 Cleaning up filter-branch references..."
-git for-each-ref --format="%(refname)" refs/original/ | xargs -n 1 git update-ref -d
-
-# Remove any empty branches that may have been created
-echo "🧹 Removing empty branches..."
-for branch in $(git for-each-ref --format='%(refname:short)' refs/heads/); do
-    if [ $(git rev-list --count $branch) -eq 0 ]; then
-        git branch -D $branch
-    fi
-done
+git filter-repo --subdirectory-filter "$PACKAGE_DIR" --force
 
 # Add remote for the new repository
 echo "🔗 Adding remote repository..."
