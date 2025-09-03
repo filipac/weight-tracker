@@ -40,7 +40,7 @@ A personal weight tracking application built with Laravel, Inertia.js, and React
 - npm
 - macOS (for Notes.app integration)
 
-### Setup
+### Quick Start
 
 1. **Clone the repository**
    ```bash
@@ -48,29 +48,47 @@ A personal weight tracking application built with Laravel, Inertia.js, and React
    cd weight-tracker
    ```
 
-2. **Install PHP dependencies**
+2. **Run the setup script**
+   ```bash
+   ./quick-start.sh
+   ```
+
+The script will automatically:
+- Check prerequisites
+- Install PHP and Node.js dependencies  
+- Create and configure the `.env` file
+- Set up the SQLite database
+- Run migrations
+- Build frontend assets
+- Cache configuration
+
+### Manual Setup
+
+If you prefer to set up manually or the quick-start script fails:
+
+1. **Install PHP dependencies**
    ```bash
    composer install
    ```
 
-3. **Install Node.js dependencies**
+2. **Install Node.js dependencies**
    ```bash
    npm install
    ```
 
-4. **Environment setup**
+3. **Environment setup**
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
 
-5. **Database setup**
+4. **Database setup**
    ```bash
    touch database/database.sqlite
    php artisan migrate
    ```
 
-6. **Build frontend assets**
+5. **Build frontend assets**
    ```bash
    npm run build
    ```
