@@ -13,7 +13,7 @@ readonly class ActivityData
         public bool $more = false,
         array $data = []
     ) {
-        if (!empty($data)) {
+        if (! empty($data)) {
             $this->status = $data['status'] ?? 0;
             $this->activities = $data['body']['activities'] ?? [];
             $this->offset = $data['body']['offset'] ?? null;
@@ -35,7 +35,7 @@ readonly class ActivityData
     public function getActivitiesForDate(string $date): Collection
     {
         return $this->getActivities()
-            ->filter(fn($activity) => isset($activity['date']) && $activity['date'] === $date);
+            ->filter(fn ($activity) => isset($activity['date']) && $activity['date'] === $date);
     }
 
     /**
@@ -76,8 +76,8 @@ readonly class ActivityData
     public function getAverageDailySteps(): float
     {
         $dailySteps = $this->getActivitiesGroupedByDate()
-            ->map(fn($activities) => $activities->sum('steps'));
-        
+            ->map(fn ($activities) => $activities->sum('steps'));
+
         return $dailySteps->avg() ?? 0.0;
     }
 }

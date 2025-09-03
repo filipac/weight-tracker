@@ -23,8 +23,7 @@ class WeightController extends Controller
         private NotesAppService $notesAppService,
         private WeightPredictionService $predictionService,
         private AchievementService $achievementService
-    ) {
-    }
+    ) {}
 
     public function index(GenerateWeightListAction $action)
     {

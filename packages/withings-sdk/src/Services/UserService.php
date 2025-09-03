@@ -41,7 +41,7 @@ class UserService extends BaseService
     {
         return $this->client->post('/v2/user', [
             'action' => 'get',
-            'fields' => 'timezone'
+            'fields' => 'timezone',
         ]);
     }
 
@@ -51,7 +51,7 @@ class UserService extends BaseService
     public function getPreferences(): array
     {
         return $this->client->post('/v2/user', [
-            'action' => 'getprefs'
+            'action' => 'getprefs',
         ]);
     }
 }

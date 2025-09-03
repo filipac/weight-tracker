@@ -23,13 +23,13 @@ readonly class GetMeasuresParams
         return array_filter([
             'action' => ApiAction::GET_MEASURES->value,
             'meastype' => $this->meastype?->value,
-            'meastypes' => $this->meastypes ? implode(',', array_map(fn($type) => $type->value, $this->meastypes)) : null,
+            'meastypes' => $this->meastypes ? implode(',', array_map(fn ($type) => $type->value, $this->meastypes)) : null,
             'startdate' => $this->startdate,
             'enddate' => $this->enddate,
             'lastupdate' => $this->lastupdate,
             'offset' => $this->offset,
             'category' => $this->category,
-        ], fn($value) => $value !== null);
+        ], fn ($value) => $value !== null);
     }
 
     /**

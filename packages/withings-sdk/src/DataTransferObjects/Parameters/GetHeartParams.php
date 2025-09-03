@@ -18,7 +18,7 @@ readonly class GetHeartParams
     public function toArray(): array
     {
         $action = $this->action ?? ($this->signalid ? HeartApiAction::GET : HeartApiAction::LIST);
-        
+
         return array_filter([
             'action' => $action->value,
             'startdate' => $this->startdate,
@@ -26,7 +26,7 @@ readonly class GetHeartParams
             'offset' => $this->offset,
             'lastupdate' => $this->lastupdate,
             'signalid' => $this->signalid,
-        ], fn($value) => $value !== null);
+        ], fn ($value) => $value !== null);
     }
 
     /**

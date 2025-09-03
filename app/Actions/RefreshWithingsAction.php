@@ -2,30 +2,16 @@
 
 namespace App\Actions;
 
-use Illuminate\Support\Facades\Http;
+use Filipac\Withings\Facades\Withings;
 
 class RefreshWithingsAction
 {
     public function execute()
     {
-        $withings = cache()->get('withings');
-        $accessToken = $withings['access_token'];
-        $refreshToken = $withings['refresh_token'];
-        $expiresIn = $withings['expires_in'];
+        $resp = Withings::oauth2()->refreshToken();
 
-        $url = 'https://wbsapi.withings.net/v2/oauth2';
-        $response = Http::post($url, [
-            'action' => 'requesttoken',
-            'grant_type' => 'refresh_token',
-            'client_id' => config('services.withings.client_id'),
-            'client_secret' => config('services.withings.client_secret'),
-            'refresh_token' => $refreshToken,
-        ]);
-
-        $resp = $response->json();
-
-        if (empty($resp['body']['access_token'])) {
-            dd($resp);
+        if ($resp['status'] !== 0) {
+            throw new \Exception('Withings OAuth2 authentication failed - status mismatch');
         }
 
         cache()->forever('withings', [

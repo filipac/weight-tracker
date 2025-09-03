@@ -10,7 +10,7 @@ class DropshipmentService extends BaseService
     public function createOrder(array $orderData): array
     {
         return $this->client->post('/v2/dropshipment', array_merge([
-            'action' => 'createorder'
+            'action' => 'createorder',
         ], $orderData));
     }
 
@@ -21,7 +21,7 @@ class DropshipmentService extends BaseService
     {
         return $this->client->post('/v2/dropshipment', array_merge([
             'action' => 'updateorder',
-            'order_id' => $orderId
+            'order_id' => $orderId,
         ], $updateData));
     }
 
@@ -32,7 +32,7 @@ class DropshipmentService extends BaseService
     {
         return $this->client->post('/v2/dropshipment', [
             'action' => 'getorder',
-            'order_id' => $orderId
+            'order_id' => $orderId,
         ]);
     }
 
@@ -42,7 +42,7 @@ class DropshipmentService extends BaseService
     public function listOrders(array $filters = []): array
     {
         return $this->client->post('/v2/dropshipment', array_merge([
-            'action' => 'listorders'
+            'action' => 'listorders',
         ], $filters));
     }
 
@@ -53,7 +53,7 @@ class DropshipmentService extends BaseService
     {
         return $this->client->post('/v2/dropshipment', [
             'action' => 'cancelorder',
-            'order_id' => $orderId
+            'order_id' => $orderId,
         ]);
     }
 
@@ -63,7 +63,7 @@ class DropshipmentService extends BaseService
     public function getProducts(): array
     {
         return $this->client->post('/v2/dropshipment', [
-            'action' => 'getproducts'
+            'action' => 'getproducts',
         ]);
     }
 
@@ -73,7 +73,7 @@ class DropshipmentService extends BaseService
     public function getShippingMethods(array $shippingData): array
     {
         return $this->client->post('/v2/dropshipment', array_merge([
-            'action' => 'getshippingmethods'
+            'action' => 'getshippingmethods',
         ], $shippingData));
     }
 }

@@ -12,6 +12,7 @@ class StethoService extends BaseService
     public function getEcgData(int $signalid): array
     {
         $params = new GetStethoParams(signalid: $signalid);
+
         return $this->client->post('/v2/stetho', $params->toArray());
     }
 
@@ -24,6 +25,7 @@ class StethoService extends BaseService
             signalid: $signalid,
             source: 'heart'
         );
+
         return $this->client->post('/v2/stetho', $params->toArray());
     }
 
@@ -36,6 +38,7 @@ class StethoService extends BaseService
             startdate: $startdate,
             enddate: $enddate
         );
+
         return $this->client->post('/v2/stetho', $params->toArray());
     }
 
@@ -48,6 +51,7 @@ class StethoService extends BaseService
             signalid: $signalid,
             includeRaw: $includeRawData
         );
+
         return $this->client->post('/v2/stetho', $params->toArray());
     }
 }

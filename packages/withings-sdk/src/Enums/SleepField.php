@@ -27,7 +27,7 @@ enum SleepField: string
      */
     public function getName(): string
     {
-        return match($this) {
+        return match ($this) {
             self::BREATHING_DISTURBANCES_INTENSITY => 'Breathing disturbances intensity',
             self::DEEP_SLEEP_DURATION => 'Deep sleep duration',
             self::DURATION_TO_SLEEP => 'Duration to fall asleep',
@@ -53,9 +53,9 @@ enum SleepField: string
      */
     public function getUnit(): string
     {
-        return match($this) {
+        return match ($this) {
             self::BREATHING_DISTURBANCES_INTENSITY => 'intensity',
-            self::DEEP_SLEEP_DURATION, self::DURATION_TO_SLEEP, 
+            self::DEEP_SLEEP_DURATION, self::DURATION_TO_SLEEP,
             self::DURATION_TO_WAKEUP, self::LIGHT_SLEEP_DURATION,
             self::REM_SLEEP_DURATION, self::WAKE_UP_DURATION => 'seconds',
             self::HR_AVERAGE, self::HR_MAX, self::HR_MIN => 'bpm',

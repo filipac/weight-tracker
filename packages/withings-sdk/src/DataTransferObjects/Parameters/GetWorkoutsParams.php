@@ -23,6 +23,6 @@ readonly class GetWorkoutsParams
             'offset' => $this->offset,
             'lastupdate' => $this->lastupdate,
             'data_fields' => $this->data_fields ? implode(',', $this->data_fields) : null,
-        ], fn($value) => $value !== null);
+        ], fn ($value) => $value !== null);
     }
 }

@@ -18,7 +18,7 @@ enum IntradayActivityField: string
      */
     public function getName(): string
     {
-        return match($this) {
+        return match ($this) {
             self::STEPS => 'Steps',
             self::ELEVATION => 'Elevation',
             self::CALORIES => 'Calories',
@@ -35,7 +35,7 @@ enum IntradayActivityField: string
      */
     public function getUnit(): string
     {
-        return match($this) {
+        return match ($this) {
             self::STEPS => 'steps',
             self::ELEVATION => 'm',
             self::CALORIES => 'kcal',

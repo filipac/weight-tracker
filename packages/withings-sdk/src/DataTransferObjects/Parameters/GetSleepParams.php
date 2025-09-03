@@ -27,8 +27,8 @@ readonly class GetSleepParams
             'startdateymd' => $this->startdateymd,
             'enddateymd' => $this->enddateymd,
             'lastupdate' => $this->lastupdate,
-            'data_fields' => $this->data_fields ? implode(',', array_map(fn($field) => $field->value, $this->data_fields)) : null,
-        ], fn($value) => $value !== null);
+            'data_fields' => $this->data_fields ? implode(',', array_map(fn ($field) => $field->value, $this->data_fields)) : null,
+        ], fn ($value) => $value !== null);
     }
 
     /**

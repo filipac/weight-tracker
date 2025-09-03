@@ -11,7 +11,8 @@ class HeartService extends BaseService
      */
     public function getHeartRate(?GetHeartParams $params = null): array
     {
-        $params = $params ?? new GetHeartParams();
+        $params = $params ?? new GetHeartParams;
+
         return $this->client->post('/v2/heart', $params->toArray());
     }
 
@@ -34,6 +35,7 @@ class HeartService extends BaseService
     public function getEcg(int $signalid): array
     {
         $params = new GetHeartParams(signalid: $signalid);
+
         return $this->client->post('/v2/heart', $params->toArray());
     }
 

@@ -16,7 +16,7 @@ enum NotificationApplication: int
      */
     public function getName(): string
     {
-        return match($this) {
+        return match ($this) {
             self::WEIGHT => 'Weight measurements',
             self::ACTIVITY => 'Activity data',
             self::SLEEP => 'Sleep data',
@@ -31,7 +31,7 @@ enum NotificationApplication: int
      */
     public function getDescription(): string
     {
-        return match($this) {
+        return match ($this) {
             self::WEIGHT => 'Notifications for weight and body composition measurements',
             self::ACTIVITY => 'Notifications for activity and workout data',
             self::SLEEP => 'Notifications for sleep tracking data',

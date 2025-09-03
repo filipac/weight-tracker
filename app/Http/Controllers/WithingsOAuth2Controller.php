@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Filipac\Withings\Facades\Withings;
 use Illuminate\Http\Request;
-use Laravel\Socialite\Facades\Socialite;
 
 class WithingsOAuth2Controller extends Controller
 {
@@ -12,7 +12,11 @@ class WithingsOAuth2Controller extends Controller
      */
     public function redirect()
     {
-        return Socialite::driver('withings')->redirect();
+        return redirect(Withings::oauth2()->getAuthorizationUrl(
+            redirectUri: config('services.withings.redirect'),
+            scopes: ['user.info', 'user.metrics'],
+            state: Withings::oauth2()->generateState()
+        ));
     }
 
     /**
@@ -21,21 +25,25 @@ class WithingsOAuth2Controller extends Controller
     public function callback(Request $request)
     {
         try {
-            $user = Socialite::driver('withings')->user();
+            $state = $request->session()->pull('state');
+
+            if ($state !== $request->state) {
+                throw new \Exception('Withings OAuth2 authentication failed - state mismatch');
+            }
+
+            $resp = Withings::oauth2()->getAccessToken($request->code, config('services.withings.redirect'));
+
+            if ($resp['status'] !== 0) {
+                throw new \Exception('Withings OAuth2 authentication failed - status mismatch');
+            }
 
             cache()->forever('withings', [
-                'access_token' => $user->token,
-                'refresh_token' => $user->refreshToken,
-                'expires_in' => $user->expiresIn,
+                'access_token' => $resp['body']['access_token'],
+                'refresh_token' => $resp['body']['refresh_token'],
+                'expires_in' => $resp['body']['expires_in'],
             ]);
 
-            // For now, just dump the raw response to see the actual structure
-            dd([
-                'access_token' => $user->token,
-                'refresh_token' => $user->refreshToken,
-                'expires_in' => $user->expiresIn,
-                'raw_response' => $user->getRaw(),
-            ]);
+            return redirect()->route('weight.index');
 
         } catch (\Exception $e) {
             return response()->json([

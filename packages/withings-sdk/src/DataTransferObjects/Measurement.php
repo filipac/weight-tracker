@@ -2,12 +2,13 @@
 
 namespace Filipac\Withings\DataTransferObjects;
 
-use Filipac\Withings\Enums\MeasurementType;
 use Filipac\Withings\Enums\MeasurementCategory;
+use Filipac\Withings\Enums\MeasurementType;
 
 readonly class Measurement
 {
     public readonly MeasurementType $type;
+
     public readonly ?MeasurementCategory $category;
 
     public function __construct(
@@ -68,7 +69,7 @@ readonly class Measurement
      */
     public function getDateTime(): \DateTime
     {
-        return new \DateTime('@' . $this->date);
+        return new \DateTime('@'.$this->date);
     }
 
     /**

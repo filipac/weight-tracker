@@ -49,7 +49,7 @@ class OAuth2Service extends BaseService
      */
     public function getAuthorizationUrl(
         string $redirectUri,
-        string $state = null,
+        ?string $state = null,
         array $scopes = ['user.info', 'user.metrics']
     ): string {
         $params = [
@@ -63,6 +63,24 @@ class OAuth2Service extends BaseService
             $params['state'] = $state;
         }
 
-        return 'https://account.withings.com/oauth2_user/authorize2?' . http_build_query($params);
+        return 'https://account.withings.com/oauth2_user/authorize2?'.http_build_query($params);
+    }
+
+    public function generateState(): string
+    {
+        $request = request();
+        $request->session()->put('state', $state = $this->getState());
+
+        return $state;
+    }
+
+    /**
+     * Get the string used for session state.
+     *
+     * @return string
+     */
+    protected function getState()
+    {
+        return \Illuminate\Support\Str::random(40);
     }
 }

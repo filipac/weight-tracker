@@ -18,7 +18,7 @@ readonly class GetStethoParams
     public function toArray(): array
     {
         $action = $this->action ?? ($this->signalid ? StethoApiAction::GET : StethoApiAction::LIST);
-        
+
         return array_filter([
             'action' => $action->value,
             'signalid' => $this->signalid,
@@ -26,7 +26,7 @@ readonly class GetStethoParams
             'enddate' => $this->enddate,
             'source' => $this->source,
             'include_raw' => $this->includeRaw ? 1 : null,
-        ], fn($value) => $value !== null);
+        ], fn ($value) => $value !== null);
     }
 
     /**

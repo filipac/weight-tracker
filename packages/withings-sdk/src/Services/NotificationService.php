@@ -13,6 +13,7 @@ class NotificationService extends BaseService
     public function subscribe(string $callbackurl, NotificationApplication $appli = NotificationApplication::WEIGHT, ?string $comment = null): array
     {
         $params = NotificationParams::subscribe($callbackurl, $appli, $comment);
+
         return $this->client->post('/notify', $params->toArray());
     }
 
@@ -22,6 +23,7 @@ class NotificationService extends BaseService
     public function revoke(string $callbackurl, NotificationApplication $appli = NotificationApplication::WEIGHT): array
     {
         $params = NotificationParams::revoke($callbackurl, $appli);
+
         return $this->client->post('/notify', $params->toArray());
     }
 
@@ -31,6 +33,7 @@ class NotificationService extends BaseService
     public function get(?NotificationApplication $appli = null): array
     {
         $params = NotificationParams::get($appli);
+
         return $this->client->post('/notify', $params->toArray());
     }
 
@@ -40,6 +43,7 @@ class NotificationService extends BaseService
     public function list(): array
     {
         $params = NotificationParams::list();
+
         return $this->client->post('/notify', $params->toArray());
     }
 }

@@ -20,8 +20,8 @@ readonly class GetIntradayActivityParams
             'action' => ApiAction::GET_INTRADAY_ACTIVITY->value,
             'startdate' => $this->startdate,
             'enddate' => $this->enddate,
-            'data_fields' => $this->data_fields ? implode(',', array_map(fn($field) => $field->value, $this->data_fields)) : null,
-        ], fn($value) => $value !== null);
+            'data_fields' => $this->data_fields ? implode(',', array_map(fn ($field) => $field->value, $this->data_fields)) : null,
+        ], fn ($value) => $value !== null);
     }
 
     /**

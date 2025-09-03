@@ -21,15 +21,15 @@ readonly class NotificationParams
             'callbackurl' => $this->callbackurl,
             'comment' => $this->comment,
             'appli' => $this->appli?->value,
-        ], fn($value) => $value !== null);
+        ], fn ($value) => $value !== null);
     }
 
     /**
      * Create params to subscribe to notifications
      */
     public static function subscribe(
-        string $callbackurl, 
-        NotificationApplication $appli, 
+        string $callbackurl,
+        NotificationApplication $appli,
         ?string $comment = null
     ): self {
         return new self(

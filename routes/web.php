@@ -4,7 +4,7 @@ use App\Http\Controllers\WeightController;
 use App\Http\Controllers\WithingsOAuth2Controller;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [WeightController::class, 'index']);
+Route::get('/', [WeightController::class, 'index'])->name('weight.index');
 Route::post('/weight', [WeightController::class, 'store'])->name('weight.store');
 Route::delete('/weight/{id}', [WeightController::class, 'destroy'])->name('weight.destroy');
 Route::post('/weight/sync', [WeightController::class, 'sync'])->name('weight.sync');

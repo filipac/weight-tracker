@@ -3,14 +3,14 @@
 namespace Filipac\Withings\Client;
 
 use Filipac\Withings\Exceptions\WithingsException;
-use Filipac\Withings\Services\MeasureService;
+use Filipac\Withings\Services\DropshipmentService;
 use Filipac\Withings\Services\HeartService;
+use Filipac\Withings\Services\MeasureService;
+use Filipac\Withings\Services\NotificationService;
+use Filipac\Withings\Services\OAuth2Service;
 use Filipac\Withings\Services\SleepService;
 use Filipac\Withings\Services\StethoService;
 use Filipac\Withings\Services\UserService;
-use Filipac\Withings\Services\OAuth2Service;
-use Filipac\Withings\Services\NotificationService;
-use Filipac\Withings\Services\DropshipmentService;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;
@@ -18,17 +18,22 @@ use Psr\Http\Message\ResponseInterface;
 class WithingsClient
 {
     private Client $httpClient;
+
     private string $accessToken;
+
     private string $refreshToken;
+
     private string $clientId;
+
     private string $clientSecret;
+
     private string $baseUrl;
 
     public function __construct(
-        string $accessToken = null,
-        string $refreshToken = null,
-        string $clientId = null,
-        string $clientSecret = null,
+        ?string $accessToken = null,
+        ?string $refreshToken = null,
+        ?string $clientId = null,
+        ?string $clientSecret = null,
         string $baseUrl = 'https://wbsapi.withings.net'
     ) {
         $this->accessToken = $accessToken ?? '';
@@ -97,7 +102,7 @@ class WithingsClient
 
             return $this->handleResponse($response);
         } catch (GuzzleException $e) {
-            throw new WithingsException('Request failed: ' . $e->getMessage(), $e->getCode(), $e);
+            throw new WithingsException('Request failed: '.$e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -111,19 +116,21 @@ class WithingsClient
 
             return $this->handleResponse($response);
         } catch (GuzzleException $e) {
-            throw new WithingsException('Request failed: ' . $e->getMessage(), $e->getCode(), $e);
+            throw new WithingsException('Request failed: '.$e->getMessage(), $e->getCode(), $e);
         }
     }
 
     public function setAccessToken(string $accessToken): self
     {
         $this->accessToken = $accessToken;
+
         return $this;
     }
 
     public function setRefreshToken(string $refreshToken): self
     {
         $this->refreshToken = $refreshToken;
+
         return $this;
     }
 
@@ -154,7 +161,7 @@ class WithingsClient
         }
 
         return [
-            'Authorization' => 'Bearer ' . $this->accessToken,
+            'Authorization' => 'Bearer '.$this->accessToken,
         ];
     }
 
@@ -163,7 +170,7 @@ class WithingsClient
         $data = json_decode($response->getBody()->getContents(), true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new WithingsException('Invalid JSON response: ' . json_last_error_msg());
+            throw new WithingsException('Invalid JSON response: '.json_last_error_msg());
         }
 
         // Withings API returns status in the response body

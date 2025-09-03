@@ -15,7 +15,7 @@ class MeasurementData
         public string|int|null $timezone = null,
         array $data = []
     ) {
-        if (!empty($data)) {
+        if (! empty($data)) {
             $this->status = $data['status'] ?? 0;
             $this->measuregrps = $data['body']['measuregrps'] ?? [];
             $this->offset = $data['body']['offset'] ?? null;
@@ -30,7 +30,7 @@ class MeasurementData
     public function getMeasurements(): Collection
     {
         $measurements = [];
-        
+
         foreach ($this->measuregrps as $group) {
             foreach ($group['measures'] as $measure) {
                 $measurements[] = new Measurement(
@@ -53,7 +53,7 @@ class MeasurementData
     public function getMeasurementsByType(MeasurementType $type): Collection
     {
         return $this->getMeasurements()
-            ->filter(fn(Measurement $measurement) => $measurement->type === $type);
+            ->filter(fn (Measurement $measurement) => $measurement->type === $type);
     }
 
     /**

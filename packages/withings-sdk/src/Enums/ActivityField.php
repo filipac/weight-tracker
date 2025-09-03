@@ -26,7 +26,7 @@ enum ActivityField: string
      */
     public function getName(): string
     {
-        return match($this) {
+        return match ($this) {
             self::STEPS => 'Steps',
             self::DISTANCE => 'Distance',
             self::ELEVATION => 'Elevation',
@@ -51,7 +51,7 @@ enum ActivityField: string
      */
     public function getUnit(): string
     {
-        return match($this) {
+        return match ($this) {
             self::STEPS => 'steps',
             self::DISTANCE => 'm',
             self::ELEVATION => 'm',

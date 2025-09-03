@@ -2,8 +2,8 @@
 
 namespace Filipac\Withings\DataTransferObjects\Parameters;
 
-use Filipac\Withings\Enums\ApiAction;
 use Filipac\Withings\Enums\ActivityField;
+use Filipac\Withings\Enums\ApiAction;
 
 readonly class GetActivityParams
 {
@@ -24,8 +24,8 @@ readonly class GetActivityParams
             'enddateymd' => $this->enddateymd,
             'offset' => $this->offset,
             'lastupdate' => $this->lastupdate,
-            'data_fields' => $this->data_fields ? implode(',', array_map(fn($field) => $field->value, $this->data_fields)) : null,
-        ], fn($value) => $value !== null);
+            'data_fields' => $this->data_fields ? implode(',', array_map(fn ($field) => $field->value, $this->data_fields)) : null,
+        ], fn ($value) => $value !== null);
     }
 
     /**

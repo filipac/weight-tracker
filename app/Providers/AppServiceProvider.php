@@ -2,9 +2,7 @@
 
 namespace App\Providers;
 
-use App\Socialite\WithingsOAuth2Provider;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Socialite\Facades\Socialite;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,17 +19,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Register the Withings OAuth2 provider
-        Socialite::extend('withings', function ($app) {
-            $config = $app['config']['services.withings'];
-
-            return new WithingsOAuth2Provider(
-                $app['request'],
-                $config['client_id'],
-                $config['client_secret'],
-                $config['redirect']
-            );
-        });
 
         $creds = cache()->get('withings');
         // dd($creds);

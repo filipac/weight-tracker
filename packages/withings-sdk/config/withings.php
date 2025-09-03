@@ -32,6 +32,6 @@ return [
     'scopes' => [
         'user.info',
         'user.metrics',
-        'user.activity'
+        'user.activity',
     ],
 ];

@@ -10,11 +10,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "filipac/withings-sdk": "dev-main",
+        "filipac/withings-sdk": "dev-master",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "socialiteproviders/withings": "^4.1",
         "spatie/laravel-ray": "^1.40"
     },
     "require-dev": {
@@ -72,9 +71,7 @@
     },
     "extra": {
         "laravel": {
-            "dont-discover": [
-                "laravel/socialite"
-            ]
+            "dont-discover": []
         }
     },
     "config": {
