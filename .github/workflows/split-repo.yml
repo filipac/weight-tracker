@@ -1,0 +1,44 @@
+name: Split Withings SDK Repository
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  create:
+    # Trigger on tag creation
+    
+jobs:
+  split:
+    runs-on: ubuntu-latest
+    if: github.ref_type == 'branch' || github.ref_type == 'tag'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for proper splitting
+          
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          
+      - name: Install git-filter-repo
+        run: pip install git-filter-repo
+        
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+      - name: Make split script executable
+        run: chmod +x split-withings-sdk.sh
+        
+      - name: Run split script
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Modify the script to use GitHub token for authentication
+          sed -i 's|https://github.com/filipac/withings-sdk|https://${{ secrets.GITHUB_TOKEN }}@github.com/filipac/withings-sdk|' split-withings-sdk.sh
+          ./split-withings-sdk.sh
