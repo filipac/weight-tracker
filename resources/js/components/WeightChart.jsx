@@ -8,7 +8,7 @@ export default function WeightChart({ data }) {
     const [zoomDomain, setZoomDomain] = useState(null)
     const [isZooming, setIsZooming] = useState(false)
     const chartRef = useRef(null)
-    
+
     // Filter and prepare raw data
     const rawData = data
         .filter(item => item.type !== 'summary' && item.weight && item.date)
@@ -28,44 +28,44 @@ export default function WeightChart({ data }) {
         if (period === 'daily') {
             return rawData.map(item => ({
                 ...item,
-                displayDate: item.dateObj.toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric' 
+                displayDate: item.dateObj.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
                 })
             }))
         }
-        
+
         const grouped = new Map()
-        
+
         rawData.forEach(item => {
             let key
             let displayDate
-            
+
             if (period === 'weekly') {
                 // Get start of week (Sunday)
                 const startOfWeek = new Date(item.dateObj)
                 startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay())
                 key = startOfWeek.toISOString().split('T')[0]
-                displayDate = startOfWeek.toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    day: 'numeric' 
+                displayDate = startOfWeek.toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
                 })
             } else if (period === 'monthly') {
                 // Get start of month
                 const startOfMonth = new Date(item.dateObj.getFullYear(), item.dateObj.getMonth(), 1)
                 key = startOfMonth.toISOString().split('T')[0]
-                displayDate = startOfMonth.toLocaleDateString('en-US', { 
-                    month: 'short', 
-                    year: 'numeric' 
+                displayDate = startOfMonth.toLocaleDateString('en-US', {
+                    month: 'short',
+                    year: 'numeric'
                 })
             }
-            
+
             if (!grouped.has(key)) {
                 grouped.set(key, { weights: [], date: key, displayDate })
             }
             grouped.get(key).weights.push(item.weight)
         })
-        
+
         // Calculate averages for each period
         return Array.from(grouped.values()).map(group => {
             const avgWeight = group.weights.reduce((sum, w) => sum + w, 0) / group.weights.length
@@ -82,7 +82,7 @@ export default function WeightChart({ data }) {
 
     if (chartData.length === 0) {
         return (
-            <div className="flex items-center justify-center h-64 text-gray-500">
+            <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
                 No weight data available for chart
             </div>
         )
@@ -94,22 +94,22 @@ export default function WeightChart({ data }) {
     // Zoom and pan functions
     const handleZoomIn = () => {
         if (chartData.length < 2) return
-        
+
         const dataLength = chartData.length
         const currentStart = zoomDomain?.startIndex ?? 0
         const currentEnd = zoomDomain?.endIndex ?? dataLength - 1
         const currentRange = currentEnd - currentStart + 1
-        
+
         // Prevent zooming too much - minimum of 5 data points
         const minRange = Math.max(5, Math.ceil(dataLength * 0.1))
         if (currentRange <= minRange) return
-        
+
         const zoomFactor = 0.7 // Zoom to 70% of current range
         const newRange = Math.max(minRange, Math.floor(currentRange * zoomFactor))
         const centerPoint = Math.floor((currentStart + currentEnd) / 2)
         const newStart = Math.max(0, centerPoint - Math.floor(newRange / 2))
         const newEnd = Math.min(dataLength - 1, newStart + newRange - 1)
-        
+
         // Ensure we have a valid range
         if (newStart <= newEnd && newEnd < dataLength) {
             setZoomDomain({ startIndex: newStart, endIndex: newEnd })
@@ -119,18 +119,18 @@ export default function WeightChart({ data }) {
 
     const handleZoomOut = () => {
         if (!zoomDomain) return
-        
+
         const dataLength = chartData.length
         const currentStart = zoomDomain.startIndex
         const currentEnd = zoomDomain.endIndex
         const currentRange = currentEnd - currentStart + 1
-        
+
         const zoomFactor = 1.5 // Zoom out to 150% of current range
         const newRange = Math.floor(currentRange * zoomFactor)
         const centerPoint = Math.floor((currentStart + currentEnd) / 2)
         const newStart = Math.max(0, centerPoint - Math.floor(newRange / 2))
         const newEnd = Math.min(dataLength - 1, newStart + newRange - 1)
-        
+
         if (newStart === 0 && newEnd === dataLength - 1) {
             setZoomDomain(null)
             setIsZooming(false)
@@ -146,17 +146,17 @@ export default function WeightChart({ data }) {
 
     const handlePanLeft = () => {
         if (!zoomDomain) return
-        
+
         const dataLength = chartData.length
         const currentStart = zoomDomain.startIndex
         const currentEnd = zoomDomain.endIndex
         const range = currentEnd - currentStart + 1
-        
+
         // Pan by 25% of current range
         const panAmount = Math.max(1, Math.floor(range * 0.25))
         const newStart = Math.max(0, currentStart - panAmount)
         const newEnd = newStart + range - 1
-        
+
         if (newStart >= 0 && newEnd < dataLength) {
             setZoomDomain({ startIndex: newStart, endIndex: newEnd })
         }
@@ -164,18 +164,18 @@ export default function WeightChart({ data }) {
 
     const handlePanRight = () => {
         if (!zoomDomain) return
-        
+
         const dataLength = chartData.length
         const currentStart = zoomDomain.startIndex
         const currentEnd = zoomDomain.endIndex
         const range = currentEnd - currentStart + 1
-        
+
         // Pan by 25% of current range
         const panAmount = Math.max(1, Math.floor(range * 0.25))
         const newStart = currentStart + panAmount
         const newEnd = Math.min(dataLength - 1, newStart + range - 1)
         const actualNewStart = Math.max(0, newEnd - range + 1)
-        
+
         if (actualNewStart <= newEnd && newEnd < dataLength) {
             setZoomDomain({ startIndex: actualNewStart, endIndex: newEnd })
         }
@@ -186,7 +186,7 @@ export default function WeightChart({ data }) {
             // Zoom with Ctrl/Cmd held
             event.preventDefault()
             const delta = event.deltaY > 0 ? 1 : -1 // Scroll down = zoom out, up = zoom in
-            
+
             if (delta > 0) {
                 handleZoomOut()
             } else {
@@ -196,7 +196,7 @@ export default function WeightChart({ data }) {
             // Pan left/right when zoomed (without Ctrl/Cmd)
             event.preventDefault()
             const delta = event.deltaY > 0 ? 1 : -1 // Scroll down = pan right, up = pan left
-            
+
             if (delta > 0) {
                 handlePanRight()
             } else {
@@ -207,7 +207,7 @@ export default function WeightChart({ data }) {
 
     const handleKeyNavigation = (event) => {
         if (!zoomDomain) return
-        
+
         switch (event.key) {
             case 'ArrowLeft':
                 event.preventDefault()
@@ -229,7 +229,7 @@ export default function WeightChart({ data }) {
     if (zoomDomain && zoomDomain.startIndex >= 0 && zoomDomain.endIndex < chartData.length && zoomDomain.startIndex <= zoomDomain.endIndex) {
         displayData = chartData.slice(zoomDomain.startIndex, zoomDomain.endIndex + 1)
     }
-    
+
     // Safety check to ensure we always have data to display
     if (displayData.length === 0 && chartData.length > 0) {
         // Reset zoom if display data is empty
@@ -243,42 +243,42 @@ export default function WeightChart({ data }) {
     return (
         <div className="w-full">
             <div className="flex justify-between items-center mb-4">
-                <div className="flex justify-center space-x-1 bg-gray-100 rounded-lg p-1 w-fit mx-auto">
-                <Button
-                    variant={aggregation === 'daily' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => {
-                        setAggregation('daily')
-                        handleResetZoom()
-                    }}
-                    className={aggregation === 'daily' ? 'bg-white shadow-sm' : 'text-gray-600 hover:text-gray-900'}
-                >
-                    Daily
-                </Button>
-                <Button
-                    variant={aggregation === 'weekly' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => {
-                        setAggregation('weekly')
-                        handleResetZoom()
-                    }}
-                    className={aggregation === 'weekly' ? 'bg-white shadow-sm' : 'text-gray-600 hover:text-gray-900'}
-                >
-                    Weekly
-                </Button>
-                <Button
-                    variant={aggregation === 'monthly' ? 'default' : 'ghost'}
-                    size="sm"
-                    onClick={() => {
-                        setAggregation('monthly')
-                        handleResetZoom()
-                    }}
-                    className={aggregation === 'monthly' ? 'bg-white shadow-sm' : 'text-gray-600 hover:text-gray-900'}
-                >
-                    Monthly
-                </Button>
+                <div className="flex justify-center space-x-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 w-fit mx-auto">
+                    <Button
+                        variant={aggregation === 'daily' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => {
+                            setAggregation('daily')
+                            handleResetZoom()
+                        }}
+                        className={aggregation === 'daily' ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}
+                    >
+                        Daily
+                    </Button>
+                    <Button
+                        variant={aggregation === 'weekly' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => {
+                            setAggregation('weekly')
+                            handleResetZoom()
+                        }}
+                        className={aggregation === 'weekly' ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}
+                    >
+                        Weekly
+                    </Button>
+                    <Button
+                        variant={aggregation === 'monthly' ? 'default' : 'ghost'}
+                        size="sm"
+                        onClick={() => {
+                            setAggregation('monthly')
+                            handleResetZoom()
+                        }}
+                        className={aggregation === 'monthly' ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}
+                    >
+                        Monthly
+                    </Button>
                 </div>
-                
+
                 {/* Zoom and Pan Controls */}
                 <div className="flex items-center space-x-2">
                     {/* Pan Controls (only show when zoomed) */}
@@ -304,10 +304,10 @@ export default function WeightChart({ data }) {
                             >
                                 <ChevronRight className="h-4 w-4" />
                             </Button>
-                            <div className="w-px h-6 bg-gray-300 mx-1"></div>
+                            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1"></div>
                         </>
                     )}
-                    
+
                     {/* Zoom Controls */}
                     <Button
                         variant="outline"
@@ -341,43 +341,45 @@ export default function WeightChart({ data }) {
                     </Button>
                 </div>
             </div>
-            
+
             {/* Zoom instructions */}
-            <div className="text-xs text-gray-500 text-center mb-2">
+            <div className="text-xs text-gray-500 dark:text-gray-400 text-center mb-2">
                 {zoomDomain ? (
                     `Showing ${displayData.length} of ${chartData.length} data points • Scroll to pan • Ctrl+Scroll to zoom • ← → keys or Esc to reset`
                 ) : (
                     `Ctrl+Scroll to zoom in/out on the chart`
                 )}
             </div>
-            
-            <div 
-                className="h-64 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 rounded-lg" 
+
+            <div
+                className="h-64 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-opacity-50 rounded-lg"
                 onWheel={handleMouseWheelZoom}
                 onKeyDown={handleKeyNavigation}
                 tabIndex={zoomDomain ? 0 : -1}
                 style={{ cursor: zoomDomain ? 'grab' : 'default' }}
             >
                 <ResponsiveContainer width="100%" height="100%">
-                    <LineChart 
-                        data={displayData} 
+                    <LineChart
+                        data={displayData}
                         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                         ref={chartRef}
                     >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis 
-                            dataKey="displayDate" 
-                            tick={{ fontSize: 12 }}
+                        <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
+                        <XAxis
+                            dataKey="displayDate"
+                            tick={{ fontSize: 12, fill: 'currentColor' }}
+                            className="text-gray-700 dark:text-gray-300"
                             angle={-45}
                             textAnchor="end"
                             height={60}
                         />
-                        <YAxis 
+                        <YAxis
                             domain={['dataMin - 5', 'dataMax + 5']}
-                            tick={{ fontSize: 12 }}
-                            label={{ value: 'Weight (kg)', angle: -90, position: 'insideLeft' }}
+                            tick={{ fontSize: 12, fill: 'currentColor' }}
+                            className="text-gray-700 dark:text-gray-300"
+                            label={{ value: 'Weight (kg)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'currentColor' } }}
                         />
-                        <Tooltip 
+                        <Tooltip
                             formatter={(value) => {
                                 const formatted = `${value.toFixed(2)} kg`
                                 if (aggregation === 'weekly' || aggregation === 'monthly') {
@@ -394,7 +396,7 @@ export default function WeightChart({ data }) {
                                         month: 'long',
                                         day: 'numeric'
                                     })
-                                    
+
                                     if (aggregation === 'weekly') {
                                         dateLabel = `Week of ${dateLabel}`
                                         if (data.count) {
@@ -406,16 +408,16 @@ export default function WeightChart({ data }) {
                                             dateLabel += ` (${data.count} entries)`
                                         }
                                     }
-                                    
+
                                     return dateLabel
                                 }
                                 return label
                             }}
                         />
-                        <Line 
-                            type="monotone" 
-                            dataKey="weight" 
-                            stroke="#2563eb" 
+                        <Line
+                            type="monotone"
+                            dataKey="weight"
+                            stroke="#2563eb"
                             strokeWidth={2}
                             dot={{ fill: '#2563eb', strokeWidth: 2, r: 4 }}
                             activeDot={{ r: 6, fill: '#1d4ed8' }}

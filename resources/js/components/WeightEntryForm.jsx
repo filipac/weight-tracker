@@ -60,13 +60,13 @@ export default function WeightEntryForm() {
             </CardHeader>
             <CardContent>
                 {flash.message && (
-                    <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative mb-4" role="alert">
+                    <div className="bg-yellow-100 dark:bg-yellow-900 border border-yellow-400 dark:border-yellow-600 text-yellow-700 dark:text-yellow-300 px-4 py-3 rounded relative mb-4" role="alert">
                         <span className="block sm:inline">{flash.message}</span>
                     </div>
                 )}
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label htmlFor="weight" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="weight" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Weight ({isLbs ? 'lbs' : 'kg'})
                         </label>
                         <div className="flex space-x-2">
@@ -106,7 +106,7 @@ export default function WeightEntryForm() {
                     </div>
 
                     <div>
-                        <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="date" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Date
                         </label>
                         <Input
@@ -125,7 +125,7 @@ export default function WeightEntryForm() {
                         Add Entry
                     </Button>
                     {isLbs && weight && (
-                        <p className="text-sm text-amber-600 text-center">
+                        <p className="text-sm text-amber-600 dark:text-amber-400 text-center">
                             Please convert to kg before submitting
                         </p>
                     )}
@@ -137,6 +137,6 @@ export default function WeightEntryForm() {
 
 function Spinner() {
     return (
-        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900 dark:border-gray-100"></div>
     )
 }

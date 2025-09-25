@@ -36,10 +36,10 @@ export default function WeightHistoryList({ weightListWithIds }) {
                         weightListWithIds.map((item, index) => (
                             <div
                                 key={item.id || index}
-                                className={`flex items-center justify-between p-3 rounded border ${item.type === 'summary' ? 'bg-blue-50 border-blue-200' : 'bg-gray-100'
+                                className={`flex items-center justify-between p-3 rounded border ${item.type === 'summary' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
                                     }`}
                             >
-                                <div className={`font-mono text-sm ${item.type === 'summary' ? 'text-blue-800 font-semibold' : ''
+                                <div className={`font-mono text-sm ${item.type === 'summary' ? 'text-blue-800 dark:text-blue-300 font-semibold' : 'text-gray-900 dark:text-gray-100'
                                     }`}>
                                     {item.text}
                                 </div>
@@ -56,7 +56,7 @@ export default function WeightHistoryList({ weightListWithIds }) {
                             </div>
                         ))
                     ) : (
-                        <p className="text-gray-500 text-center py-4">No weight entries yet</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-center py-4">No weight entries yet</p>
                     )}
                 </div>
             </CardContent>
