@@ -31,7 +31,7 @@ export default function WeightHistoryList({ weightListWithIds }) {
                 </div>
             </CardHeader>
             <CardContent className="flex-1 min-h-0 flex flex-col">
-                <div className="space-y-2 flex-1 overflow-y-auto">
+                <div className="space-y-2 flex-1 overflow-y-auto max-h-96">
                     {weightListWithIds && weightListWithIds.length > 0 ? (
                         weightListWithIds.map((item, index) => (
                             <div
