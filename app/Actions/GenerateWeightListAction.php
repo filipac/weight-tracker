@@ -84,27 +84,27 @@ class GenerateWeightListAction
     private function calculateMonthlyWeightLoss($entries, Carbon $month)
     {
         $monthStart = $month->copy()->startOfMonth();
-        $monthEnd = $month->copy()->endOfMonth();
+        $nextMonthStart = $month->copy()->addMonth()->startOfMonth();
 
         // Get first weight of the month
-        $firstWeightOfMonth = $entries->filter(function ($entry) use ($monthStart, $monthEnd) {
+        $firstWeightOfMonth = $entries->filter(function ($entry) use ($monthStart) {
             $entryDate = Carbon::parse($entry->date);
 
-            return $entryDate->between($monthStart, $monthEnd);
+            return $entryDate->greaterThanOrEqualTo($monthStart);
         })->first();
 
-        // Get last weight of the month
-        $lastWeightOfMonth = $entries->filter(function ($entry) use ($monthStart, $monthEnd) {
+        // Get first weight of the next month
+        $firstWeightOfNextMonth = $entries->filter(function ($entry) use ($nextMonthStart) {
             $entryDate = Carbon::parse($entry->date);
 
-            return $entryDate->between($monthStart, $monthEnd);
-        })->last();
+            return $entryDate->greaterThanOrEqualTo($nextMonthStart);
+        })->first();
 
-        if (! $firstWeightOfMonth || ! $lastWeightOfMonth) {
+        if (! $firstWeightOfMonth || ! $firstWeightOfNextMonth) {
             return 0;
         }
 
-        return round($firstWeightOfMonth->weight_kg - $lastWeightOfMonth->weight_kg, 2);
+        return round($firstWeightOfMonth->weight_kg - $firstWeightOfNextMonth->weight_kg, 2);
     }
 
     private function generateGoalSummary()

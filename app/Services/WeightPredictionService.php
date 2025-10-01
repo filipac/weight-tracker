@@ -53,6 +53,8 @@ class WeightPredictionService
         $activeGoals = WeightGoal::active()->get();
         $goalPredictions = [];
 
+        $currentWeight = $entries->last()->weight_kg;
+
         foreach ($activeGoals as $goal) {
             $goalDate = null;
             $targetWeight = $goal->target_weight;
@@ -62,14 +64,14 @@ class WeightPredictionService
 
             switch ($goal->goal_type) {
                 case 'lose':
-                    $shouldPredict = $regression['slope'] < 0 && $nextMonthWeight > $targetWeight;
+                    $shouldPredict = $regression['slope'] < 0 && $currentWeight > $targetWeight;
                     break;
                 case 'gain':
-                    $shouldPredict = $regression['slope'] > 0 && $nextMonthWeight < $targetWeight;
+                    $shouldPredict = $regression['slope'] > 0 && $currentWeight < $targetWeight;
                     break;
                 case 'maintain':
                     // For maintenance, show if we're close (within 5kg)
-                    $shouldPredict = abs($nextMonthWeight - $targetWeight) <= 5;
+                    $shouldPredict = abs($currentWeight - $targetWeight) <= 5;
                     break;
             }
 
