@@ -10,6 +10,11 @@ class WeightPredictionService
 {
     /**
      * Calculate linear regression for weight trend prediction
+     * Uses multiple strategies for better accuracy:
+     * 1. Recent trend (last 7-30 days) - most relevant for short-term predictions
+     * 2. Weighted regression (favors recent data) - balances history with recent changes
+     * 3. Overall trend - provides stability
+     * Predictions combine these strategies with appropriate weights
      */
     public function calculatePredictions(): array
     {
@@ -27,6 +32,11 @@ class WeightPredictionService
             ];
         }
 
+        // Get the latest entry to use as the starting point for predictions
+        $latestEntry = $entries->last();
+        $latestEntryDate = $latestEntry->date;
+        $latestEntryWeight = (float) $latestEntry->weight_kg;
+
         // Convert dates to days since first entry for regression
         $firstDate = $entries->first()->date;
         $weights = [];
@@ -38,16 +48,70 @@ class WeightPredictionService
             $weights[] = (float) $entry->weight_kg;
         }
 
-        // Calculate linear regression
-        $regression = $this->linearRegression($days, $weights);
+        // Strategy 1: Overall linear regression (all data)
+        $overallRegression = $this->linearRegression($days, $weights);
+        $overallSlope = $overallRegression['slope'];
 
-        // Calculate R-squared for confidence
-        $confidence = $this->calculateRSquared($days, $weights, $regression);
+        // Strategy 2: Recent trend analysis (last 7-30 days or last 10 entries)
+        $recentEntries = $this->getRecentEntries($entries, $latestEntryDate);
+        $recentSlope = $overallSlope; // Default to overall if not enough recent data
+
+        if ($recentEntries->count() >= 2) {
+            $recentFirstDate = $recentEntries->first()->date;
+            $recentDays = [];
+            $recentWeights = [];
+
+            foreach ($recentEntries as $entry) {
+                $recentDays[] = $recentFirstDate->diffInDays($entry->date);
+                $recentWeights[] = (float) $entry->weight_kg;
+            }
+
+            $recentRegression = $this->linearRegression($recentDays, $recentWeights);
+            $recentSlope = $recentRegression['slope'];
+        }
+
+        // Strategy 3: Weighted regression (favors recent data exponentially)
+        $entryWeights = [];
+        foreach ($entries as $index => $entry) {
+            // Exponential weight: recent entries get much higher weight
+            // Weight increases exponentially for newer entries
+            $normalizedIndex = ($index + 1) / $entries->count();
+            $entryWeights[] = pow(2, $normalizedIndex);
+        }
+        $weightedRegression = $this->weightedLinearRegression($days, $weights, $entryWeights);
+        $weightedSlope = $weightedRegression['slope'];
+
+        // Combine strategies with adaptive weights
+        // If we have good recent data, favor recent trend more
+        // Otherwise, use weighted regression as primary
+        $recentWeight = $recentEntries->count() >= 5 ? 0.5 : 0.3;
+        $weightedWeight = 0.4;
+        $overallWeight = 1 - $recentWeight - $weightedWeight;
+
+        $combinedSlope = ($recentSlope * $recentWeight)
+                       + ($weightedSlope * $weightedWeight)
+                       + ($overallSlope * $overallWeight);
+
+        // Calculate confidence based on recent data quality
+        $confidenceDays = $recentEntries->count() >= 5 ? $recentEntries : $entries;
+        $confidenceFirstDate = $confidenceDays->first()->date;
+        $confidenceDaysArray = [];
+        $confidenceWeightsArray = [];
+
+        foreach ($confidenceDays as $entry) {
+            $confidenceDaysArray[] = $confidenceFirstDate->diffInDays($entry->date);
+            $confidenceWeightsArray[] = (float) $entry->weight_kg;
+        }
+
+        $confidenceRegression = $this->linearRegression($confidenceDaysArray, $confidenceWeightsArray);
+        $confidence = $this->calculateRSquared($confidenceDaysArray, $confidenceWeightsArray, $confidenceRegression);
 
         // Predict weight for first day of next month
         $nextMonthDate = Carbon::now()->addMonth()->startOfMonth();
-        $daysToNextMonth = $firstDate->diffInDays($nextMonthDate);
-        $nextMonthWeight = $regression['slope'] * $daysToNextMonth + $regression['intercept'];
+        $daysFromLatestToNextMonth = $latestEntryDate->diffInDays($nextMonthDate);
+
+        // Use combined slope for prediction
+        $nextMonthWeight = $latestEntryWeight + ($combinedSlope * $daysFromLatestToNextMonth);
 
         // Calculate prediction dates for active goals
         $activeGoals = WeightGoal::active()->get();
@@ -64,10 +128,10 @@ class WeightPredictionService
 
             switch ($goal->goal_type) {
                 case 'lose':
-                    $shouldPredict = $regression['slope'] < 0 && $currentWeight > $targetWeight;
+                    $shouldPredict = $combinedSlope < 0 && $currentWeight > $targetWeight;
                     break;
                 case 'gain':
-                    $shouldPredict = $regression['slope'] > 0 && $currentWeight < $targetWeight;
+                    $shouldPredict = $combinedSlope > 0 && $currentWeight < $targetWeight;
                     break;
                 case 'maintain':
                     // For maintenance, show if we're close (within 5kg)
@@ -75,10 +139,12 @@ class WeightPredictionService
                     break;
             }
 
-            if ($shouldPredict && $regression['slope'] != 0) {
-                $daysToGoal = ($targetWeight - $regression['intercept']) / $regression['slope'];
+            if ($shouldPredict && $combinedSlope != 0) {
+                // Calculate days needed to reach goal from current weight using combined slope
+                $weightDifference = $targetWeight - $latestEntryWeight;
+                $daysToGoal = $weightDifference / $combinedSlope;
                 if ($daysToGoal > 0) {
-                    $goalDate = $firstDate->copy()->addDays(round($daysToGoal));
+                    $goalDate = $latestEntryDate->copy()->addDays(round($daysToGoal));
                 }
             }
 
@@ -96,14 +162,20 @@ class WeightPredictionService
         $goalDate90 = null;
 
         if ($activeGoals->isEmpty()) {
-            if ($regression['slope'] < 0 && $nextMonthWeight > 100) {
-                $daysToGoal = (100 - $regression['intercept']) / $regression['slope'];
-                $goalDate = $firstDate->copy()->addDays(round($daysToGoal));
+            if ($combinedSlope < 0 && $latestEntryWeight > 100) {
+                $weightDifference = 100 - $latestEntryWeight;
+                $daysToGoal = $weightDifference / $combinedSlope;
+                if ($daysToGoal > 0) {
+                    $goalDate = $latestEntryDate->copy()->addDays(round($daysToGoal));
+                }
             }
 
-            if ($regression['slope'] < 0 && $nextMonthWeight > 90) {
-                $daysToGoal90 = (90 - $regression['intercept']) / $regression['slope'];
-                $goalDate90 = $firstDate->copy()->addDays(round($daysToGoal90));
+            if ($combinedSlope < 0 && $latestEntryWeight > 90) {
+                $weightDifference90 = 90 - $latestEntryWeight;
+                $daysToGoal90 = $weightDifference90 / $combinedSlope;
+                if ($daysToGoal90 > 0) {
+                    $goalDate90 = $latestEntryDate->copy()->addDays(round($daysToGoal90));
+                }
             }
         }
 
@@ -114,9 +186,9 @@ class WeightPredictionService
             'goalDate' => $goalDate ? $goalDate->format('j F Y') : null,
             'goalDate90' => $goalDate90 ? $goalDate90->format('j F Y') : null,
             'goalPredictions' => $goalPredictions,
-            'dailyWeightLoss' => round(abs($regression['slope']), 3),
+            'dailyWeightLoss' => round(abs($combinedSlope), 3),
             'confidence' => round($confidence * 100, 1),
-            'trend' => $regression['slope'] < 0 ? 'losing' : 'gaining',
+            'trend' => $combinedSlope < 0 ? 'losing' : 'gaining',
             'entryCount' => $entries->count(),
         ];
     }
@@ -162,5 +234,77 @@ class WeightPredictionService
         }
 
         return $ssTotal > 0 ? 1 - ($ssResidual / $ssTotal) : 0;
+    }
+
+    /**
+     * Get recent entries for trend analysis
+     * Uses last 30 days OR last 10 entries, whichever gives more data points
+     * Recent data is more relevant for short-term predictions
+     */
+    private function getRecentEntries($entries, Carbon $latestDate)
+    {
+        // Get entries from last 30 days
+        $thirtyDaysAgo = $latestDate->copy()->subDays(30);
+        $recentByDate = $entries->filter(function ($entry) use ($thirtyDaysAgo) {
+            return $entry->date >= $thirtyDaysAgo;
+        });
+
+        // Get last 10 entries
+        $last10Entries = $entries->slice(-10);
+
+        // Return whichever has more entries (more data = better trend)
+        return $recentByDate->count() >= $last10Entries->count()
+            ? $recentByDate
+            : $last10Entries;
+    }
+
+    /**
+     * Calculate weighted linear regression slope and intercept
+     * Uses exponential weighting to favor recent data
+     * Recent entries get exponentially more weight in the calculation
+     */
+    private function weightedLinearRegression(array $x, array $y, array $w): array
+    {
+        $n = count($x);
+
+        if ($n === 0 || count($y) !== $n || count($w) !== $n) {
+            // Fallback to regular regression if weights don't match
+            return $this->linearRegression($x, $y);
+        }
+
+        $sumW = array_sum($w);
+
+        if ($sumW == 0) {
+            return $this->linearRegression($x, $y);
+        }
+
+        // Calculate weighted sums
+        $sumWX = 0;
+        $sumWY = 0;
+        $sumWXY = 0;
+        $sumWXX = 0;
+
+        for ($i = 0; $i < $n; $i++) {
+            $sumWX += $w[$i] * $x[$i];
+            $sumWY += $w[$i] * $y[$i];
+            $sumWXY += $w[$i] * $x[$i] * $y[$i];
+            $sumWXX += $w[$i] * $x[$i] * $x[$i];
+        }
+
+        // Weighted linear regression formula
+        $denominator = ($sumW * $sumWXX) - ($sumWX * $sumWX);
+
+        if (abs($denominator) < 0.0001) {
+            // Fallback to regular regression if weights cause numerical issues
+            return $this->linearRegression($x, $y);
+        }
+
+        $slope = (($sumW * $sumWXY) - ($sumWX * $sumWY)) / $denominator;
+        $intercept = ($sumWY - $slope * $sumWX) / $sumW;
+
+        return [
+            'slope' => $slope,
+            'intercept' => $intercept,
+        ];
     }
 }

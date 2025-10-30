@@ -97,7 +97,7 @@ final class WeightController
 
         Artisan::call('notes:update-weight');
 
-        return redirect()->back();
+        return redirect()->route('weight.index');
     }
 
     public function destroy($id)
@@ -107,7 +107,7 @@ final class WeightController
 
         Artisan::call('notes:update-weight');
 
-        return redirect()->back();
+        return redirect()->route('weight.index');
     }
 
     public function sync()
@@ -137,7 +137,7 @@ final class WeightController
 
         Artisan::call('notes:update-weight');
 
-        return redirect()->back()->with('message', "Synced {$addedCount} new entries from Notes.app");
+        return redirect()->route('weight.index')->with('message', "Synced {$addedCount} new entries from Notes.app");
     }
 
     private function getNotesContent()
@@ -241,7 +241,7 @@ final class WeightController
             'created_date' => today(),
         ]);
 
-        return redirect()->back();
+        return redirect()->route('weight.index');
     }
 
     public function updateGoal(Request $request, $id)
@@ -265,7 +265,7 @@ final class WeightController
             'status',
         ]));
 
-        return redirect()->back();
+        return redirect()->route('weight.index');
     }
 
     public function destroyGoal($id)
@@ -273,7 +273,7 @@ final class WeightController
         $goal = WeightGoal::findOrFail($id);
         $goal->delete();
 
-        return redirect()->back();
+        return redirect()->route('weight.index');
     }
 
     public function getFromWithings(Request $request)
