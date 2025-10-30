@@ -276,7 +276,7 @@ final class WeightController
         return redirect()->back();
     }
 
-    public function getFromWithings()
+    public function getFromWithings(Request $request)
     {
         if (! Withings::isConfigured()) {
             return response()->json([
@@ -303,21 +303,56 @@ final class WeightController
         ]);
         $resp = $response->json();
 
-        $measuregrps = Arr::get(
-            $resp,
-            'body.measuregrps.0.measures.0',
-            null
-        );
+        $allMeasureGroups = Arr::get($resp, 'body.measuregrps', []);
 
-        if (empty($measuregrps)) {
+        if (empty($allMeasureGroups)) {
             session()->flash('message', 'No weight data found from Withings');
 
             return redirect()->back();
         }
 
-        $weight = $measuregrps['value'];
+        // Use provided date or default to today
+        $targetDate = $request->date ? Carbon::parse($request->date) : Carbon::today();
 
-        $resp = ['weight' => bcdiv($weight, 1000, 2)];
+        // Filter measure groups by the created timestamp matching the target date
+        $filteredGroups = array_filter($allMeasureGroups, function ($group) use ($targetDate) {
+            $createdTimestamp = $group['created'] ?? null;
+            if (! $createdTimestamp) {
+                return false;
+            }
+
+            $createdDate = Carbon::createFromTimestamp($createdTimestamp);
+
+            return $createdDate->isSameDay($targetDate);
+        });
+
+        if (empty($filteredGroups)) {
+            return response()->json([
+                'error' => 'No weight data found for the selected date',
+            ], 404);
+        }
+
+        // Extract all weight values from the filtered groups
+        $weights = [];
+        foreach ($filteredGroups as $group) {
+            $measures = Arr::get($group, 'measures', []);
+            foreach ($measures as $measure) {
+                if (isset($measure['value'])) {
+                    $weights[] = $measure['value'];
+                }
+            }
+        }
+
+        if (empty($weights)) {
+            return response()->json([
+                'error' => 'No weight measurements found for the selected date',
+            ], 404);
+        }
+
+        // Get the lowest weight value from that day
+        $lowestWeight = min($weights);
+
+        $resp = ['weight' => bcdiv($lowestWeight, 1000, 2)];
 
         return $resp;
     }

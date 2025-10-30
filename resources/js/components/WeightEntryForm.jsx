@@ -42,7 +42,9 @@ export default function WeightEntryForm() {
 
     const handleGetFromWithings = () => {
         setIsLoading(true)
-        axios.post('/weight/get-from-withings').then((response) => {
+        axios.post('/weight/get-from-withings', {
+            date: date
+        }).then((response) => {
             let data = response.data
             setWeight(data.weight)
             setIsLbs(false)
