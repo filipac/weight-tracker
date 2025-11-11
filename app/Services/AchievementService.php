@@ -18,18 +18,19 @@ class AchievementService
 
     public function getCurrentStreak()
     {
-        $entries = WeightEntry::orderBy('date', 'desc')->get();
+        $uniqueDates = WeightEntry::select('date')
+            ->distinct()
+            ->orderBy('date', 'desc')
+            ->pluck('date');
 
-        if ($entries->isEmpty()) {
+        if ($uniqueDates->isEmpty()) {
             return 0;
         }
 
         $streak = 0;
         $currentDate = Carbon::today();
 
-        foreach ($entries as $entry) {
-            $entryDate = $entry->date;
-
+        foreach ($uniqueDates as $entryDate) {
             if ($entryDate->equalTo($currentDate) || $entryDate->equalTo($currentDate->subDay())) {
                 $streak++;
                 $currentDate = $entryDate->copy()->subDay();

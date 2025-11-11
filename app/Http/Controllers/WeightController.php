@@ -67,6 +67,9 @@ final class WeightController
         $currentStreak = $this->achievementService->getCurrentStreak();
         $motivationalMessage = $this->achievementService->getMotivationalMessage();
 
+        // Calculate weight changes for different periods
+        $weightChanges = $this->calculateWeightChanges();
+
         return Inertia::render('WeightTracker', [
             'weightListWithIds' => $weightListWithIds,
             'chartData' => $chartData,
@@ -77,6 +80,7 @@ final class WeightController
             'motivationalMessage' => $motivationalMessage,
             'weightFromWithings' => session()->get('weight'),
             'withingsConfigured' => Withings::isConfigured(),
+            'weightChanges' => $weightChanges,
         ]);
     }
 
@@ -355,5 +359,68 @@ final class WeightController
         $resp = ['weight' => bcdiv($lowestWeight, 1000, 2)];
 
         return $resp;
+    }
+
+    private function calculateWeightChanges()
+    {
+        $latestEntry = WeightEntry::orderBy('date', 'desc')->first();
+
+        if (! $latestEntry) {
+            return null;
+        }
+
+        $currentWeight = $latestEntry->weight_kg;
+        $currentDate = $latestEntry->date;
+
+        // Get previous entry for recent change
+        $previousEntry = WeightEntry::where('date', '<', $currentDate)
+            ->orderBy('date', 'desc')
+            ->first();
+
+        $recentChange = null;
+        if ($previousEntry) {
+            $recentChange = round($currentWeight - $previousEntry->weight_kg, 1);
+        }
+
+        // Calculate changes for different periods
+        $periods = [7, 14, 30];
+        $changes = [];
+
+        foreach ($periods as $days) {
+            $targetDate = Carbon::parse($currentDate)->subDays($days)->startOfDay();
+            $pastEntry = WeightEntry::where('date', '<=', $targetDate)
+                ->orderBy('date', 'desc')
+                ->first();
+
+            if ($pastEntry) {
+                $change = round($currentWeight - $pastEntry->weight_kg, 1);
+                $percentageChange = round(($change / $pastEntry->weight_kg) * 100, 1);
+                $changes[$days] = [
+                    'change' => $change,
+                    'percentage' => $percentageChange,
+                ];
+            } else {
+                $changes[$days] = [
+                    'change' => null,
+                    'percentage' => null,
+                ];
+            }
+        }
+
+        return [
+            'current_weight' => $this->roundToNearestFiveCents($currentWeight),
+            'current_date' => $currentDate->format('d M Y'),
+            'recent_change' => $recentChange,
+            'period_changes' => $changes,
+        ];
+    }
+
+    /**
+     * Round weight to the nearest 0.05 increment.
+     * Examples: 95.21->95.20, 95.23->95.25, 95.27->95.25, 95.28->95.30
+     */
+    private function roundToNearestFiveCents(float $weight): float
+    {
+        return round($weight * 20) / 20;
     }
 }
