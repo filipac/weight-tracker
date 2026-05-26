@@ -82,7 +82,7 @@ export default function WeightChart({ data }) {
 
     if (chartData.length === 0) {
         return (
-            <div className="flex items-center justify-center h-64 text-gray-500 dark:text-gray-400">
+            <div className="flex h-64 items-center justify-center text-slate-500 dark:text-slate-400">
                 No weight data available for chart
             </div>
         )
@@ -240,10 +240,21 @@ export default function WeightChart({ data }) {
         displayData = chartData
     }
 
+    const formatXAxisTick = (dateValue) => {
+        const date = new Date(dateValue)
+        if (Number.isNaN(date.getTime())) return dateValue
+
+        if (aggregation === 'monthly') {
+            return date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
+        }
+
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    }
+
     return (
         <div className="w-full">
             <div className="flex justify-between items-center mb-4">
-                <div className="flex justify-center space-x-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 w-fit mx-auto">
+                <div className="mx-auto flex w-fit justify-center space-x-1 rounded-lg bg-slate-100 p-1 dark:bg-slate-800">
                     <Button
                         variant={aggregation === 'daily' ? 'default' : 'ghost'}
                         size="sm"
@@ -251,7 +262,7 @@ export default function WeightChart({ data }) {
                             setAggregation('daily')
                             handleResetZoom()
                         }}
-                        className={aggregation === 'daily' ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}
+                        className={aggregation === 'daily' ? 'bg-white shadow-sm dark:bg-slate-700' : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100'}
                     >
                         Daily
                     </Button>
@@ -262,7 +273,7 @@ export default function WeightChart({ data }) {
                             setAggregation('weekly')
                             handleResetZoom()
                         }}
-                        className={aggregation === 'weekly' ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}
+                        className={aggregation === 'weekly' ? 'bg-white shadow-sm dark:bg-slate-700' : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100'}
                     >
                         Weekly
                     </Button>
@@ -273,7 +284,7 @@ export default function WeightChart({ data }) {
                             setAggregation('monthly')
                             handleResetZoom()
                         }}
-                        className={aggregation === 'monthly' ? 'bg-white dark:bg-gray-700 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}
+                        className={aggregation === 'monthly' ? 'bg-white shadow-sm dark:bg-slate-700' : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100'}
                     >
                         Monthly
                     </Button>
@@ -304,7 +315,7 @@ export default function WeightChart({ data }) {
                             >
                                 <ChevronRight className="h-4 w-4" />
                             </Button>
-                            <div className="w-px h-6 bg-gray-300 dark:bg-gray-600 mx-1"></div>
+                            <div className="mx-1 h-6 w-px bg-slate-300 dark:bg-slate-600"></div>
                         </>
                     )}
 
@@ -343,7 +354,7 @@ export default function WeightChart({ data }) {
             </div>
 
             {/* Zoom instructions */}
-            <div className="text-xs text-gray-500 dark:text-gray-400 text-center mb-2">
+            <div className="mb-2 text-center text-xs text-slate-500 dark:text-slate-400">
                 {zoomDomain ? (
                     `Showing ${displayData.length} of ${chartData.length} data points • Scroll to pan • Ctrl+Scroll to zoom • ← → keys or Esc to reset`
                 ) : (
@@ -352,7 +363,7 @@ export default function WeightChart({ data }) {
             </div>
 
             <div
-                className="h-64 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:ring-opacity-50 rounded-lg"
+                className="h-64 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/60 dark:focus:ring-blue-400/60"
                 onWheel={handleMouseWheelZoom}
                 onKeyDown={handleKeyNavigation}
                 tabIndex={zoomDomain ? 0 : -1}
@@ -364,11 +375,12 @@ export default function WeightChart({ data }) {
                         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                         ref={chartRef}
                     >
-                        <CartesianGrid strokeDasharray="3 3" className="dark:opacity-20" />
+                        <CartesianGrid strokeDasharray="3 3" stroke="var(--app-border)" strokeOpacity={0.4} />
                         <XAxis
-                            dataKey="displayDate"
+                            dataKey="date"
+                            tickFormatter={formatXAxisTick}
                             tick={{ fontSize: 12, fill: 'currentColor' }}
-                            className="text-gray-700 dark:text-gray-300"
+                            className="text-slate-700 dark:text-slate-300"
                             angle={-45}
                             textAnchor="end"
                             height={60}
@@ -376,10 +388,18 @@ export default function WeightChart({ data }) {
                         <YAxis
                             domain={['dataMin - 5', 'dataMax + 5']}
                             tick={{ fontSize: 12, fill: 'currentColor' }}
-                            className="text-gray-700 dark:text-gray-300"
+                            className="text-slate-700 dark:text-slate-300"
                             label={{ value: 'Weight (kg)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: 'currentColor' } }}
                         />
                         <Tooltip
+                            contentStyle={{
+                                backgroundColor: 'var(--app-bg-elevated)',
+                                borderColor: 'var(--app-border)',
+                                borderRadius: '0.5rem',
+                                color: 'var(--app-text)',
+                            }}
+                            labelStyle={{ color: 'var(--app-text)' }}
+                            itemStyle={{ color: 'var(--app-text)' }}
                             formatter={(value) => {
                                 const formatted = `${value.toFixed(2)} kg`
                                 if (aggregation === 'weekly' || aggregation === 'monthly') {

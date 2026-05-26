@@ -42,14 +42,14 @@ class Achievement extends Model
         ]);
     }
 
-    public static function createMilestoneAchievement($weightLost, $startWeight)
+    public static function createMilestoneAchievement($weightLost, $startWeight, $earnedDate = null)
     {
         return self::create([
             'type' => 'milestone',
             'title' => "{$weightLost}kg Weight Loss",
             'description' => "Lost {$weightLost}kg from starting weight of {$startWeight}kg",
             'criteria' => ['weight_lost' => $weightLost],
-            'earned_date' => today(),
+            'earned_date' => $earnedDate ?? today(),
             'value' => $weightLost,
         ]);
     }

@@ -35,11 +35,11 @@ export default function WeightHistoryList({ weightListWithIds }) {
                     {weightListWithIds && weightListWithIds.length > 0 ? (
                         weightListWithIds.map((item, index) => (
                             <div
-                                key={item.id || index}
-                                className={`flex items-center justify-between p-3 rounded border ${item.type === 'summary' ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800' : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+                                key={`${item.id ?? 'weight-item'}-${index}`}
+                                className={`flex items-center justify-between rounded-lg border p-3 ${item.type === 'summary' ? 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30' : 'border-slate-200 bg-slate-100/80 dark:border-slate-700 dark:bg-slate-900/60'
                                     }`}
                             >
-                                <div className={`font-mono text-sm ${item.type === 'summary' ? 'text-blue-800 dark:text-blue-300 font-semibold' : 'text-gray-900 dark:text-gray-100'
+                                <div className={`font-mono text-sm ${item.type === 'summary' ? 'font-semibold text-blue-900 dark:text-blue-300' : 'text-slate-900 dark:text-slate-100'
                                     }`}>
                                     {item.text}
                                 </div>
@@ -48,7 +48,7 @@ export default function WeightHistoryList({ weightListWithIds }) {
                                         variant="destructive"
                                         size="sm"
                                         onClick={() => handleDelete(item.id)}
-                                        className="ml-2"
+                                        className="ml-2 select-none"
                                     >
                                         Delete
                                     </Button>
@@ -56,7 +56,7 @@ export default function WeightHistoryList({ weightListWithIds }) {
                             </div>
                         ))
                     ) : (
-                        <p className="text-gray-500 dark:text-gray-400 text-center py-4">No weight entries yet</p>
+                        <p className="py-4 text-center text-slate-500 dark:text-slate-400">No weight entries yet</p>
                     )}
                 </div>
             </CardContent>

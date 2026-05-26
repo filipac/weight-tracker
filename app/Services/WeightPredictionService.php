@@ -113,6 +113,10 @@ class WeightPredictionService
         // Use combined slope for prediction
         $nextMonthWeight = $latestEntryWeight + ($combinedSlope * $daysFromLatestToNextMonth);
 
+        // Calculate BMI for next month prediction (height hardcoded to 175cm = 1.75m)
+        $heightInMeters = 1.75;
+        $nextMonthBMI = round($nextMonthWeight / ($heightInMeters * $heightInMeters), 1);
+
         // Calculate prediction dates for active goals
         $activeGoals = WeightGoal::active()->get();
         $goalPredictions = [];
@@ -148,12 +152,17 @@ class WeightPredictionService
                 }
             }
 
+            // Calculate BMI for goal weight
+            $goalBMI = round($targetWeight / ($heightInMeters * $heightInMeters), 1);
+
             $goalPredictions[] = [
                 'id' => $goal->id,
                 'target_weight' => $targetWeight,
                 'goal_type' => $goal->goal_type,
                 'prediction_date' => $goalDate ? $goalDate->format('j F Y') : null,
+                'prediction_date_raw' => $goalDate ? $goalDate->format('Y-m-d') : null,
                 'description' => $goal->description,
+                'goal_bmi' => $goalBMI,
             ];
         }
 
@@ -179,14 +188,34 @@ class WeightPredictionService
             }
         }
 
+        // Calculate when user will reach healthy BMI range (BMI 25 for 175cm height)
+        $healthyBMIDate = null;
+        $healthyBMIWeight = 25 * ($heightInMeters * $heightInMeters); // Max healthy weight for height
+        $currentBMI = $latestEntryWeight / ($heightInMeters * $heightInMeters);
+
+        if ($combinedSlope < 0 && $currentBMI > 25) {
+            // User is losing weight and currently above healthy range
+            $weightDifferenceToHealthy = $healthyBMIWeight - $latestEntryWeight;
+            $daysToHealthyBMI = $weightDifferenceToHealthy / $combinedSlope;
+            if ($daysToHealthyBMI > 0) {
+                $healthyBMIDate = $latestEntryDate->copy()->addDays(round($daysToHealthyBMI));
+            }
+        }
+
         return [
             'hasEnoughData' => true,
             'nextMonthPrediction' => round($nextMonthWeight, 2),
+            'nextMonthBMI' => $nextMonthBMI,
             'nextMonthDate' => $nextMonthDate->format('j F Y'),
             'goalDate' => $goalDate ? $goalDate->format('j F Y') : null,
             'goalDate90' => $goalDate90 ? $goalDate90->format('j F Y') : null,
             'goalPredictions' => $goalPredictions,
+            'healthyBMIDate' => $healthyBMIDate ? $healthyBMIDate->format('j F Y') : null,
+            'healthyBMIWeight' => round($healthyBMIWeight, 1),
             'dailyWeightLoss' => round(abs($combinedSlope), 3),
+            'dailyWeightChange' => round($combinedSlope, 4), // Signed value for frontend calculations
+            'latestEntryDate' => $latestEntryDate->format('Y-m-d'),
+            'latestEntryWeight' => round($latestEntryWeight, 2),
             'confidence' => round($confidence * 100, 1),
             'trend' => $combinedSlope < 0 ? 'losing' : 'gaining',
             'entryCount' => $entries->count(),

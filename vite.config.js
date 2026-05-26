@@ -19,4 +19,14 @@ export default defineConfig({
             '@': resolve(__dirname, 'resources/js'),
         },
     },
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    vendor: ['react', 'react-dom'],
+                    recharts: ['recharts'],
+                },
+            },
+        },
+    },
 });

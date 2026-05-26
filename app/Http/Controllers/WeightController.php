@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Actions\GenerateWeightListAction;
 use App\Actions\RefreshWithingsAction;
 use App\Models\Achievement;
+use App\Models\WaistMeasurement;
 use App\Models\WeightEntry;
 use App\Models\WeightGoal;
 use App\Services\AchievementService;
@@ -70,6 +71,31 @@ final class WeightController
         // Calculate weight changes for different periods
         $weightChanges = $this->calculateWeightChanges();
 
+        // Get waist measurements for history
+        $waistMeasurements = WaistMeasurement::orderBy('date', 'desc')
+            ->get()
+            ->map(function ($measurement) {
+                return [
+                    'id' => $measurement->id,
+                    'date' => $measurement->date->format('d M Y'),
+                    'raw_date' => $measurement->date->format('Y-m-d'),
+                    'waist_cm' => $measurement->waist_cm,
+                ];
+            });
+
+        // Get waist chart data
+        $waistChartData = WaistMeasurement::orderBy('date', 'asc')
+            ->get()
+            ->map(function ($measurement) {
+                return [
+                    'date' => $measurement->date->format('Y-m-d'),
+                    'waist' => $measurement->waist_cm,
+                ];
+            });
+
+        // Calculate waist statistics
+        $waistChanges = $this->calculateWaistChanges();
+
         return Inertia::render('WeightTracker', [
             'weightListWithIds' => $weightListWithIds,
             'chartData' => $chartData,
@@ -81,6 +107,9 @@ final class WeightController
             'weightFromWithings' => session()->get('weight'),
             'withingsConfigured' => Withings::isConfigured(),
             'weightChanges' => $weightChanges,
+            'waistMeasurements' => $waistMeasurements,
+            'waistChartData' => $waistChartData,
+            'waistChanges' => $waistChanges,
         ]);
     }
 
@@ -280,6 +309,13 @@ final class WeightController
         return redirect()->route('weight.index');
     }
 
+    public function recalculateGoals()
+    {
+        // Since progress is calculated dynamically in getCurrentProgress(),
+        // we just need to refresh the page to recalculate all goals
+        return redirect()->route('weight.index')->with('message', 'All goal progress has been recalculated');
+    }
+
     public function getFromWithings(Request $request)
     {
         if (! Withings::isConfigured()) {
@@ -372,6 +408,20 @@ final class WeightController
         $currentWeight = $latestEntry->weight_kg;
         $currentDate = $latestEntry->date;
 
+        // Calculate BMI (height hardcoded to 175cm = 1.75m)
+        $heightInMeters = 1.75;
+        $currentBMI = round($currentWeight / ($heightInMeters * $heightInMeters), 1);
+
+        // Get first entry for starting BMI
+        $firstEntry = WeightEntry::orderBy('date', 'asc')->first();
+        $startingWeight = $firstEntry ? $firstEntry->weight_kg : null;
+        $startingBMI = $startingWeight ? round($startingWeight / ($heightInMeters * $heightInMeters), 1) : null;
+        $startingDate = $firstEntry ? $firstEntry->date->format('d M Y') : null;
+
+        // Calculate entry statistics
+        $totalEntries = WeightEntry::count();
+        $uniqueDays = WeightEntry::distinct('date')->count('date');
+
         // Get previous entry for recent change
         $previousEntry = WeightEntry::where('date', '<', $currentDate)
             ->orderBy('date', 'desc')
@@ -407,11 +457,47 @@ final class WeightController
             }
         }
 
+        // Calculate 7-day average (lowest weight per day)
+        $sevenDayAverage = null;
+        $sevenDayPeriod = [];
+
+        for ($i = 0; $i < 7; $i++) {
+            $dayDate = Carbon::parse($currentDate)->subDays($i);
+            $lowestWeightForDay = WeightEntry::whereDate('date', $dayDate)
+                ->orderBy('weight_kg', 'asc')
+                ->value('weight_kg');
+
+            if ($lowestWeightForDay) {
+                $sevenDayPeriod[] = $lowestWeightForDay;
+            }
+        }
+
+        if (count($sevenDayPeriod) > 0) {
+            $sevenDayAverage = round(array_sum($sevenDayPeriod) / count($sevenDayPeriod), 1);
+        }
+
+        // Lowest weight in last 30 days
+        $thirtyDaysAgo = Carbon::parse($currentDate)->subDays(30)->startOfDay();
+        $lowest30DayEntry = WeightEntry::where('date', '>=', $thirtyDaysAgo)
+            ->orderBy('weight_kg', 'asc')
+            ->first();
+        $lowest30DayWeight = $lowest30DayEntry ? $lowest30DayEntry->weight_kg : null;
+        $lowest30DayDate = $lowest30DayEntry ? $lowest30DayEntry->date->format('d M Y') : null;
+
         return [
             'current_weight' => $this->roundToNearestFiveCents($currentWeight),
             'current_date' => $currentDate->format('d M Y'),
+            'current_bmi' => $currentBMI,
+            'starting_weight' => $startingWeight,
+            'starting_bmi' => $startingBMI,
+            'starting_date' => $startingDate,
             'recent_change' => $recentChange,
             'period_changes' => $changes,
+            'seven_day_average' => $sevenDayAverage,
+            'total_entries' => $totalEntries,
+            'unique_days' => $uniqueDays,
+            'lowest_30_day_weight' => $lowest30DayWeight,
+            'lowest_30_day_date' => $lowest30DayDate,
         ];
     }
 
@@ -422,5 +508,78 @@ final class WeightController
     private function roundToNearestFiveCents(float $weight): float
     {
         return round($weight * 20) / 20;
+    }
+
+    public function storeWaist(Request $request)
+    {
+        $request->validate([
+            'waist_cm' => 'required|numeric|min:40|max:200',
+            'date' => 'required|date',
+        ]);
+
+        WaistMeasurement::create([
+            'waist_cm' => $request->waist_cm,
+            'date' => $request->date,
+        ]);
+
+        return redirect()->route('weight.index');
+    }
+
+    public function destroyWaist($id)
+    {
+        $measurement = WaistMeasurement::findOrFail($id);
+        $measurement->delete();
+
+        return redirect()->route('weight.index');
+    }
+
+    private function calculateWaistChanges()
+    {
+        $latestMeasurement = WaistMeasurement::orderBy('date', 'desc')->first();
+
+        if (! $latestMeasurement) {
+            return null;
+        }
+
+        $currentWaist = $latestMeasurement->waist_cm;
+        $currentDate = $latestMeasurement->date;
+
+        // Get first measurement for starting waist
+        $firstMeasurement = WaistMeasurement::orderBy('date', 'asc')->first();
+        $startingWaist = $firstMeasurement ? $firstMeasurement->waist_cm : null;
+        $startingDate = $firstMeasurement ? $firstMeasurement->date->format('d M Y') : null;
+
+        // Calculate total change
+        $totalChange = $startingWaist ? round($currentWaist - $startingWaist, 1) : null;
+
+        // Calculate entry statistics
+        $totalMeasurements = WaistMeasurement::count();
+
+        // Get previous measurement for recent change
+        $previousMeasurement = WaistMeasurement::where('date', '<', $currentDate)
+            ->orderBy('date', 'desc')
+            ->first();
+
+        $recentChange = null;
+        if ($previousMeasurement) {
+            $recentChange = round($currentWaist - $previousMeasurement->waist_cm, 1);
+        }
+
+        // Calculate WHtR (height hardcoded to 175cm)
+        $heightCm = 175;
+        $currentWHtR = round($currentWaist / $heightCm, 3);
+        $startingWHtR = $startingWaist ? round($startingWaist / $heightCm, 3) : null;
+
+        return [
+            'current_waist' => $currentWaist,
+            'current_date' => $currentDate->format('d M Y'),
+            'current_whtr' => $currentWHtR,
+            'starting_waist' => $startingWaist,
+            'starting_date' => $startingDate,
+            'starting_whtr' => $startingWHtR,
+            'total_change' => $totalChange,
+            'recent_change' => $recentChange,
+            'total_measurements' => $totalMeasurements,
+        ];
     }
 }

@@ -14,6 +14,11 @@ Route::post('/weight/get-from-withings', [WeightController::class, 'getFromWithi
 Route::post('/goals', [WeightController::class, 'storeGoal'])->name('goals.store');
 Route::put('/goals/{id}', [WeightController::class, 'updateGoal'])->name('goals.update');
 Route::delete('/goals/{id}', [WeightController::class, 'destroyGoal'])->name('goals.destroy');
+Route::post('/goals/recalculate', [WeightController::class, 'recalculateGoals'])->name('goals.recalculate');
+
+// Waist measurement routes
+Route::post('/waist', [WeightController::class, 'storeWaist'])->name('waist.store');
+Route::delete('/waist/{id}', [WeightController::class, 'destroyWaist'])->name('waist.destroy');
 
 // Withings OAuth2 routes
 Route::get('/w', [WithingsOAuth2Controller::class, 'redirect'])->name('auth.withings.redirect');

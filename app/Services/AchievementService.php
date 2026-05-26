@@ -45,7 +45,7 @@ class AchievementService
     private function checkStreakAchievements()
     {
         $currentStreak = $this->getCurrentStreak();
-        $milestones = [7, 14, 30, 60, 100, 365];
+        $milestones = [7, 14, 30, 50, 60, 100, 365];
 
         foreach ($milestones as $milestone) {
             if ($currentStreak >= $milestone) {
@@ -75,7 +75,7 @@ class AchievementService
             return; // No weight lost
         }
 
-        $milestones = [1, 5, 10, 15, 20, 25, 30];
+        $milestones = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70];
 
         foreach ($milestones as $milestone) {
             if ($weightLost >= $milestone) {
@@ -84,7 +84,14 @@ class AchievementService
                     ->exists();
 
                 if (! $existingAchievement) {
-                    Achievement::createMilestoneAchievement($milestone, $firstEntry->weight_kg);
+                    // Find the date when this milestone was first crossed
+                    $milestoneEntry = WeightEntry::orderBy('date')
+                        ->whereRaw('? - weight_kg >= ?', [$firstEntry->weight_kg, $milestone])
+                        ->first();
+
+                    $earnedDate = $milestoneEntry ? $milestoneEntry->date : today();
+
+                    Achievement::createMilestoneAchievement($milestone, $firstEntry->weight_kg, $earnedDate);
                 }
             }
         }

@@ -27,7 +27,7 @@ class UpdateWeightNoteCommand extends Command
             }
 
             // Generate new weight list
-            $weightList = $action->execute();
+            $weightList = $action->execute(reverse: true);
 
             if (empty($weightList)) {
                 $this->error('No weight entries found in database');

@@ -68,14 +68,25 @@ class GenerateWeightListAction
         // Add goal progress summary if not including IDs (for Notes.app)
         if (! $includeIds && ! $entries->isEmpty()) {
             $goalSummary = $this->generateGoalSummary();
-            if (! empty($goalSummary)) {
-                $result = array_merge($goalSummary, [''], $result);
+            $achievementSummary = $this->generateRecentAchievements();
+
+            // When reversing, keep "header" sections at the top and only reverse the entry list.
+            if ($reverse) {
+                $result = array_reverse($result);
             }
 
-            $achievementSummary = $this->generateRecentAchievements();
+            $prefix = [];
             if (! empty($achievementSummary)) {
-                $result = array_merge($achievementSummary, [''], $result);
+                $prefix = array_merge($prefix, $achievementSummary, ['']);
             }
+            if (! empty($goalSummary)) {
+                $prefix = array_merge($prefix, $goalSummary, ['']);
+            }
+            if (! empty($prefix)) {
+                $result = array_merge($prefix, $result);
+            }
+
+            return $result;
         }
 
         return $reverse ? array_reverse($result) : $result;

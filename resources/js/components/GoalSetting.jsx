@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Target, Plus, Trash2, Edit3, Calendar, TrendingDown, TrendingUp, Minus } from 'lucide-react'
-import { useForm } from '@inertiajs/react'
+import { Target, Plus, Trash2, Edit3, Calendar, TrendingDown, TrendingUp, Minus, RefreshCw } from 'lucide-react'
+import { useForm, router } from '@inertiajs/react'
 
 export default function GoalSetting({ goals = [] }) {
     const [isCreating, setIsCreating] = useState(false)
@@ -61,6 +61,10 @@ export default function GoalSetting({ goals = [] }) {
         setIsCreating(false)
     }
 
+    const handleRecalculate = () => {
+        router.post('/goals/recalculate')
+    }
+
     const getGoalIcon = (goalType) => {
         switch (goalType) {
             case 'lose': return <TrendingDown className="h-4 w-4 text-green-600 dark:text-green-400" />
@@ -72,10 +76,10 @@ export default function GoalSetting({ goals = [] }) {
 
     const getGoalColor = (goalType) => {
         switch (goalType) {
-            case 'lose': return 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-            case 'gain': return 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-            case 'maintain': return 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
-            default: return 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+            case 'lose': return 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800'
+            case 'gain': return 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800'
+            case 'maintain': return 'bg-yellow-50 dark:bg-yellow-950/30 border-yellow-200 dark:border-yellow-800'
+            default: return 'bg-slate-50 dark:bg-slate-900/60 border-slate-200 dark:border-slate-700'
         }
     }
 
@@ -84,29 +88,41 @@ export default function GoalSetting({ goals = [] }) {
             <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Target className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         Weight Goals
                     </div>
                     {!isCreating && (
-                        <Button
-                            onClick={() => setIsCreating(true)}
-                            size="sm"
-                            className="bg-purple-600 hover:bg-purple-700"
-                        >
-                            <Plus className="h-4 w-4 mr-1" />
-                            Add Goal
-                        </Button>
+                        <div className="flex gap-2">
+                            {goals.length > 0 && (
+                                <Button
+                                    onClick={handleRecalculate}
+                                    size="sm"
+                                    variant="outline"
+                                    title="Recalculate progress for all goals"
+                                >
+                                    <RefreshCw className="h-4 w-4 mr-1" />
+                                    Recalculate
+                                </Button>
+                            )}
+                            <Button
+                                onClick={() => setIsCreating(true)}
+                                size="sm"
+                            >
+                                <Plus className="h-4 w-4 mr-1" />
+                                Add Goal
+                            </Button>
+                        </div>
                     )}
                 </CardTitle>
             </CardHeader>
             <CardContent>
                 {/* Goal Creation/Edit Form */}
                 {isCreating && (
-                    <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                    <div className="mb-6 rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/60">
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                                         Target Weight (kg)
                                     </label>
                                     <Input
@@ -122,7 +138,7 @@ export default function GoalSetting({ goals = [] }) {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                                         Starting Weight (kg)
                                     </label>
                                     <Input
@@ -134,19 +150,19 @@ export default function GoalSetting({ goals = [] }) {
                                         onChange={e => setData('starting_weight', e.target.value)}
                                         placeholder="Leave empty for current weight"
                                     />
-                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                    <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                                         Optional: Set your journey's starting point
                                     </p>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                    <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                                         Goal Type
                                     </label>
                                     <select
                                         value={data.goal_type}
                                         onChange={e => setData('goal_type', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                        className="w-full rounded-lg border border-slate-300/90 bg-white px-3 py-2 text-sm text-slate-900 shadow-xs outline-none transition-[border-color,box-shadow] focus-visible:border-primary/80 focus-visible:ring-[3px] focus-visible:ring-primary/25 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus-visible:border-primary/70 dark:focus-visible:ring-primary/35"
                                     >
                                         <option value="lose">Lose Weight</option>
                                         <option value="gain">Gain Weight</option>
@@ -156,7 +172,7 @@ export default function GoalSetting({ goals = [] }) {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                                     Target Date (Optional)
                                 </label>
                                 <Input
@@ -168,7 +184,7 @@ export default function GoalSetting({ goals = [] }) {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                                     Description (Optional)
                                 </label>
                                 <Input
@@ -181,7 +197,7 @@ export default function GoalSetting({ goals = [] }) {
                             </div>
 
                             <div className="flex gap-2">
-                                <Button type="submit" disabled={processing} className="bg-purple-600 hover:bg-purple-700">
+                                <Button type="submit" disabled={processing}>
                                     {processing ? 'Saving...' : editingId ? 'Update Goal' : 'Create Goal'}
                                 </Button>
                                 <Button type="button" onClick={cancelEdit} variant="outline">
@@ -195,21 +211,21 @@ export default function GoalSetting({ goals = [] }) {
                 {/* Goals List */}
                 {goals.length === 0 ? (
                     <div className="text-center py-8">
-                        <Target className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-3" />
-                        <p className="text-gray-600 dark:text-gray-400 mb-2">No weight goals set yet</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <Target className="mx-auto mb-3 h-12 w-12 text-slate-400 dark:text-slate-500" />
+                        <p className="mb-2 text-slate-600 dark:text-slate-300">No weight goals set yet</p>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
                             Create your first goal to start tracking your progress
                         </p>
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {goals.map(goal => (
-                            <div key={goal.id} className={`p-4 rounded-lg border-2 ${getGoalColor(goal.goal_type)}`}>
+                        {goals.map((goal, index) => (
+                            <div key={`${goal.id ?? 'goal'}-${goal.target_date ?? 'no-date'}-${index}`} className={`p-4 rounded-lg border-2 ${getGoalColor(goal.goal_type)}`}>
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2 mb-2">
                                             {getGoalIcon(goal.goal_type)}
-                                            <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                                            <h3 className="font-semibold text-slate-900 dark:text-slate-100">
                                                 {goal.goal_type === 'lose' && 'Get down to '}
                                                 {goal.goal_type === 'gain' && 'Gain up to '}
                                                 {goal.goal_type === 'maintain' && 'Maintain at '}
@@ -223,16 +239,16 @@ export default function GoalSetting({ goals = [] }) {
                                         </div>
 
                                         {goal.description && (
-                                            <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">{goal.description}</p>
+                                            <p className="mb-2 text-sm text-slate-600 dark:text-slate-300">{goal.description}</p>
                                         )}
 
-                                        <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+                                        <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300">
                                             {goal.target_date && (
                                                 <div className="flex items-center gap-1">
                                                     <Calendar className="h-4 w-4" />
                                                     <span>Target: {goal.target_date}</span>
                                                     {goal.days_to_target !== null && (
-                                                        <span className={`ml-1 ${goal.days_to_target < 0 ? 'text-red-600 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                                                        <span className={`ml-1 ${goal.days_to_target < 0 ? 'text-red-600 dark:text-red-400' : 'text-blue-700 dark:text-blue-300'}`}>
                                                             ({goal.days_to_target < 0 ? 'overdue' : `${goal.days_to_target} days`})
                                                         </span>
                                                     )}
@@ -243,12 +259,12 @@ export default function GoalSetting({ goals = [] }) {
                                         {/* Progress Bar */}
                                         <div className="mt-3">
                                             <div className="flex justify-between items-center text-sm mb-1">
-                                                <span className="text-gray-600 dark:text-gray-400">Progress</span>
+                                                <span className="text-slate-600 dark:text-slate-300">Progress</span>
                                                 <span className="font-medium">{goal.progress}%</span>
                                             </div>
-                                            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                                            <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-slate-700">
                                                 <div
-                                                    className="bg-purple-600 dark:bg-purple-500 h-2 rounded-full transition-all duration-300"
+                                                    className="h-2 rounded-full bg-blue-600 transition-all duration-300 dark:bg-blue-500"
                                                     style={{ width: `${Math.min(100, Math.max(0, goal.progress))}%` }}
                                                 ></div>
                                             </div>
@@ -268,7 +284,7 @@ export default function GoalSetting({ goals = [] }) {
                                             onClick={() => handleDelete(goal.id)}
                                             size="sm"
                                             variant="outline"
-                                            className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                            className="p-2 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
                                         >
                                             <Trash2 className="h-4 w-4" />
                                         </Button>

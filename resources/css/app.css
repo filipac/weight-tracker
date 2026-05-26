@@ -9,16 +9,55 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
-    
-    --color-primary: 15 23 42;
+
+    --color-primary: 37 99 235;
     --color-primary-foreground: 248 250 252;
-    --color-secondary: 241 245 249;
+    --color-secondary: 226 232 240;
     --color-secondary-foreground: 15 23 42;
-    --color-destructive: 239 68 68;
-    --color-destructive-foreground: 248 250 252;
-    --color-background: 255 255 255;
-    --color-accent: 241 245 249;
+    --color-destructive: 220 38 38;
+    --color-destructive-foreground: 255 255 255;
+    --color-background: 248 250 252;
+    --color-accent: 239 246 255;
     --color-accent-foreground: 15 23 42;
-    --color-input: 203 213 225;
-    --color-ring: 15 23 42;
+    --color-input: 148 163 184;
+    --color-ring: 37 99 235;
+}
+
+:root {
+    --app-bg: #f8fafc;
+    --app-bg-elevated: #ffffff;
+    --app-bg-muted: #f1f5f9;
+    --app-text: #0f172a;
+    --app-text-muted: #475569;
+    --app-border: #cbd5e1;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-background: 2 6 23;
+        --color-secondary: 30 41 59;
+        --color-secondary-foreground: 226 232 240;
+        --color-accent: 30 41 59;
+        --color-accent-foreground: 226 232 240;
+        --color-input: 71 85 105;
+        --app-bg: #020617;
+        --app-bg-elevated: #0f172a;
+        --app-bg-muted: #1e293b;
+        --app-text: #e2e8f0;
+        --app-text-muted: #94a3b8;
+        --app-border: #334155;
+    }
+}
+
+html {
+    color-scheme: light dark;
+}
+
+body {
+    min-height: 100vh;
+    background-color: var(--app-bg);
+    background-image:
+        radial-gradient(circle at 0% 0%, rgb(37 99 235 / 0.11), transparent 42%),
+        radial-gradient(circle at 100% 0%, rgb(14 116 144 / 0.1), transparent 36%);
+    color: var(--app-text);
 }
