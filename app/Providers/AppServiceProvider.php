@@ -19,14 +19,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-
         $creds = cache()->get('withings');
-        // dd($creds);
+
         config([
-            'withings.access_token' => $creds['access_token'],
-            'withings.refresh_token' => $creds['refresh_token'],
             'withings.client_id' => config('services.withings.client_id'),
             'withings.client_secret' => config('services.withings.client_secret'),
         ]);
+
+        if (is_array($creds) && isset($creds['access_token'], $creds['refresh_token'])) {
+            config([
+                'withings.access_token' => $creds['access_token'],
+                'withings.refresh_token' => $creds['refresh_token'],
+            ]);
+        }
     }
 }

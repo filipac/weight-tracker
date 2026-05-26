@@ -28,6 +28,8 @@ export default function WeightPredictions({ predictions }) {
         goalDate90,
         goalPredictions = [],
         dailyWeightLoss,
+        allTimeDailyWeightLoss,
+        allTimeDailyWeightChange,
         confidence,
         trend,
         entryCount
@@ -100,6 +102,21 @@ export default function WeightPredictions({ predictions }) {
                             {isLosingWeight ? '-' : '+'}{dailyWeightLoss} kg/day
                         </div>
                     </div>
+
+                    {/* All-Time Daily Rate */}
+                    {allTimeDailyWeightLoss !== null && allTimeDailyWeightLoss !== undefined && (
+                        <div className="rounded-lg bg-slate-50 p-4 dark:bg-slate-900/60">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Activity className="h-4 w-4 text-slate-600 dark:text-slate-300" />
+                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                    All-Time Daily Rate
+                                </span>
+                            </div>
+                            <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                                {allTimeDailyWeightChange < 0 ? '-' : '+'}{allTimeDailyWeightLoss} kg/day
+                            </div>
+                        </div>
+                    )}
 
                     {/* Custom Goal Predictions */}
                     {goalPredictions.length > 0 ? (
