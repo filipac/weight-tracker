@@ -194,7 +194,7 @@ defaults to **No**. Use `--details` to print all numerical measurements and char
 samples. The terminal shows chart values rather than rendering SVG charts.
 
 For unattended use, `--direct` skips selection and confirmation prompts and publishes
-all available entries:
+new and changed entries:
 
 ```sh
 php artisan health:publish --direct --no-interaction
@@ -212,7 +212,7 @@ Do not hard-code dated `--entry` filters for daily automation. A noninteractive
 invocation without `--direct` is rejected. `--direct` bypasses prompts only: it
 still uses the frozen preview, validation, provider retention, topic/date upserts,
 expiry and stale-revision checks. The command does not refetch while publishing.
-If the web destination changes during a command run, remaining publication stops;
+Without a destination override, if the web destination changes during a command run, remaining publication stops;
 run it again to review the new destination. Connection credential changes are also
 rejected. The command never updates the remembered destination itself.
 
@@ -278,3 +278,25 @@ before cleanup. Normal publishing uses the restricted role and needs no delete a
 
 Production deployment requires a separate deliberate user action. Running the command
 with `--direct` explicitly authorizes publication to the destination shown in its output.
+
+The web preview and console select only new or changed entries by default.
+Unchanged entries remain visible and can be selected manually (or with CLI
+`--entry`). `--direct` skips unchanged entries unless explicitly requested.
+When every entry is unchanged, the console exits without publication prompts or writes.
+
+`health:publish` and its internal fetch workers disable PHP’s memory limit for
+their own process, including plain `php artisan` invocations. This matches the
+Automator command and allows large ECG previews to merge with existing blog data.
+Global PHP and web-server memory settings are unchanged.
+
+Use `--local` or `--prod` to override the remembered blog for one run:
+
+```sh
+php artisan health:publish --local --direct --no-interaction
+php artisan health:publish --prod --direct --no-interaction
+```
+
+Both flags also work with interactive publishing. They do not change the cached
+web selection, and that selection changing during the run does not redirect or
+stop an explicitly targeted run. Connection configuration and revision checks
+still apply. Passing both flags fails with exit code 2 before fetching data.

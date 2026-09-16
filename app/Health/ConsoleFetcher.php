@@ -30,7 +30,7 @@ class ConsoleFetcher
                 while ($queue && count($running) < $limit) {
                     $task = array_shift($queue);
                     // Apple Health is already normalized in the frozen snapshot;
-                    // reading it locally avoids booting PHP for eight cache reads.
+                    // reading it locally avoids booting PHP for each cache read.
                     if (str_starts_with($task, 'apple_health.')) {
                         yield $task => $workflow->fetch($id, $owner, $task);
 

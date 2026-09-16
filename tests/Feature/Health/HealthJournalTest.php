@@ -248,6 +248,35 @@ class HealthJournalTest extends TestCase
         Http::assertSent(fn ($r) => str_contains($r->url(), 'pacurar.dev') && $r->hasHeader('Authorization', 'Basic '.base64_encode('production-owner:production-password')));
     }
 
+    public function test_php_oversized_body_warning_is_reported_without_exposing_server_output(): void
+    {
+        Http::fake(['blog.test/*' => Http::response('<br>Warning: PHP Request Startup: POST Content-Length of 3207312 bytes exceeds the limit of 2097152 bytes in Unknown on line 0<br>private-server-path', 200, ['Content-Type' => 'text/html'])]);
+        try {
+            app(BlogClient::class)->publish('local', $this->entry(), null);
+            $this->fail('Oversized request should fail.');
+        } catch (\App\Health\ProviderException $e) {
+            $this->assertSame('configuration', $e->state);
+            $this->assertStringContainsString('post_max_size', $e->getMessage());
+            $this->assertStringNotContainsString('private-server-path', $e->getMessage());
+        }
+    }
+
+    public function test_blog_endpoint_size_limit_has_a_specific_error(): void
+    {
+        Http::fake(['blog.test/*' => Http::response(['code' => 'health_large'], 413)]);
+        $this->expectException(\App\Health\ProviderException::class);
+        $this->expectExceptionMessage('blog endpoint’s 4 MB limit');
+        app(BlogClient::class)->publish('local', $this->entry(), null);
+    }
+
+    public function test_web_server_size_limit_has_a_specific_error(): void
+    {
+        Http::fake(['blog.test/*' => Http::response('<h1>Request Entity Too Large</h1>', 413)]);
+        $this->expectException(\App\Health\ProviderException::class);
+        $this->expectExceptionMessage('request size limit is too low');
+        app(BlogClient::class)->publish('local', $this->entry(), null);
+    }
+
     public function test_destination_is_remembered_in_cache_and_only_known_blogs_are_accepted(): void
     {
         $this->getJson('/health/status')->assertOk()->assertJsonPath('destination', 'local');

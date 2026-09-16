@@ -145,6 +145,28 @@ class AppleHealthExportTest extends TestCase
         $this->assertStringNotContainsString('classification', json_encode($s['entries']));
     }
 
+    public function test_mindful_minutes_are_available_for_both_days_with_public_units(): void
+    {
+        $this->export('current', ['metrics' => [
+            $this->metric('mindful_minutes', 12.5, unit: 'min'),
+            $this->metric('mindful_minutes', 0.5, at: '2026-09-15 12:00:00 AM +0300', unit: 'hr'),
+        ]]);
+        $snapshot = $this->capture();
+        $this->assertSame('ok', $snapshot['state']);
+        $this->assertEmpty($snapshot['warnings']);
+        $this->assertContains('apple_health.mindfulness', Collector::tasks());
+        $result = app(Collector::class)->fetch('apple_health.mindfulness', '2026-09-16', '2026-09-15', now()->toIso8601String(), $snapshot);
+        foreach (['2026-09-16' => 12.5, '2026-09-15' => 30.0] as $date => $minutes) {
+            $entry = $result['entries']['mindfulness:'.$date];
+            $metric = $entry['providers']['apple_health']['metrics'][0];
+            $this->assertSame('Mindful minutes', $metric['label']);
+            $this->assertSame('min', $metric['unit']);
+            $this->assertSame($minutes, $metric['value']);
+            $this->assertStringStartsWith($date, $metric['at']);
+            $this->assertStringNotContainsString('private device', json_encode($entry));
+        }
+    }
+
     public function test_invalid_newest_json_and_unknown_units_are_reported(): void
     {
         $path = $this->export('current', ['metrics' => [$this->metric(unit: 'mystery')]]);

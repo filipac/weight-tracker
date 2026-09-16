@@ -92,6 +92,12 @@ class BlogClient
         if (! $response instanceof Response) {
             throw new ProviderException('connection', 'The blog could not be reached. Check its HTTPS certificate and connection, then retry.');
         }
+        if ($response->status() === 413 || preg_match('/POST Content-Length of \d+ bytes exceeds the limit of \d+ bytes/', substr($response->body(), 0, 4096))) {
+            $message = $response->json('code') === 'health_large'
+                ? 'This health entry exceeds the blog endpoint’s 4 MB limit. Reduce the exported time-series data and fetch a new preview.'
+                : 'The blog server rejected this health entry because its request size limit is too low. Set PHP post_max_size and the web server request limit to at least 8 MB, then retry.';
+            throw new ProviderException('configuration', $message);
+        }
         if ($response->status() === 409) {
             throw new ProviderException('stale', 'This entry changed after preview. Fetch a fresh preview before updating it.');
         }
@@ -102,7 +108,7 @@ class BlogClient
             throw new ProviderException('configuration', 'The health journal endpoint is not installed on this destination.');
         }
         if (! $response->successful() || ! is_array($response->json()) || $response->json('schema_version') !== 1) {
-            throw new ProviderException('error', 'The blog returned an unexpected response. Verify the health journal theme setup.');
+            throw new ProviderException('error', 'The blog returned an unexpected response (HTTP '.$response->status().'). Verify the health journal theme setup and server error log.');
         }
 
         return $response->json();

@@ -114,7 +114,7 @@ export default function HealthPublisher() {
             const prepared = await axios.post(`/health/previews/${data.id}/prepare`)
             if (run !== generation.current) return
             setPreview(prepared.data)
-            setSelected(Object.fromEntries(Object.keys(prepared.data.entries).map(key => [key, true])))
+            setSelected(Object.fromEntries(Object.entries(prepared.data.entries).map(([key, item]) => [key, item.operation !== 'unchanged'])))
         } catch (e) { if (run === generation.current) setError(errorMessage(e)) }
         finally { if (run === generation.current) setBusy('') }
     }
@@ -146,7 +146,7 @@ export default function HealthPublisher() {
         {connectionResult && <p className={connectionResult.connected ? 'hp-notice' : 'hp-error'} role="status">{connectionResult.message}{connectionResult.username && ` Signed in as ${connectionResult.username}.`}</p>}
         {error && <p className="hp-error" role="alert">{error}</p>}
         {snapshot && <p className="hp-dates">Today: <strong>{snapshot.today}</strong><span>Yesterday: <strong>{snapshot.yesterday}</strong></span><span>Europe/Bucharest</span></p>}
-        {snapshot?.apple_health && <div className="hp-notice"><strong>Apple Health export: {snapshot.apple_health.folder || 'No folder'}</strong><p>{snapshot.apple_health.state === 'ok' ? `${snapshot.apple_health.from || 'No dates'} → ${snapshot.apple_health.to || 'No dates'} · ${snapshot.apple_health.metric_types} metric types · ${snapshot.apple_health.workouts} workouts · ${snapshot.apple_health.ecgs} ECG records` : snapshot.apple_health.message}</p><p>This export is frozen for this preview. Available data for both today and yesterday is selected.</p>{snapshot.apple_health.warnings?.map(warning => <p key={warning}>{warning}</p>)}</div>}
+        {snapshot?.apple_health && <div className="hp-notice"><strong>Apple Health export: {snapshot.apple_health.folder || 'No folder'}</strong><p>{snapshot.apple_health.state === 'ok' ? `${snapshot.apple_health.from || 'No dates'} → ${snapshot.apple_health.to || 'No dates'} · ${snapshot.apple_health.metric_types} metric types · ${snapshot.apple_health.workouts} workouts · ${snapshot.apple_health.ecgs} ECG records` : snapshot.apple_health.message}</p><p>This export is frozen for this preview. New and changed entries for today and yesterday are selected by default. Unchanged entries are unchecked.</p>{snapshot.apple_health.warnings?.map(warning => <p key={warning}>{warning}</p>)}</div>}
         {!!Object.keys(tasks).length && <details className="hp-fetch-status" open={!preview}><summary>Data sources · {completed}/{Object.keys(tasks).length} complete</summary><ul>{Object.entries(tasks).map(([task, result]) => <li key={task}>
             <span>{task.replaceAll('_', ' ').replace('.', ' / ')}<span className="hp-source-date">Requested: {(result.checked_dates || snapshot.task_dates[task]).join(' & ')}</span></span>
             <span>{result.days?.length ? result.days.map(day => <span className={`hp-day-result hp-state-${day.state}`} key={day.date}><time dateTime={day.date}>{day.date}</time> · {day.message}</span>) : <span className={`hp-state-${result.state}`}>{result.message}</span>}</span>

@@ -19,6 +19,8 @@ class FetchHealthTaskCommand extends Command
         if (! is_string($owner) || ! preg_match('/^[a-f0-9]{64}$/D', $owner)) {
             return self::FAILURE;
         }
+        // Each worker is a fresh PHP process and does not inherit ini_set().
+        ini_set('memory_limit', '-1');
         try {
             $result = $workflow->fetch($this->argument('id'), $owner, $this->argument('task'));
             $this->output->write(json_encode($result, JSON_THROW_ON_ERROR));

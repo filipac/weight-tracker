@@ -140,7 +140,7 @@ class ConsoleFetcherTest extends TestCase
         Cache::put('test:entries', ['weight:'.$today => $entry], 60);
         Cache::forever('health:last_destination', 'local');
         $this->app->instance(ConsoleFetcher::class, $this->fetcher());
-        $this->mock(Collector::class)->shouldReceive('fetch')->times(8)
+        $this->mock(Collector::class)->shouldReceive('fetch')->times(count(AppleHealthExport::TASKS))
             ->andReturn(['state' => 'empty', 'message' => 'Local Apple Health fixture', 'entries' => []]);
         Http::fake(['blog.test/*' => Http::response(['schema_version' => 1, 'entry' => null, 'revision' => null])]);
         $this->artisan('health:publish', ['--entry' => ['weight:'.$today]])

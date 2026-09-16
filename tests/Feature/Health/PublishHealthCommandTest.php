@@ -116,6 +116,70 @@ class PublishHealthCommandTest extends TestCase
         $this->assertSame('production', PublishingWorkflow::rememberedDestination());
     }
 
+    public function test_local_override_uses_local_credentials_without_changing_cached_destination(): void
+    {
+        Cache::forever('health:last_destination', 'production');
+        $this->artisan('health:publish', ['--local' => true, '--direct' => true, '--no-interaction' => true])
+            ->expectsOutput('Destination: LOCAL · https://blog.test')->assertExitCode(0);
+        Http::assertSentCount(4);
+        Http::assertNotSent(fn ($r) => ! str_starts_with($r->url(), 'https://blog.test/') || ! $r->hasHeader('Authorization', 'Basic '.base64_encode('local-owner:local-secret')));
+        $this->assertSame('production', PublishingWorkflow::rememberedDestination());
+    }
+
+    public function test_prod_override_uses_production_credentials_without_changing_cached_destination(): void
+    {
+        Cache::forever('health:last_destination', 'local');
+        $this->artisan('health:publish', ['--prod' => true, '--direct' => true, '--no-interaction' => true])
+            ->expectsOutput('Destination: PRODUCTION · https://pacurar.dev')->assertExitCode(0);
+        Http::assertSentCount(4);
+        Http::assertNotSent(fn ($r) => ! str_starts_with($r->url(), 'https://pacurar.dev/') || ! $r->hasHeader('Authorization', 'Basic '.base64_encode('production-owner:production-secret')));
+        $this->assertSame('local', PublishingWorkflow::rememberedDestination());
+    }
+
+    public function test_conflicting_destination_flags_fail_before_fetching(): void
+    {
+        $this->artisan('health:publish', ['--local' => true, '--prod' => true, '--direct' => true])
+            ->expectsOutput('Choose either --local or --prod, not both.')->assertExitCode(2);
+        $this->assertSame([], $this->fetches);
+        Http::assertNothingSent();
+    }
+
+    public function test_explicit_destination_remains_fixed_when_web_selection_changes(): void
+    {
+        Cache::forever('health:last_destination', 'local');
+        $this->fakeBlog(function ($r) {
+            Cache::forever('health:last_destination', 'production');
+
+            return $r->method() === 'GET'
+                ? Http::response(['schema_version' => 1, 'entry' => null])
+                : Http::response(['schema_version' => 1, 'operation' => 'created', 'id' => 1, 'url' => 'https://blog.test/health/fixture', 'revision' => str_repeat('a', 64)]);
+        });
+        $this->artisan('health:publish', ['--local' => true, '--direct' => true])->assertExitCode(0);
+        $this->assertCount(2, Http::recorded(fn ($r) => $r->method() === 'POST'));
+        Http::assertNotSent(fn ($r) => ! str_starts_with($r->url(), 'https://blog.test/'));
+    }
+
+    public function test_plain_command_removes_memory_limit_before_loading_exports(): void
+    {
+        $previous = ini_get('memory_limit');
+        ini_set('memory_limit', '128M');
+        $this->app->instance(AppleHealthExport::class, new class extends AppleHealthExport
+        {
+            public function capture(string $fetchedAt): array
+            {
+                \PHPUnit\Framework\Assert::assertSame('-1', ini_get('memory_limit'));
+
+                return ['state' => 'unavailable', 'entries' => []];
+            }
+        });
+        try {
+            $this->artisan('health:publish', ['--direct' => true, '--no-interaction' => true])->assertExitCode(0);
+            $this->assertSame('-1', ini_get('memory_limit'));
+        } finally {
+            ini_set('memory_limit', $previous);
+        }
+    }
+
     public function test_no_interaction_requires_explicit_direct_before_fetching(): void
     {
         $this->artisan('health:publish', ['--no-interaction' => true])->expectsOutputToContain('Use --direct')->assertExitCode(2);
@@ -128,10 +192,40 @@ class PublishHealthCommandTest extends TestCase
         $old = EntryContract::normalize($this->entry('2026-09-15', 90));
         $this->posts['2026-09-15'] = ['id' => 10, 'entry' => $old, 'revision' => EntryContract::fingerprint($old)];
         $this->artisan('health:publish', ['--direct' => true])->expectsOutputToContain('Created: 1 · Updated: 1')->assertExitCode(0);
-        $this->artisan('health:publish', ['--direct' => true])->expectsOutputToContain('Unchanged: 2')->assertExitCode(0);
+        $this->artisan('health:publish', ['--direct' => true])->expectsOutput('All entries are unchanged. Nothing was published.')->assertExitCode(0);
+        $this->assertCount(2, Http::recorded(fn ($request) => $request->method() === 'POST'));
         $this->assertCount(2, $this->posts);
         $this->assertSame(10, $this->posts['2026-09-15']['id']);
         $this->assertCount(2 * count(Collector::tasks()), $this->fetches);
+    }
+
+    public function test_direct_skips_unchanged_entries_in_a_mixed_preview(): void
+    {
+        $old = EntryContract::normalize($this->entry('2026-09-16', 80));
+        $this->posts['2026-09-16'] = ['id' => 10, 'entry' => $old, 'revision' => EntryContract::fingerprint($old)];
+        $this->artisan('health:publish', ['--direct' => true])->assertExitCode(0);
+        $this->assertCount(1, Http::recorded(fn ($r) => $r->method() === 'POST'));
+        Http::assertNotSent(fn ($r) => $r->method() === 'POST' && $r['date'] === '2026-09-16');
+    }
+
+    public function test_explicit_entry_can_include_an_unchanged_entry(): void
+    {
+        $old = EntryContract::normalize($this->entry('2026-09-16', 80));
+        $this->posts['2026-09-16'] = ['id' => 10, 'entry' => $old, 'revision' => EntryContract::fingerprint($old)];
+        $this->artisan('health:publish', ['--direct' => true, '--entry' => ['weight:2026-09-16']])
+            ->expectsOutputToContain('Unchanged: 1')->assertExitCode(0);
+        $this->assertCount(1, Http::recorded(fn ($r) => $r->method() === 'POST'));
+        Http::assertNotSent(fn ($r) => $r->method() === 'POST' && $r['date'] === '2026-09-15');
+    }
+
+    public function test_interactive_run_with_all_entries_unchanged_exits_without_prompts(): void
+    {
+        foreach (['2026-09-16' => 80, '2026-09-15' => 81] as $date => $value) {
+            $old = EntryContract::normalize($this->entry($date, $value));
+            $this->posts[$date] = ['id' => count($this->posts) + 1, 'entry' => $old, 'revision' => EntryContract::fingerprint($old)];
+        }
+        $this->artisan('health:publish')->expectsOutput('All entries are unchanged. Nothing was published.')->assertExitCode(0);
+        Http::assertNotSent(fn ($r) => $r->method() === 'POST');
     }
 
     public function test_partial_sources_still_publish_successes_but_exit_nonzero(): void

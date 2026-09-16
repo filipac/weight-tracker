@@ -2708,5 +2708,13 @@
     "label": "ECG voltage",
     "unit": "µV",
     "series": true
+  },
+  "apple_health.mindful_minutes": {
+    "source": "apple_health",
+    "endpoint": "mindful_minutes",
+    "field": "qty",
+    "topic": "mindfulness",
+    "unit": "min",
+    "label": "Mindful minutes"
   }
 }

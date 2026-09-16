@@ -7,7 +7,7 @@ use Carbon\CarbonImmutable;
 /** Private, local Health Auto Export reader. Raw identifiers and routes never leave this class. */
 class AppleHealthExport
 {
-    public const TASKS = ['weight', 'body-composition', 'activity', 'heart', 'sleep', 'vitals', 'workouts', 'ecg'];
+    public const TASKS = ['weight', 'body-composition', 'activity', 'heart', 'sleep', 'vitals', 'mindfulness', 'workouts', 'ecg'];
 
     public function latestFolder(): ?string
     {
@@ -84,6 +84,9 @@ class AppleHealthExport
                     }
                     $definitions = array_filter(MetricCatalog::all(), fn ($d) => $d['source'] === 'apple_health' && $d['endpoint'] === $metric['name']);
                     if (! $definitions) {
+                        // \Log::warning('Unknown metric encountered.', ['metric' => $metric]);
+                        function_exists('ray') && ray('Unknown metric encountered: '.$metric['name']);
+                        function_exists('ray') && ray($metric);
                         $unknown++;
 
                         continue;

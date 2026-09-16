@@ -15,6 +15,8 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 class PublishHealthCommand extends Command
 {
     protected $signature = 'health:publish
+        {--local : Use the local blog for this run instead of the remembered destination}
+        {--prod : Use the production blog for this run instead of the remembered destination}
         {--direct : Publish all selected entries without confirmation or retry prompts}
         {--entry=* : Publish only these topic:YYYY-MM-DD entries (repeatable)}
         {--details : Print every numerical metric and time-series sample in the preview}';
@@ -23,6 +25,15 @@ class PublishHealthCommand extends Command
 
     public function handle(PublishingWorkflow $workflow, ConsoleFetcher $fetcher): int
     {
+        // Large ECG previews can exceed the CLI default while merging existing
+        // entries. Keep direct terminal runs consistent with the automation.
+        ini_set('memory_limit', '-1');
+        if ($this->option('local') && $this->option('prod')) {
+            $this->error('Choose either --local or --prod, not both.');
+
+            return self::INVALID;
+        }
+        $destinationOverride = $this->option('local') ? 'local' : ($this->option('prod') ? 'production' : null);
         if (! $this->option('direct') && ! $this->input->isInteractive()) {
             $this->error('Confirmation requires an interactive terminal. Use --direct for unattended publishing.');
 
@@ -37,7 +48,7 @@ class PublishHealthCommand extends Command
 
                 return self::FAILURE;
             }
-            $destination = PublishingWorkflow::rememberedDestination();
+            $destination = $destinationOverride ?? PublishingWorkflow::rememberedDestination();
             $url = config('health.blogs.'.$destination.'.url');
             $this->info('Destination: '.strtoupper($destination).' · '.$url);
             $this->line('Preparing preview and reading the newest local Apple Health export…');
@@ -64,6 +75,7 @@ class PublishHealthCommand extends Command
                     }
                 }
             }
+            $this->line('Preparing entry previews and comparing with the blog…');
             $preview = $workflow->prepare($id, $owner);
             if (! $preview['entries']) {
                 $this->info('No publishable entries found. Nothing was published.');
@@ -72,6 +84,7 @@ class PublishHealthCommand extends Command
             }
             $this->showPreview($preview);
             $available = array_keys($preview['entries']);
+            $changed = array_keys(array_filter($preview['entries'], fn ($item) => $item['operation'] !== 'unchanged'));
             $selected = array_values(array_unique($this->option('entry')));
             if (array_diff($selected, $available)) {
                 $this->error('An --entry value is not in this preview. Use a topic:YYYY-MM-DD key shown above. Nothing was published.');
@@ -79,10 +92,18 @@ class PublishHealthCommand extends Command
                 return self::INVALID;
             }
             if (! $selected) {
-                $selected = $this->option('direct') ? $available : $this->choice(
+                if (! $changed) {
+                    $this->info('All entries are unchanged. Nothing was published.');
+                    if ($sourceFailures) {
+                        $this->warn('Some source requests failed. Run again after resolving the reported source errors.');
+                    }
+
+                    return $sourceFailures ? self::FAILURE : self::SUCCESS;
+                }
+                $selected = $this->option('direct') ? $changed : $this->choice(
                     'Select entries to publish (comma-separated numbers)',
                     $available,
-                    implode(',', range(0, count($available) - 1)),
+                    implode(',', array_keys(array_intersect($available, $changed))),
                     null,
                     true
                 );
@@ -97,7 +118,7 @@ class PublishHealthCommand extends Command
             do {
                 $retry = [];
                 foreach ($selected as $key) {
-                    if (PublishingWorkflow::rememberedDestination() !== $destination) {
+                    if ($destinationOverride === null && PublishingWorkflow::rememberedDestination() !== $destination) {
                         $this->error('The destination selected in the web app changed during this run. Run the command again to review the new destination.');
 
                         return self::FAILURE;
