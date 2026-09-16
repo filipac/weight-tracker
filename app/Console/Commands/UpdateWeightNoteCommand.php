@@ -40,24 +40,19 @@ class UpdateWeightNoteCommand extends Command
                 return '<div>'.htmlspecialchars($line, ENT_QUOTES, 'UTF-8').'</div>';
             }, $weightList);
 
-            // Find start and end markers
-            $startMarker = '<div><span style="font-size: 16px">== start</span></div>';
-            $endMarker = '<div><span style="font-size: 16px">== end</span></div>';
+            // Notes.app may change the HTML around text, so match the marker line by text.
+            $startMarker = $this->findMarker($currentContent, 'start');
+            $endMarker = $this->findMarker($currentContent, 'end');
 
-            $startPos = strpos($currentContent, $startMarker);
-            $endPos = strpos($currentContent, $endMarker);
-
-            // dd($startPos, $endPos, $currentContent);
-
-            if ($startPos === false || $endPos === false) {
+            if ($startMarker === null || $endMarker === null) {
                 $this->error('Could not find == start or == end markers in the note');
 
                 return 1;
             }
 
             // Calculate positions after the start marker and before the end marker
-            $contentStart = $startPos + strlen($startMarker);
-            $contentEnd = $endPos;
+            $contentStart = $startMarker['offset'] + strlen($startMarker['html']);
+            $contentEnd = $endMarker['offset'];
 
             // Build new content
             $beforeStart = substr($currentContent, 0, $contentStart);
@@ -87,5 +82,22 @@ class UpdateWeightNoteCommand extends Command
 
             return 1;
         }
+    }
+
+    private function findMarker(string $content, string $marker): ?array
+    {
+        $pattern = sprintf(
+            '/<div\b[^>]*>\s*(?:<span\b[^>]*>\s*)?==\s*%s\s*(?:<\/span>\s*)?<\/div>/i',
+            preg_quote($marker, '/')
+        );
+
+        if (! preg_match($pattern, $content, $matches, PREG_OFFSET_CAPTURE)) {
+            return null;
+        }
+
+        return [
+            'html' => $matches[0][0],
+            'offset' => $matches[0][1],
+        ];
     }
 }

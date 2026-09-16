@@ -14,6 +14,33 @@ class WeightRateReportCommand extends Command
 
     private const WINDOW_DAYS = 30;
 
+    // Personal / maintenance settings
+    private const HEIGHT_CM = 173;
+
+    private const AGE = 33;
+
+    private const TARGET_WEIGHT = 73.5;
+
+    private const MAINTENANCE_MIN = 72.5;
+
+    private const MAINTENANCE_MAX = 75.0;
+
+    // Treat changes smaller than +/-0.25 kg/week as stable.
+    private const STABLE_WEEKLY_THRESHOLD = 0.25;
+
+    // Width (in characters) of the chronological trend bar in the text report.
+    private const TIMELINE_BAR_WIDTH = 40;
+
+    // Phases listed under the text timeline before collapsing into a summary line.
+    private const TIMELINE_PHASE_LIMIT = 15;
+
+    // Mifflin-St Jeor BMR x 1.2 = sedentary TDEE estimate.
+    // Actual maintenance can be higher depending on activity.
+    private const SEDENTARY_ACTIVITY_MULTIPLIER = 1.2;
+
+    // Used only as a rough historical energy equivalent, not a measured deficit.
+    private const ENERGY_EQUIVALENT_KCAL_PER_KG = 7700;
+
     public function handle()
     {
         $entries = WeightEntry::orderBy('date', 'asc')->get();
@@ -86,16 +113,17 @@ class WeightRateReportCommand extends Command
         $best = $allSlopes[$bestIdx];
         $worst = $allSlopes[$worstIdx];
 
-        $losingCount = count(array_filter($slopes, fn ($s) => $s < -0.001));
-        $gainingCount = count(array_filter($slopes, fn ($s) => $s > 0.001));
-        $stableCount = count($slopes) - $losingCount - $gainingCount;
+        $trends = array_map(fn ($s) => $this->getTrend($s), $slopes);
+        $losingCount = count(array_filter($trends, fn ($trend) => $trend === 'losing'));
+        $gainingCount = count(array_filter($trends, fn ($trend) => $trend === 'gaining'));
+        $stableCount = count(array_filter($trends, fn ($trend) => $trend === 'stable'));
         $total = count($slopes);
 
         // Current streak
         $currentTrend = null;
         $streakCount = 0;
         for ($i = count($slopes) - 1; $i >= 0; $i--) {
-            $trend = $slopes[$i] < -0.001 ? 'losing' : ($slopes[$i] > 0.001 ? 'gaining' : 'stable');
+            $trend = $this->getTrend($slopes[$i]);
             if ($currentTrend === null) {
                 $currentTrend = $trend;
             }
@@ -105,6 +133,10 @@ class WeightRateReportCommand extends Command
                 break;
             }
         }
+
+        // Chronological trend phases (ordered, not just counted)
+        $segments = $this->buildTrendSegments($allSlopes);
+        $timelineDays = array_sum(array_column($segments, 'days'));
 
         // Build output
         $lines = [];
@@ -137,25 +169,39 @@ class WeightRateReportCommand extends Command
         $lines[] = '                across '.$total.' windows';
         $lines[] = '';
 
-        // Distribution
-        $lines[] = '── Trend Distribution ──';
+        // Timeline (chronological, oldest -> newest)
+        $lines[] = '── Trend Timeline ──';
         $lines[] = '';
         $losingPct = round(($losingCount / $total) * 100);
         $gainingPct = round(($gainingCount / $total) * 100);
         $stablePct = 100 - $losingPct - $gainingPct;
 
-        $barWidth = 30;
-        $losingBar = (int) round($losingPct / 100 * $barWidth);
-        $gainingBar = (int) round($gainingPct / 100 * $barWidth);
-        $stableBar = $barWidth - $losingBar - $gainingBar;
+        $bar = '';
+        foreach ($this->allocateBarCells($segments, $timelineDays, self::TIMELINE_BAR_WIDTH) as $i => $cells) {
+            $bar .= str_repeat($this->trendChar($segments[$i]['trend']), $cells);
+        }
 
-        $bar = str_repeat('▓', $losingBar).str_repeat('░', $stableBar).str_repeat('▒', $gainingBar);
         $lines[] = '  ['.$bar.']';
+        $lines[] = '  '.$segments[0]['start']->format('d M Y').' → '.end($segments)['end']->format('d M Y');
+        $lines[] = '';
         $lines[] = '  ▓ Losing: '.$losingPct.'% ('.$losingCount.' windows)';
         if ($stableCount > 0) {
             $lines[] = '  ░ Stable: '.$stablePct.'% ('.$stableCount.' windows)';
         }
         $lines[] = '  ▒ Gaining: '.$gainingPct.'% ('.$gainingCount.' windows)';
+        $lines[] = '';
+
+        // Phases in order, so a gaining stretch in the middle stays visible
+        $lines[] = '  Phases in order ('.count($segments).'):';
+        foreach (array_slice($segments, 0, self::TIMELINE_PHASE_LIMIT) as $seg) {
+            $lines[] = '    '.$this->trendChar($seg['trend']).' '
+                .str_pad(ucfirst($seg['trend']), 8).' '
+                .$seg['start']->format('d M Y').' → '.$seg['end']->format('d M Y')
+                .'  ('.$seg['days'].' day'.($seg['days'] !== 1 ? 's' : '').', '.$this->formatSlope($seg['avgSlope']).' kg/day)';
+        }
+        if (count($segments) > self::TIMELINE_PHASE_LIMIT) {
+            $lines[] = '    … and '.(count($segments) - self::TIMELINE_PHASE_LIMIT).' more';
+        }
         $lines[] = '';
 
         // Streak
@@ -180,7 +226,7 @@ class WeightRateReportCommand extends Command
         $durationMonths = $durationDays / 30.44;
         $avgWeeklyLoss = $durationWeeks > 0 ? $totalLoss / $durationWeeks : 0;
         $avgMonthlyLoss = $durationMonths > 0 ? $totalLoss / $durationMonths : 0;
-        $heightM = 1.75;
+        $heightM = self::HEIGHT_CM / 100;
         $startBMI = round($startWeight / ($heightM * $heightM), 1);
         $endBMI = round($endWeight / ($heightM * $heightM), 1);
         $pctLoss = $startWeight > 0 ? round(abs($totalLoss) / $startWeight * 100, 1) : 0;
@@ -193,8 +239,10 @@ class WeightRateReportCommand extends Command
         $lines[] = '  Duration:          '.$durationDays.' days ('.round($durationWeeks, 1).' weeks)';
         $lines[] = '  Avg weekly loss:   '.$this->formatSlope($avgWeeklyLoss).' kg/week';
         $lines[] = '  Avg monthly loss:  '.$this->formatSlope($avgMonthlyLoss).' kg/month';
-        $avgDailyDeficit = $durationDays > 0 ? round(abs($totalLoss) / $durationDays * 7700) : 0;
-        $lines[] = '  Avg daily deficit: ~'.$avgDailyDeficit.' kcal/day (based on 7700 kcal/kg)';
+        $avgDailyEnergyEquivalent = $durationDays > 0
+            ? round(abs($totalLoss) / $durationDays * self::ENERGY_EQUIVALENT_KCAL_PER_KG)
+            : 0;
+        $lines[] = '  Avg daily energy equivalent: ~'.$avgDailyEnergyEquivalent.' kcal/day (rough historical estimate)';
         $lines[] = '';
 
         // Progress Milestones
@@ -221,7 +269,12 @@ class WeightRateReportCommand extends Command
             $lines[] = '  Longest plateau:   '.$longestPlateau.' days';
             $lines[] = '  Average length:    '.$avgPlateauLen.' days';
             $lines[] = '  Total plateaus:    '.count($plateaus);
-            $lines[] = '  Current plateau:   '.($isCurrentlyInPlateau ? 'YES ('.$lastPlateau['days'].' days, since '.$lastPlateau['start']->format('d M Y').')' : 'none');
+
+            if ($isCurrentlyInPlateau && $this->isInMaintenanceRange($endWeight)) {
+                $lines[] = '  Current state:     MAINTENANCE STABILITY ('.$lastPlateau['days'].' days, since '.$lastPlateau['start']->format('d M Y').')';
+            } else {
+                $lines[] = '  Current plateau:   '.($isCurrentlyInPlateau ? 'YES ('.$lastPlateau['days'].' days, since '.$lastPlateau['start']->format('d M Y').')' : 'none');
+            }
             $lines[] = '';
 
             if (count($plateaus) <= 10) {
@@ -242,7 +295,7 @@ class WeightRateReportCommand extends Command
                 }
             }
         } else {
-            $lines[] = '  No plateaus detected (|change| < 0.2 kg over 5+ days)';
+            $lines[] = '  No plateaus detected (within 0.5 kg of plateau start over 5+ days)';
         }
         $lines[] = '';
 
@@ -277,19 +330,20 @@ class WeightRateReportCommand extends Command
         $lines[] = '  Largest single-day gain:    +'.number_format($volatility['maxGain'], 1).' kg ('.$volatility['maxGainDate']->format('d M Y').')';
         $lines[] = '';
 
-        // Maintenance Projection (only if rate is slowing down / near zero)
-        if (abs($current['slope']) < 0.05) {
-            $recentAvg = $current['avgWeight'];
-            $lines[] = '── Maintenance Projection ──';
-            $lines[] = '';
-            $lines[] = '  Estimated maintenance range: '.number_format($recentAvg - 1.0, 1).' - '.number_format($recentAvg + 1.0, 1).' kg';
-            $maintenanceBMI = round($recentAvg / ($heightM * $heightM), 1);
-            $lines[] = '  Maintenance BMI:             '.$maintenanceBMI;
-            // Mifflin-St Jeor estimate (male, age ~30, 175cm)
-            $maintenanceCal = round(10 * $recentAvg + 6.25 * 175 - 5 * 30 + 5);
-            $lines[] = '  Est. maintenance calories:   ~'.$maintenanceCal.' kcal/day (sedentary)';
-            $lines[] = '';
-        }
+        // Maintenance status
+        $maintenance = $this->computeMaintenanceStats($sorted, $current);
+        $lines[] = '── Maintenance Status ──';
+        $lines[] = '';
+        $lines[] = '  Target weight:                '.number_format(self::TARGET_WEIGHT, 1).' kg';
+        $lines[] = '  Maintenance range:            '.number_format(self::MAINTENANCE_MIN, 1).' - '.number_format(self::MAINTENANCE_MAX, 1).' kg';
+        $lines[] = '  Current status:               '.$maintenance['status'];
+        $lines[] = '  30-day trend:                 '.$this->formatSlope($current['slope'] * 7).' kg/week ('.ucfirst($this->getTrend($current['slope'])).')';
+        $lines[] = '  Current in-range streak:      '.$maintenance['streakDays'].' days / '.$maintenance['streakEntries'].' weigh-ins';
+        $lines[] = '  Last 30 days in range:        '.$maintenance['last30InRangePct'].'%';
+        $lines[] = '  BMR estimate:                 ~'.$maintenance['bmr'].' kcal/day';
+        $lines[] = '  Sedentary maintenance est.:   ~'.$maintenance['sedentaryTdee'].' kcal/day';
+        $lines[] = '  Note: actual maintenance can be higher with exercise and daily activity.';
+        $lines[] = '';
 
         // Weekly breakdown — one row per week since tracking began
         $lines[] = '── Weekly Breakdown ──';
@@ -305,8 +359,8 @@ class WeightRateReportCommand extends Command
             $endW = str_pad(number_format($week['endWeight'], 1).'kg', 9);
             $change = $week['endWeight'] - $week['startWeight'];
             $changeStr = str_pad($this->formatSlope($change).' kg', 9);
-            $dailyStr = str_pad($this->formatSlope($week['dailyRate']).' kg', 11);
-            $weeklyStr = str_pad($this->formatSlope($week['dailyRate'] * 7).' kg', 11);
+            $dailyStr = str_pad($week['dailyRate'] !== null ? $this->formatSlope($week['dailyRate']).' kg' : 'n/a', 11);
+            $weeklyStr = str_pad($week['dailyRate'] !== null ? $this->formatSlope($week['dailyRate'] * 7).' kg' : 'n/a', 11);
             $entriesStr = (string) $week['entries'];
             $lines[] = '  '.$weekLabel.'  '.$startW.' '.$endW.' '.$changeStr.' '.$dailyStr.' '.$weeklyStr.' '.$entriesStr;
         }
@@ -336,7 +390,9 @@ class WeightRateReportCommand extends Command
                 $plateaus,
                 $whooshes,
                 $volatility,
-                $weeks
+                $weeks,
+                $segments,
+                $timelineDays
             );
 
             return;
@@ -375,6 +431,8 @@ class WeightRateReportCommand extends Command
         array $whooshes,
         array $volatility,
         array $weeks,
+        array $segments,
+        int $timelineDays,
     ): void {
         $startWeight = $sorted[0]['weight'];
         $startDate = $sorted[0]['date'];
@@ -384,7 +442,7 @@ class WeightRateReportCommand extends Command
         $durationDays = $startDate->diffInDays($endDate);
         $durationWeeks = $durationDays / 7;
         $durationMonths = $durationDays / 30.44;
-        $heightM = 1.75;
+        $heightM = self::HEIGHT_CM / 100;
 
         $fmtSlope = fn (float $v) => ($v < -0.001 ? '-' : ($v > 0.001 ? '+' : '')).number_format(abs($v), 3);
 
@@ -403,7 +461,14 @@ class WeightRateReportCommand extends Command
                 'durationDays' => $durationDays,
                 'avgWeeklyLoss' => $fmtSlope($durationWeeks > 0 ? $totalLoss / $durationWeeks : 0),
                 'avgMonthlyLoss' => $fmtSlope($durationMonths > 0 ? $totalLoss / $durationMonths : 0),
-                'avgDailyDeficit' => $durationDays > 0 ? number_format(round(abs($totalLoss) / $durationDays * 7700)) : '0',
+                // Keep avgDailyDeficit for backwards compatibility with the existing Blade view.
+                // It is an energy-equivalent estimate, not a directly measured physiological deficit.
+                'avgDailyDeficit' => $durationDays > 0
+                    ? number_format(round(abs($totalLoss) / $durationDays * self::ENERGY_EQUIVALENT_KCAL_PER_KG))
+                    : '0',
+                'avgDailyEnergyEquivalent' => $durationDays > 0
+                    ? number_format(round(abs($totalLoss) / $durationDays * self::ENERGY_EQUIVALENT_KCAL_PER_KG))
+                    : '0',
             ],
 
             'funFacts' => $this->generateFunFacts(abs($totalLoss), $durationDays, $endWeight),
@@ -413,6 +478,8 @@ class WeightRateReportCommand extends Command
                 'weekly' => $fmtSlope($current['slope'] * 7),
                 'date' => $current['date']->format('d M Y'),
                 'entries' => $current['pointCount'],
+                'avgWeight' => number_format($current['avgWeight'], 1),
+                'trend' => $this->getTrend($current['slope']),
             ],
 
             'historicalSummary' => [
@@ -434,6 +501,25 @@ class WeightRateReportCommand extends Command
                 'losingCount' => $losingCount,
                 'gainingCount' => $gainingCount,
                 'stableCount' => $stableCount,
+            ],
+
+            'timeline' => [
+                'start' => $segments[0]['start']->format('d M Y'),
+                'end' => end($segments)['end']->format('d M Y'),
+                'phaseCount' => count($segments),
+                // Widths are allocated over 200 half-percent cells so a one-window
+                // phase still gets a visible sliver instead of rounding away.
+                'segments' => array_values(array_map(
+                    fn ($seg, $cells) => [
+                        'trend' => $seg['trend'],
+                        'widthPct' => round($cells / 2, 2),
+                    ],
+                    $segments,
+                    $this->allocateBarCells($segments, $timelineDays, 200)
+                )),
+                // The non-losing stretches are the interesting part of the order;
+                // show the longest few, kept in chronological order.
+                'interruptions' => $this->longestInterruptions($segments),
             ],
 
             'streak' => [
@@ -461,8 +547,12 @@ class WeightRateReportCommand extends Command
             'plateauStats' => ! empty($plateaus) ? [
                 'longest' => max(array_column($plateaus, 'days')),
                 'avg' => round(array_sum(array_column($plateaus, 'days')) / count($plateaus), 1),
-                'currentlyInPlateau' => end($plateaus)['end']->eq($endDate) || end($plateaus)['end']->diffInDays($endDate) <= 1,
-            ] : ['longest' => 0, 'avg' => 0, 'currentlyInPlateau' => false],
+                // Do not flag healthy in-range maintenance stability as a problematic plateau.
+                'currentlyInPlateau' => (end($plateaus)['end']->eq($endDate) || end($plateaus)['end']->diffInDays($endDate) <= 1)
+                    && ! $this->isInMaintenanceRange($endWeight),
+                'maintenanceStability' => (end($plateaus)['end']->eq($endDate) || end($plateaus)['end']->diffInDays($endDate) <= 1)
+                    && $this->isInMaintenanceRange($endWeight),
+            ] : ['longest' => 0, 'avg' => 0, 'currentlyInPlateau' => false, 'maintenanceStability' => false],
 
             'whooshes' => array_map(fn ($w) => [
                 'date' => $w['date']->format('d M Y'),
@@ -482,6 +572,8 @@ class WeightRateReportCommand extends Command
                 'maxGainDate' => $volatility['maxGainDate']->format('d M Y'),
             ],
 
+            'maintenance' => $this->computeMaintenanceStats($sorted, $current),
+
             'weeks' => array_map(function ($week) use ($fmtSlope) {
                 $change = $week['endWeight'] - $week['startWeight'];
 
@@ -490,10 +582,10 @@ class WeightRateReportCommand extends Command
                     'startWeight' => number_format($week['startWeight'], 1),
                     'endWeight' => number_format($week['endWeight'], 1),
                     'change' => $fmtSlope($change),
-                    'dailyRate' => $fmtSlope($week['dailyRate']),
-                    'weeklyRate' => $fmtSlope($week['dailyRate'] * 7),
+                    'dailyRate' => $week['dailyRate'] !== null ? $fmtSlope($week['dailyRate']) : 'n/a',
+                    'weeklyRate' => $week['dailyRate'] !== null ? $fmtSlope($week['dailyRate'] * 7) : 'n/a',
                     'entries' => $week['entries'],
-                    'changeColor' => $change < -0.001 ? '#16a34a' : ($change > 0.001 ? '#dc2626' : '#64748b'),
+                    'changeColor' => $this->getWeekChangeColor($week['dailyRate'], $week['endWeight']),
                 ];
             }, $weeks),
         ];
@@ -599,8 +691,9 @@ class WeightRateReportCommand extends Command
                 $startWeight = $weekEntries[0]['weight'];
                 $endWeight = end($weekEntries)['weight'];
 
-                // Compute daily rate via regression if we have 2+ entries
-                $dailyRate = 0.0;
+                // Compute daily rate via regression only when the week has 2+ entries.
+                // A single weigh-in is not enough to infer a meaningful weekly rate.
+                $dailyRate = null;
                 if (count($weekEntries) >= 2) {
                     $points = [];
                     $refDate = $weekEntries[0]['date'];
@@ -611,13 +704,6 @@ class WeightRateReportCommand extends Command
                         ];
                     }
                     $dailyRate = $this->linearRegressionSlope($points);
-                } elseif (count($weekEntries) === 1 && count($weeks) > 0) {
-                    // Single entry week: compute rate from previous week's end weight
-                    $prevWeek = end($weeks);
-                    $daysDiff = $prevWeek['end']->diffInDays($weekEntries[0]['date']);
-                    if ($daysDiff > 0) {
-                        $dailyRate = ($endWeight - $prevWeek['endWeight']) / $daysDiff;
-                    }
                 }
 
                 $weeks[] = [
@@ -686,7 +772,7 @@ class WeightRateReportCommand extends Command
     }
 
     /**
-     * Detect plateaus: periods where |weight change| < 0.2 kg over 5+ consecutive days.
+     * Detect plateaus: periods staying within 0.5 kg of the plateau start over 5+ days.
      */
     private function detectPlateaus(array $sorted): array
     {
@@ -904,28 +990,18 @@ class WeightRateReportCommand extends Command
         $kneeLoadTons = round($kneeLoadPerDay / 1000, 0);
         $bodyImpact[] = '~'.number_format($kneeLoadTons).' tonnes less stress on your knees per day (~6000 steps)';
 
-        // Total caloric deficit
-        $totalDeficit = round($kgLost * 7700);
-        $pizzas = round($totalDeficit / 2000);
-        $bodyImpact[] = number_format($totalDeficit).' kcal total deficit (~'.number_format($pizzas).' whole pizzas worth of energy)';
+        // Rough historical energy equivalent. This is intentionally not labelled as a
+        // measured caloric deficit because scale weight includes water and lean mass too.
+        $totalEnergyEquivalent = round($kgLost * self::ENERGY_EQUIVALENT_KCAL_PER_KG);
+        $pizzas = round($totalEnergyEquivalent / 2000);
+        $bodyImpact[] = '~'.number_format($totalEnergyEquivalent).' kcal weight-loss energy equivalent (~'.number_format($pizzas).' 2,000-kcal meals)';
 
-        // Fat volume: 1 kg of fat ~ 1.1 liters
-        $liters = round($kgLost * 1.1, 1);
-        $bodyImpact[] = $liters.'L of body fat removed (~'.round($liters / 0.33).' cans of soda in volume)';
-
-        // Steps equivalent to burn it all running
-        // ~60 kcal per km running at avg weight, 7700 kcal per kg
+        // A playful exercise-energy comparison, explicitly kept as a rough estimate.
         $avgWeight = $currentWeight + ($kgLost / 2);
-        $calPerKm = $avgWeight * 0.75; // rough kcal per km
-        $totalKm = round($totalDeficit / $calPerKm);
+        $calPerKm = max($avgWeight * 0.75, 1);
+        $totalKm = round($totalEnergyEquivalent / $calPerKm);
         $marathons = round($totalKm / 42.2, 1);
-        $bodyImpact[] = 'Equivalent energy of running '.number_format($totalKm).' km ('.number_format($marathons, 1).' marathons)';
-
-        // Heart beats saved
-        // Overweight heart beats ~10 more times/min. Lost weight reduces this
-        $extraBeatsPerMin = min($kgLost * 0.5, 15); // ~0.5 bpm per kg, cap at 15
-        $beatsSaved = round($extraBeatsPerMin * 60 * 24 * $durationDays);
-        $bodyImpact[] = '~'.number_format($beatsSaved).' fewer heartbeats over '.$durationDays.' days';
+        $bodyImpact[] = 'Rough running-energy equivalent: '.number_format($totalKm).' km ('.number_format($marathons, 1).' marathons)';
 
         return [
             'equivalents' => $equivalents,
@@ -933,15 +1009,257 @@ class WeightRateReportCommand extends Command
         ];
     }
 
+    /**
+     * Run-length encode the per-window slopes into chronological trend phases.
+     * Each window is weighted by the calendar days until the next one, so a long
+     * phase logged sparsely keeps its true share of the timeline.
+     */
+    private function buildTrendSegments(array $allSlopes): array
+    {
+        $segments = [];
+
+        foreach ($allSlopes as $i => $entry) {
+            $trend = $this->getTrend($entry['slope']);
+            $next = $allSlopes[$i + 1] ?? null;
+            $spanDays = $next !== null ? max(1, (int) $entry['date']->diffInDays($next['date'])) : 1;
+            $lastIdx = count($segments) - 1;
+
+            if ($lastIdx >= 0 && $segments[$lastIdx]['trend'] === $trend) {
+                $segments[$lastIdx]['end'] = $entry['date'];
+                $segments[$lastIdx]['windows']++;
+                $segments[$lastIdx]['days'] += $spanDays;
+                $segments[$lastIdx]['slopeSum'] += $entry['slope'];
+            } else {
+                $segments[] = [
+                    'trend' => $trend,
+                    'start' => $entry['date'],
+                    'end' => $entry['date'],
+                    'windows' => 1,
+                    'days' => $spanDays,
+                    'slopeSum' => $entry['slope'],
+                ];
+            }
+        }
+
+        return array_map(
+            fn ($seg) => $seg + ['avgSlope' => $seg['slopeSum'] / $seg['windows']],
+            $segments
+        );
+    }
+
+    /**
+     * Split $width bar cells across the segments proportionally to their days,
+     * using largest-remainder so the cells always sum to exactly $width. Every
+     * segment gets at least one cell when there is room, so short interruptions
+     * never round away to nothing.
+     */
+    private function allocateBarCells(array $segments, int $timelineDays, int $width): array
+    {
+        if (empty($segments) || $width < 1) {
+            return [];
+        }
+
+        $guaranteeMin = count($segments) <= $width;
+        $counts = [];
+        $remainders = [];
+        $used = 0;
+
+        foreach ($segments as $i => $seg) {
+            $exact = $timelineDays > 0 ? $seg['days'] / $timelineDays * $width : 0;
+            $cells = max($guaranteeMin ? 1 : 0, (int) floor($exact));
+            $counts[$i] = $cells;
+            $remainders[$i] = $exact - floor($exact);
+            $used += $cells;
+        }
+
+        arsort($remainders);
+
+        // Hand leftover cells to the biggest fractions first...
+        while ($used < $width) {
+            foreach (array_keys($remainders) as $i) {
+                if ($used >= $width) {
+                    break;
+                }
+                $counts[$i]++;
+                $used++;
+            }
+        }
+
+        // ...and claw back any overshoot from the widest segments.
+        while ($used > $width) {
+            $widest = null;
+            foreach ($counts as $i => $cells) {
+                if ($cells > 1 && ($widest === null || $cells > $counts[$widest])) {
+                    $widest = $i;
+                }
+            }
+            if ($widest === null) {
+                break;
+            }
+            $counts[$widest]--;
+            $used--;
+        }
+
+        ksort($counts);
+
+        return $counts;
+    }
+
+    /**
+     * The longest non-losing phases, capped and returned in chronological order.
+     */
+    private function longestInterruptions(array $segments, int $limit = 6): array
+    {
+        $breaks = array_filter($segments, fn ($seg) => $seg['trend'] !== 'losing');
+
+        uasort($breaks, fn ($a, $b) => $b['days'] <=> $a['days']);
+        $breaks = array_slice($breaks, 0, $limit, true);
+        ksort($breaks);
+
+        return array_values(array_map(fn ($seg) => [
+            'trend' => $seg['trend'],
+            'label' => ucfirst($seg['trend']).' '.$seg['days'].' day'.($seg['days'] !== 1 ? 's' : '')
+                .': '.$seg['start']->format('d M Y').' to '.$seg['end']->format('d M Y'),
+        ], $breaks));
+    }
+
+    private function trendChar(string $trend): string
+    {
+        return match ($trend) {
+            'losing' => '▓',
+            'gaining' => '▒',
+            default => '░',
+        };
+    }
+
     private function getTrend(float $slope): string
     {
-        if ($slope < -0.001) {
+        $weeklySlope = $slope * 7;
+
+        if ($weeklySlope < -self::STABLE_WEEKLY_THRESHOLD) {
             return 'losing';
         }
-        if ($slope > 0.001) {
+
+        if ($weeklySlope > self::STABLE_WEEKLY_THRESHOLD) {
             return 'gaining';
         }
 
         return 'stable';
+    }
+
+    private function isInMaintenanceRange(float $weight): bool
+    {
+        return $weight >= self::MAINTENANCE_MIN && $weight <= self::MAINTENANCE_MAX;
+    }
+
+    private function calculateBmr(float $weight): int
+    {
+        // Mifflin-St Jeor for a male: 10W + 6.25H - 5A + 5
+        return (int) round(
+            10 * $weight
+            + 6.25 * self::HEIGHT_CM
+            - 5 * self::AGE
+            + 5
+        );
+    }
+
+    private function calculateSedentaryTdee(float $weight): int
+    {
+        return (int) round($this->calculateBmr($weight) * self::SEDENTARY_ACTIVITY_MULTIPLIER);
+    }
+
+    private function computeMaintenanceStats(array $sorted, array $current): array
+    {
+        $endEntry = end($sorted);
+        $endWeight = $endEntry['weight'];
+        $endDate = $endEntry['date'];
+        $trend = $this->getTrend($current['slope']);
+
+        if ($endWeight < self::MAINTENANCE_MIN) {
+            $status = $trend === 'losing' ? 'BELOW RANGE · DRIFTING DOWN' : 'BELOW RANGE';
+        } elseif ($endWeight > self::MAINTENANCE_MAX) {
+            $status = $trend === 'gaining' ? 'ABOVE RANGE · DRIFTING UP' : 'ABOVE RANGE';
+        } else {
+            $status = match ($trend) {
+                'losing' => 'IN RANGE · DRIFTING DOWN',
+                'gaining' => 'IN RANGE · DRIFTING UP',
+                default => 'IN RANGE · STABLE',
+            };
+        }
+
+        // Current consecutive run of measured entries inside the target range.
+        $streakEntries = 0;
+        $streakStart = null;
+        for ($i = count($sorted) - 1; $i >= 0; $i--) {
+            if (! $this->isInMaintenanceRange($sorted[$i]['weight'])) {
+                break;
+            }
+
+            $streakEntries++;
+            $streakStart = $sorted[$i]['date'];
+        }
+
+        $streakDays = $streakStart !== null ? $streakStart->diffInDays($endDate) + 1 : 0;
+
+        // Percentage of weigh-ins in the last 30 calendar days that were inside the range.
+        $last30Start = $endDate->copy()->subDays(29);
+        $last30Entries = array_values(array_filter(
+            $sorted,
+            fn ($entry) => $entry['date']->gte($last30Start) && $entry['date']->lte($endDate)
+        ));
+        $last30InRange = count(array_filter(
+            $last30Entries,
+            fn ($entry) => $this->isInMaintenanceRange($entry['weight'])
+        ));
+        $last30InRangePct = count($last30Entries) > 0
+            ? (int) round($last30InRange / count($last30Entries) * 100)
+            : 0;
+
+        return [
+            'targetWeight' => number_format(self::TARGET_WEIGHT, 1),
+            'minWeight' => number_format(self::MAINTENANCE_MIN, 1),
+            'maxWeight' => number_format(self::MAINTENANCE_MAX, 1),
+            'status' => $status,
+            'trend' => $trend,
+            'weeklyTrend' => $this->formatSlope($current['slope'] * 7),
+            'streakDays' => $streakDays,
+            'streakEntries' => $streakEntries,
+            'last30InRangePct' => $last30InRangePct,
+            'bmr' => $this->calculateBmr($current['avgWeight']),
+            'sedentaryTdee' => $this->calculateSedentaryTdee($current['avgWeight']),
+            'age' => self::AGE,
+            'heightCm' => self::HEIGHT_CM,
+        ];
+    }
+
+    private function getWeekChangeColor(?float $dailyRate, float $endWeight): string
+    {
+        // No rate inference from a single weigh-in.
+        if ($dailyRate === null) {
+            return '#64748b';
+        }
+
+        $trend = $this->getTrend($dailyRate);
+
+        // Above the maintenance range: loss is useful, gain is a warning.
+        if ($endWeight > self::MAINTENANCE_MAX) {
+            return match ($trend) {
+                'losing' => '#16a34a',
+                'gaining' => '#dc2626',
+                default => '#d97706',
+            };
+        }
+
+        // Below the maintenance range: further loss is undesirable; recovery upward is useful.
+        if ($endWeight < self::MAINTENANCE_MIN) {
+            return match ($trend) {
+                'losing' => '#dc2626',
+                'gaining' => '#16a34a',
+                default => '#d97706',
+            };
+        }
+
+        // Inside the maintenance range, stability is the goal. Small movement either way is fine.
+        return $trend === 'stable' ? '#16a34a' : '#0284c7';
     }
 }

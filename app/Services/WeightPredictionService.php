@@ -66,8 +66,8 @@ class WeightPredictionService
         // Use recent forecast slope for prediction
         $nextMonthWeight = $latestEntryWeight + ($forecastSlope * $daysFromLatestToNextMonth);
 
-        // Calculate BMI for next month prediction (height hardcoded to 175cm = 1.75m)
-        $heightInMeters = 1.75;
+        // Calculate BMI for next month prediction (height hardcoded to 173cm = 1.73m)
+        $heightInMeters = 1.73;
         $nextMonthBMI = round($nextMonthWeight / ($heightInMeters * $heightInMeters), 1);
 
         // Calculate prediction dates for active goals
@@ -141,7 +141,7 @@ class WeightPredictionService
             }
         }
 
-        // Calculate when user will reach healthy BMI range (BMI 25 for 175cm height)
+        // Calculate when user will reach healthy BMI range (BMI 25 for 173cm height)
         $healthyBMIDate = null;
         $healthyBMIWeight = 25 * ($heightInMeters * $heightInMeters); // Max healthy weight for height
         $currentBMI = $latestEntryWeight / ($heightInMeters * $heightInMeters);

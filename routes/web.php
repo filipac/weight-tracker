@@ -23,3 +23,17 @@ Route::delete('/waist/{id}', [WeightController::class, 'destroyWaist'])->name('w
 // Withings OAuth2 routes
 Route::get('/w', [WithingsOAuth2Controller::class, 'redirect'])->name('auth.withings.redirect');
 Route::get('/oauth-callback/withings', [WithingsOAuth2Controller::class, 'callback'])->name('auth.withings.callback');
+
+// Private local health publishing. Providers and credentials never reach the browser.
+Route::middleware('throttle:120,1')->group(function () {
+    Route::get('/login-oura', [\App\Http\Controllers\Health\OuraController::class, 'redirect'])->name('auth.oura.redirect');
+    Route::get(config('health.oura.redirect_path'), [\App\Http\Controllers\Health\OuraController::class, 'callback'])->name('auth.oura.callback');
+    Route::post('/health/test-connection', [\App\Http\Controllers\Health\PreviewController::class, 'testConnection']);
+    Route::get('/health/status', [\App\Http\Controllers\Health\PreviewController::class, 'status']);
+    Route::post('/health/destination', [\App\Http\Controllers\Health\PreviewController::class, 'rememberDestination']);
+    Route::post('/health/previews', [\App\Http\Controllers\Health\PreviewController::class, 'start']);
+    Route::post('/health/previews/{id}/fetch/{task}', [\App\Http\Controllers\Health\PreviewController::class, 'fetch']);
+    Route::post('/health/previews/{id}/prepare', [\App\Http\Controllers\Health\PreviewController::class, 'prepare']);
+    Route::post('/health/previews/{id}/publish', [\App\Http\Controllers\Health\PreviewController::class, 'publish']);
+    Route::delete('/health/previews/{id}', [\App\Http\Controllers\Health\PreviewController::class, 'cancel']);
+});

@@ -15,7 +15,10 @@ return [
     |
     */
 
-    'default' => env('CACHE_STORE', 'database'),
+    'default' => env('CACHE_STORE', 'file'),
+
+    // Rate-limit increments must not contend with the personal SQLite database.
+    'limiter' => env('CACHE_LIMITER_STORE', 'file'),
 
     /*
     |--------------------------------------------------------------------------

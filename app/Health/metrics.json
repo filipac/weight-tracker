@@ -1,0 +1,2712 @@
+{
+  "oura.daily_activity.steps": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "steps",
+    "topic": "activity",
+    "unit": "steps",
+    "label": "Steps"
+  },
+  "oura.daily_activity.active_calories": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "active_calories",
+    "topic": "activity",
+    "unit": "kcal",
+    "label": "Active calories"
+  },
+  "oura.daily_activity.total_calories": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "total_calories",
+    "topic": "activity",
+    "unit": "kcal",
+    "label": "Total calories"
+  },
+  "oura.daily_activity.target_calories": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "target_calories",
+    "topic": "activity",
+    "unit": "kcal",
+    "label": "Target calories"
+  },
+  "oura.daily_activity.equivalent_walking_distance": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "equivalent_walking_distance",
+    "topic": "activity",
+    "unit": "m",
+    "label": "Equivalent walking distance"
+  },
+  "oura.daily_activity.meters_to_target": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "meters_to_target",
+    "topic": "activity",
+    "unit": "m",
+    "label": "Meters to target"
+  },
+  "oura.daily_activity.target_meters": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "target_meters",
+    "topic": "activity",
+    "unit": "m",
+    "label": "Target meters"
+  },
+  "oura.daily_activity.high_activity_time": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "high_activity_time",
+    "topic": "activity",
+    "unit": "s",
+    "label": "High activity time"
+  },
+  "oura.daily_activity.medium_activity_time": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "medium_activity_time",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Medium activity time"
+  },
+  "oura.daily_activity.low_activity_time": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "low_activity_time",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Low activity time"
+  },
+  "oura.daily_activity.resting_time": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "resting_time",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Resting time"
+  },
+  "oura.daily_activity.sedentary_time": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "sedentary_time",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Sedentary time"
+  },
+  "oura.daily_activity.non_wear_time": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "non_wear_time",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Non wear time"
+  },
+  "oura.daily_activity.score": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "score",
+    "topic": "activity",
+    "unit": "score",
+    "label": "Activity score"
+  },
+  "oura.daily_activity.contributors.meet_daily_targets": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "contributors.meet_daily_targets",
+    "topic": "activity",
+    "unit": "score",
+    "label": "Meet daily targets"
+  },
+  "oura.daily_activity.contributors.move_every_hour": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "contributors.move_every_hour",
+    "topic": "activity",
+    "unit": "score",
+    "label": "Move every hour"
+  },
+  "oura.daily_activity.contributors.recovery_time": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "contributors.recovery_time",
+    "topic": "activity",
+    "unit": "score",
+    "label": "Recovery time"
+  },
+  "oura.daily_activity.contributors.stay_active": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "contributors.stay_active",
+    "topic": "activity",
+    "unit": "score",
+    "label": "Stay active"
+  },
+  "oura.daily_activity.contributors.training_frequency": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "contributors.training_frequency",
+    "topic": "activity",
+    "unit": "score",
+    "label": "Training frequency"
+  },
+  "oura.daily_activity.contributors.training_volume": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "contributors.training_volume",
+    "topic": "activity",
+    "unit": "score",
+    "label": "Training volume"
+  },
+  "oura.daily_activity.average_met_minutes": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "average_met_minutes",
+    "topic": "activity",
+    "unit": "MET",
+    "label": "Average met minutes"
+  },
+  "oura.daily_activity.high_activity_met_minutes": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "high_activity_met_minutes",
+    "topic": "activity",
+    "unit": "MET min",
+    "label": "High activity met minutes"
+  },
+  "oura.daily_activity.medium_activity_met_minutes": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "medium_activity_met_minutes",
+    "topic": "activity",
+    "unit": "MET min",
+    "label": "Medium activity met minutes"
+  },
+  "oura.daily_activity.low_activity_met_minutes": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "low_activity_met_minutes",
+    "topic": "activity",
+    "unit": "MET min",
+    "label": "Low activity met minutes"
+  },
+  "oura.daily_activity.sedentary_met_minutes": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "sedentary_met_minutes",
+    "topic": "activity",
+    "unit": "MET min",
+    "label": "Sedentary met minutes"
+  },
+  "oura.daily_activity.inactivity_alerts": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "inactivity_alerts",
+    "topic": "activity",
+    "unit": "count",
+    "label": "Inactivity alerts"
+  },
+  "oura.daily_sleep.score": {
+    "source": "oura",
+    "endpoint": "daily_sleep",
+    "field": "score",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "Sleep score"
+  },
+  "oura.daily_sleep.contributors.deep_sleep": {
+    "source": "oura",
+    "endpoint": "daily_sleep",
+    "field": "contributors.deep_sleep",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "Deep sleep"
+  },
+  "oura.daily_sleep.contributors.efficiency": {
+    "source": "oura",
+    "endpoint": "daily_sleep",
+    "field": "contributors.efficiency",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "Efficiency"
+  },
+  "oura.daily_sleep.contributors.latency": {
+    "source": "oura",
+    "endpoint": "daily_sleep",
+    "field": "contributors.latency",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "Latency"
+  },
+  "oura.daily_sleep.contributors.rem_sleep": {
+    "source": "oura",
+    "endpoint": "daily_sleep",
+    "field": "contributors.rem_sleep",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "REM sleep contribution"
+  },
+  "oura.daily_sleep.contributors.restfulness": {
+    "source": "oura",
+    "endpoint": "daily_sleep",
+    "field": "contributors.restfulness",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "Restfulness"
+  },
+  "oura.daily_sleep.contributors.timing": {
+    "source": "oura",
+    "endpoint": "daily_sleep",
+    "field": "contributors.timing",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "Timing"
+  },
+  "oura.daily_sleep.contributors.total_sleep": {
+    "source": "oura",
+    "endpoint": "daily_sleep",
+    "field": "contributors.total_sleep",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "Total sleep"
+  },
+  "oura.sleep.awake_time": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "awake_time",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Awake time"
+  },
+  "oura.sleep.deep_sleep_duration": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "deep_sleep_duration",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Deep sleep duration"
+  },
+  "oura.sleep.latency": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "latency",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Latency"
+  },
+  "oura.sleep.light_sleep_duration": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "light_sleep_duration",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Light sleep duration"
+  },
+  "oura.sleep.rem_sleep_duration": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "rem_sleep_duration",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Rem sleep duration"
+  },
+  "oura.sleep.time_in_bed": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "time_in_bed",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Time in bed"
+  },
+  "oura.sleep.total_sleep_duration": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "total_sleep_duration",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Total sleep duration"
+  },
+  "oura.sleep.efficiency": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "efficiency",
+    "topic": "sleep",
+    "unit": "%",
+    "label": "Efficiency"
+  },
+  "oura.sleep.restless_periods": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "restless_periods",
+    "topic": "sleep",
+    "unit": "count",
+    "label": "Restless periods"
+  },
+  "oura.sleep.average_heart_rate": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "average_heart_rate",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Average heart rate"
+  },
+  "oura.sleep.lowest_heart_rate": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "lowest_heart_rate",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Lowest heart rate"
+  },
+  "oura.sleep.average_hrv": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "average_hrv",
+    "topic": "heart",
+    "unit": "ms",
+    "label": "Average HRV"
+  },
+  "oura.sleep.average_breath": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "average_breath",
+    "topic": "vitals",
+    "unit": "breaths/min",
+    "label": "Average breathing rate"
+  },
+  "oura.sleep.readiness_score_delta": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "readiness_score_delta",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "Readiness score delta"
+  },
+  "oura.sleep.sleep_score_delta": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "sleep_score_delta",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "Sleep score delta"
+  },
+  "oura.daily_readiness.score": {
+    "source": "oura",
+    "endpoint": "daily_readiness",
+    "field": "score",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "Readiness score"
+  },
+  "oura.daily_readiness.contributors.activity_balance": {
+    "source": "oura",
+    "endpoint": "daily_readiness",
+    "field": "contributors.activity_balance",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "Activity balance"
+  },
+  "oura.daily_readiness.contributors.body_temperature": {
+    "source": "oura",
+    "endpoint": "daily_readiness",
+    "field": "contributors.body_temperature",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "Body temperature"
+  },
+  "oura.daily_readiness.contributors.hrv_balance": {
+    "source": "oura",
+    "endpoint": "daily_readiness",
+    "field": "contributors.hrv_balance",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "HRV balance"
+  },
+  "oura.daily_readiness.contributors.previous_day_activity": {
+    "source": "oura",
+    "endpoint": "daily_readiness",
+    "field": "contributors.previous_day_activity",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "Previous day activity"
+  },
+  "oura.daily_readiness.contributors.previous_night": {
+    "source": "oura",
+    "endpoint": "daily_readiness",
+    "field": "contributors.previous_night",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "Previous night"
+  },
+  "oura.daily_readiness.contributors.recovery_index": {
+    "source": "oura",
+    "endpoint": "daily_readiness",
+    "field": "contributors.recovery_index",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "Recovery index"
+  },
+  "oura.daily_readiness.contributors.resting_heart_rate": {
+    "source": "oura",
+    "endpoint": "daily_readiness",
+    "field": "contributors.resting_heart_rate",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "Resting heart rate"
+  },
+  "oura.daily_readiness.contributors.sleep_balance": {
+    "source": "oura",
+    "endpoint": "daily_readiness",
+    "field": "contributors.sleep_balance",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "Sleep balance"
+  },
+  "oura.daily_readiness.contributors.sleep_regularity": {
+    "source": "oura",
+    "endpoint": "daily_readiness",
+    "field": "contributors.sleep_regularity",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "Sleep regularity"
+  },
+  "oura.daily_readiness.temperature_deviation": {
+    "source": "oura",
+    "endpoint": "daily_readiness",
+    "field": "temperature_deviation",
+    "topic": "vitals",
+    "unit": "°C",
+    "label": "Temperature deviation"
+  },
+  "oura.daily_readiness.temperature_trend_deviation": {
+    "source": "oura",
+    "endpoint": "daily_readiness",
+    "field": "temperature_trend_deviation",
+    "topic": "vitals",
+    "unit": "°C",
+    "label": "Temperature trend deviation"
+  },
+  "oura.daily_stress.recovery_high": {
+    "source": "oura",
+    "endpoint": "daily_stress",
+    "field": "recovery_high",
+    "topic": "recovery",
+    "unit": "s",
+    "label": "Restorative time"
+  },
+  "oura.daily_stress.stress_high": {
+    "source": "oura",
+    "endpoint": "daily_stress",
+    "field": "stress_high",
+    "topic": "recovery",
+    "unit": "s",
+    "label": "Stressed time"
+  },
+  "oura.daily_resilience.contributors.daytime_recovery": {
+    "source": "oura",
+    "endpoint": "daily_resilience",
+    "field": "contributors.daytime_recovery",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "Daytime recovery"
+  },
+  "oura.daily_resilience.contributors.sleep_recovery": {
+    "source": "oura",
+    "endpoint": "daily_resilience",
+    "field": "contributors.sleep_recovery",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "Sleep recovery"
+  },
+  "oura.daily_resilience.contributors.stress": {
+    "source": "oura",
+    "endpoint": "daily_resilience",
+    "field": "contributors.stress",
+    "topic": "recovery",
+    "unit": "score",
+    "label": "Stress"
+  },
+  "oura.daily_spo2.spo2_percentage.average": {
+    "source": "oura",
+    "endpoint": "daily_spo2",
+    "field": "spo2_percentage.average",
+    "topic": "vitals",
+    "unit": "%",
+    "label": "Average SpO₂"
+  },
+  "oura.daily_spo2.breathing_disturbance_index": {
+    "source": "oura",
+    "endpoint": "daily_spo2",
+    "field": "breathing_disturbance_index",
+    "topic": "vitals",
+    "unit": "index",
+    "label": "Breathing disturbance index"
+  },
+  "oura.daily_cardiovascular_age.vascular_age": {
+    "source": "oura",
+    "endpoint": "daily_cardiovascular_age",
+    "field": "vascular_age",
+    "topic": "heart",
+    "unit": "years",
+    "label": "Vascular age"
+  },
+  "oura.daily_cardiovascular_age.pulse_wave_velocity": {
+    "source": "oura",
+    "endpoint": "daily_cardiovascular_age",
+    "field": "pulse_wave_velocity",
+    "topic": "heart",
+    "unit": "m/s",
+    "label": "Pulse wave velocity"
+  },
+  "oura.vO2_max.vo2_max": {
+    "source": "oura",
+    "endpoint": "vO2_max",
+    "field": "vo2_max",
+    "topic": "heart",
+    "unit": "ml/kg/min",
+    "label": "VO₂ max"
+  },
+  "oura.workout.calories": {
+    "source": "oura",
+    "endpoint": "workout",
+    "field": "calories",
+    "topic": "activity",
+    "unit": "kcal",
+    "label": "Calories"
+  },
+  "oura.workout.distance": {
+    "source": "oura",
+    "endpoint": "workout",
+    "field": "distance",
+    "topic": "activity",
+    "unit": "m",
+    "label": "Distance"
+  },
+  "oura.workout.duration": {
+    "source": "oura",
+    "endpoint": "workout",
+    "field": "duration",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Duration"
+  },
+  "oura.session.duration": {
+    "source": "oura",
+    "endpoint": "session",
+    "field": "duration",
+    "topic": "mindfulness",
+    "unit": "s",
+    "label": "Duration"
+  },
+  "oura.rest_mode_period.duration": {
+    "source": "oura",
+    "endpoint": "rest_mode_period",
+    "field": "duration",
+    "topic": "recovery",
+    "unit": "s",
+    "label": "Duration"
+  },
+  "oura.sleep_time.optimal_bedtime.start_offset": {
+    "source": "oura",
+    "endpoint": "sleep_time",
+    "field": "optimal_bedtime.start_offset",
+    "topic": "sleep",
+    "unit": "s after midnight",
+    "label": "Optimal bedtime.start offset"
+  },
+  "oura.sleep_time.optimal_bedtime.end_offset": {
+    "source": "oura",
+    "endpoint": "sleep_time",
+    "field": "optimal_bedtime.end_offset",
+    "topic": "sleep",
+    "unit": "s after midnight",
+    "label": "Optimal bedtime.end offset"
+  },
+  "oura.heartrate.bpm": {
+    "source": "oura",
+    "endpoint": "heartrate",
+    "field": "bpm",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Heart rate",
+    "series": true
+  },
+  "oura.sleep.heart_rate": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "heart_rate",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Heart rate",
+    "series": true
+  },
+  "oura.sleep.hrv": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "hrv",
+    "topic": "heart",
+    "unit": "ms",
+    "label": "Heart rate variability",
+    "series": true
+  },
+  "oura.sleep.sleep_phase_5_min": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "sleep_phase_5_min",
+    "topic": "sleep",
+    "unit": "stage",
+    "label": "Sleep phase 5 min",
+    "series": true
+  },
+  "oura.sleep.movement_30_sec": {
+    "source": "oura",
+    "endpoint": "sleep",
+    "field": "movement_30_sec",
+    "topic": "sleep",
+    "unit": "movement",
+    "label": "Movement 30 sec",
+    "series": true
+  },
+  "oura.session.heart_rate": {
+    "source": "oura",
+    "endpoint": "session",
+    "field": "heart_rate",
+    "topic": "mindfulness",
+    "unit": "bpm",
+    "label": "Heart rate",
+    "series": true
+  },
+  "oura.session.heart_rate_variability": {
+    "source": "oura",
+    "endpoint": "session",
+    "field": "heart_rate_variability",
+    "topic": "mindfulness",
+    "unit": "ms",
+    "label": "Heart rate variability",
+    "series": true
+  },
+  "oura.session.motion_count": {
+    "source": "oura",
+    "endpoint": "session",
+    "field": "motion_count",
+    "topic": "mindfulness",
+    "unit": "count",
+    "label": "Motion count",
+    "series": true
+  },
+  "oura.daily_activity.met": {
+    "source": "oura",
+    "endpoint": "daily_activity",
+    "field": "met",
+    "topic": "activity",
+    "unit": "MET",
+    "label": "Met",
+    "series": true
+  },
+  "withings.measure.1": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "1",
+    "topic": "weight",
+    "unit": "kg",
+    "label": "Weight"
+  },
+  "withings.measure.5": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "5",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat free mass"
+  },
+  "withings.measure.6": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "6",
+    "topic": "body-composition",
+    "unit": "%",
+    "label": "Body fat"
+  },
+  "withings.measure.8": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "8",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat mass"
+  },
+  "withings.measure.76": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "76",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Muscle mass"
+  },
+  "withings.measure.77": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "77",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Hydration"
+  },
+  "withings.measure.88": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "88",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Bone mass"
+  },
+  "withings.measure.9": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "9",
+    "topic": "heart",
+    "unit": "mmHg",
+    "label": "Diastolic blood pressure"
+  },
+  "withings.measure.10": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "10",
+    "topic": "heart",
+    "unit": "mmHg",
+    "label": "Systolic blood pressure"
+  },
+  "withings.measure.11": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "11",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Heart rate"
+  },
+  "withings.measure.12": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "12",
+    "topic": "vitals",
+    "unit": "°C",
+    "label": "Temperature"
+  },
+  "withings.measure.54": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "54",
+    "topic": "vitals",
+    "unit": "%",
+    "label": "SpO₂"
+  },
+  "withings.measure.71": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "71",
+    "topic": "vitals",
+    "unit": "°C",
+    "label": "Body temperature"
+  },
+  "withings.measure.73": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "73",
+    "topic": "vitals",
+    "unit": "°C",
+    "label": "Skin temperature"
+  },
+  "withings.measure.91": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "91",
+    "topic": "heart",
+    "unit": "m/s",
+    "label": "Pulse wave velocity"
+  },
+  "withings.measure.123": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "123",
+    "topic": "heart",
+    "unit": "ml/kg/min",
+    "label": "VO₂ max"
+  },
+  "withings.measure.135": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "135",
+    "topic": "heart",
+    "unit": "ms",
+    "label": "QRS interval"
+  },
+  "withings.measure.136": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "136",
+    "topic": "heart",
+    "unit": "ms",
+    "label": "PR interval"
+  },
+  "withings.measure.137": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "137",
+    "topic": "heart",
+    "unit": "ms",
+    "label": "QT interval"
+  },
+  "withings.measure.138": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "138",
+    "topic": "heart",
+    "unit": "ms",
+    "label": "Corrected QT interval"
+  },
+  "withings.activity.steps": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "steps",
+    "topic": "activity",
+    "unit": "steps",
+    "label": "Steps"
+  },
+  "withings.activity.distance": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "distance",
+    "topic": "activity",
+    "unit": "m",
+    "label": "Distance"
+  },
+  "withings.activity.elevation": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "elevation",
+    "topic": "activity",
+    "unit": "m",
+    "label": "Elevation"
+  },
+  "withings.activity.calories": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "calories",
+    "topic": "activity",
+    "unit": "kcal",
+    "label": "Calories"
+  },
+  "withings.activity.totalcalories": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "totalcalories",
+    "topic": "activity",
+    "unit": "kcal",
+    "label": "Total calories"
+  },
+  "withings.activity.soft": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "soft",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Soft"
+  },
+  "withings.activity.moderate": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "moderate",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Moderate"
+  },
+  "withings.activity.intense": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "intense",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Intense"
+  },
+  "withings.activity.duration": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "duration",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Duration"
+  },
+  "withings.activity.hr_average": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "hr_average",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Average heart rate"
+  },
+  "withings.activity.hr_min": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "hr_min",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Minimum heart rate"
+  },
+  "withings.activity.hr_max": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "hr_max",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Maximum heart rate"
+  },
+  "withings.workout.steps": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "steps",
+    "topic": "activity",
+    "unit": "steps",
+    "label": "Steps"
+  },
+  "withings.workout.distance": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "distance",
+    "topic": "activity",
+    "unit": "m",
+    "label": "Distance"
+  },
+  "withings.workout.elevation": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "elevation",
+    "topic": "activity",
+    "unit": "floors",
+    "label": "Elevation"
+  },
+  "withings.workout.calories": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "calories",
+    "topic": "activity",
+    "unit": "kcal",
+    "label": "Calories"
+  },
+  "withings.workout.duration": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "duration",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Duration"
+  },
+  "withings.workout.hr_average": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "hr_average",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Average heart rate"
+  },
+  "withings.workout.hr_min": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "hr_min",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Minimum heart rate"
+  },
+  "withings.workout.hr_max": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "hr_max",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Maximum heart rate"
+  },
+  "withings.sleep.deepsleepduration": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "deepsleepduration",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Deep sleep duration"
+  },
+  "withings.sleep.lightsleepduration": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "lightsleepduration",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Light sleep duration"
+  },
+  "withings.sleep.remsleepduration": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "remsleepduration",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "REM sleep duration"
+  },
+  "withings.sleep.wakeupduration": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "wakeupduration",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Awake duration"
+  },
+  "withings.sleep.durationtosleep": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "durationtosleep",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Time to fall asleep"
+  },
+  "withings.sleep.durationtowakeup": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "durationtowakeup",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Time to wake up"
+  },
+  "withings.sleep.total_sleep_time": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "total_sleep_time",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Total sleep time"
+  },
+  "withings.sleep.total_timeinbed": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "total_timeinbed",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Time in bed"
+  },
+  "withings.sleep.wakeupcount": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "wakeupcount",
+    "topic": "sleep",
+    "unit": "count",
+    "label": "Wake-up count"
+  },
+  "withings.sleep.apnea_hypopnea_index": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "apnea_hypopnea_index",
+    "topic": "sleep",
+    "unit": "events/hour",
+    "label": "Apnea hypopnea index"
+  },
+  "withings.sleep.snoringepisodecount": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "snoringepisodecount",
+    "topic": "sleep",
+    "unit": "count",
+    "label": "Snoring episode count"
+  },
+  "withings.sleep.sleep_score": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "sleep_score",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "Sleep score"
+  },
+  "withings.sleep.sleep_efficiency": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "sleep_efficiency",
+    "topic": "sleep",
+    "unit": "ratio",
+    "label": "Sleep efficiency"
+  },
+  "withings.sleep.snoring": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "snoring",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Snoring"
+  },
+  "withings.sleep.hr_average": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "hr_average",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Average heart rate"
+  },
+  "withings.sleep.hr_min": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "hr_min",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Minimum heart rate"
+  },
+  "withings.sleep.hr_max": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "hr_max",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Maximum heart rate"
+  },
+  "withings.sleep.rr_average": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "rr_average",
+    "topic": "vitals",
+    "unit": "breaths/min",
+    "label": "Average respiratory rate"
+  },
+  "withings.sleep.rr_min": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "rr_min",
+    "topic": "vitals",
+    "unit": "breaths/min",
+    "label": "Minimum respiratory rate"
+  },
+  "withings.sleep.rr_max": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "rr_max",
+    "topic": "vitals",
+    "unit": "breaths/min",
+    "label": "Maximum respiratory rate"
+  },
+  "withings.heart.heart_rate": {
+    "source": "withings",
+    "endpoint": "heart",
+    "field": "heart_rate",
+    "topic": "heart",
+    "unit": "bpm",
+    "label": "Heart rate"
+  },
+  "withings.measure.155": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "155",
+    "topic": "heart",
+    "unit": "years",
+    "label": "Vascular age"
+  },
+  "withings.measure.168": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "168",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Extracellular water"
+  },
+  "withings.measure.169": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "169",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Intracellular water"
+  },
+  "withings.measure.170": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "170",
+    "topic": "body-composition",
+    "unit": "index",
+    "label": "Visceral fat"
+  },
+  "withings.measure.227": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "227",
+    "topic": "body-composition",
+    "unit": "years",
+    "label": "Metabolic age"
+  },
+  "withings.measure.147": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "147",
+    "topic": "vitals",
+    "unit": "pH",
+    "label": "Urinary pH"
+  },
+  "withings.measure.148": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "148",
+    "topic": "vitals",
+    "unit": "ratio",
+    "label": "Urine specific gravity"
+  },
+  "withings.measure.151": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "151",
+    "topic": "vitals",
+    "unit": "µmol/L",
+    "label": "Urinary nitrites"
+  },
+  "withings.measure.204": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "204",
+    "topic": "vitals",
+    "unit": "mmol/L",
+    "label": "Urinary ketones"
+  },
+  "withings.measure.205": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "205",
+    "topic": "vitals",
+    "unit": "mmol/L",
+    "label": "Urinary vitamin C"
+  },
+  "withings.measure.248": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "248",
+    "topic": "vitals",
+    "unit": "mmol/L",
+    "label": "Urinary calcium"
+  },
+  "withings.measure.249": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "249",
+    "topic": "vitals",
+    "unit": "mmol/L",
+    "label": "Urinary creatinine"
+  },
+  "withings.measure.251": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "251",
+    "topic": "vitals",
+    "unit": "mmol/mmol",
+    "label": "Urinary calcium / creatinine ratio"
+  },
+  "withings.measure.173.position_2": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "173",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat free mass · right arm"
+  },
+  "withings.measure.173.position_3": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "173",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat free mass · left arm"
+  },
+  "withings.measure.173.position_8": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "173",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat free mass · left body"
+  },
+  "withings.measure.173.position_9": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "173",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat free mass · right body"
+  },
+  "withings.measure.173.position_10": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "173",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat free mass · left leg"
+  },
+  "withings.measure.173.position_11": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "173",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat free mass · right leg"
+  },
+  "withings.measure.173.position_12": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "173",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat free mass · torso"
+  },
+  "withings.measure.174.position_2": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "174",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat mass · right arm"
+  },
+  "withings.measure.174.position_3": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "174",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat mass · left arm"
+  },
+  "withings.measure.174.position_8": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "174",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat mass · left body"
+  },
+  "withings.measure.174.position_9": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "174",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat mass · right body"
+  },
+  "withings.measure.174.position_10": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "174",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat mass · left leg"
+  },
+  "withings.measure.174.position_11": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "174",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat mass · right leg"
+  },
+  "withings.measure.174.position_12": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "174",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Fat mass · torso"
+  },
+  "withings.measure.175.position_2": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "175",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Muscle mass · right arm"
+  },
+  "withings.measure.175.position_3": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "175",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Muscle mass · left arm"
+  },
+  "withings.measure.175.position_8": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "175",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Muscle mass · left body"
+  },
+  "withings.measure.175.position_9": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "175",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Muscle mass · right body"
+  },
+  "withings.measure.175.position_10": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "175",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Muscle mass · left leg"
+  },
+  "withings.measure.175.position_11": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "175",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Muscle mass · right leg"
+  },
+  "withings.measure.175.position_12": {
+    "source": "withings",
+    "endpoint": "measure",
+    "field": "175",
+    "topic": "body-composition",
+    "unit": "kg",
+    "label": "Muscle mass · torso"
+  },
+  "withings.activity.hr_zone_0": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "hr_zone_0",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Hr zone 0"
+  },
+  "withings.activity.hr_zone_1": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "hr_zone_1",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Hr zone 1"
+  },
+  "withings.activity.hr_zone_2": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "hr_zone_2",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Hr zone 2"
+  },
+  "withings.activity.hr_zone_3": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "hr_zone_3",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Hr zone 3"
+  },
+  "withings.workout.hr_zone_0": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "hr_zone_0",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Hr zone 0"
+  },
+  "withings.workout.hr_zone_1": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "hr_zone_1",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Hr zone 1"
+  },
+  "withings.workout.hr_zone_2": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "hr_zone_2",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Hr zone 2"
+  },
+  "withings.workout.hr_zone_3": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "hr_zone_3",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Hr zone 3"
+  },
+  "withings.activity.active": {
+    "source": "withings",
+    "endpoint": "activity",
+    "field": "active",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Active"
+  },
+  "withings.workout.pause_duration": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "pause_duration",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Pause duration"
+  },
+  "withings.workout.algo_pause_duration": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "algo_pause_duration",
+    "topic": "activity",
+    "unit": "s",
+    "label": "Algo pause duration"
+  },
+  "withings.workout.manual_distance": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "manual_distance",
+    "topic": "activity",
+    "unit": "m",
+    "label": "Manual distance"
+  },
+  "withings.workout.pool_length": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "pool_length",
+    "topic": "activity",
+    "unit": "m",
+    "label": "Pool length"
+  },
+  "withings.workout.manual_calories": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "manual_calories",
+    "topic": "activity",
+    "unit": "kcal",
+    "label": "Manual calories"
+  },
+  "withings.workout.intensity": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "intensity",
+    "topic": "activity",
+    "unit": "score",
+    "label": "Intensity"
+  },
+  "withings.workout.manual_intensity": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "manual_intensity",
+    "topic": "activity",
+    "unit": "score",
+    "label": "Manual intensity"
+  },
+  "withings.workout.pool_laps": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "pool_laps",
+    "topic": "activity",
+    "unit": "count",
+    "label": "Pool laps"
+  },
+  "withings.workout.strokes": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "strokes",
+    "topic": "activity",
+    "unit": "count",
+    "label": "Strokes"
+  },
+  "withings.workout.spo2_average": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "spo2_average",
+    "topic": "vitals",
+    "unit": "%",
+    "label": "Spo2 average"
+  },
+  "withings.workout.core_body_temperature_avg": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "core_body_temperature_avg",
+    "topic": "vitals",
+    "unit": "°C",
+    "label": "Core body temperature avg"
+  },
+  "withings.workout.core_body_temperature_min": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "core_body_temperature_min",
+    "topic": "vitals",
+    "unit": "°C",
+    "label": "Core body temperature min"
+  },
+  "withings.workout.core_body_temperature_max": {
+    "source": "withings",
+    "endpoint": "workout",
+    "field": "core_body_temperature_max",
+    "topic": "vitals",
+    "unit": "°C",
+    "label": "Core body temperature max"
+  },
+  "withings.sleep.core_body_temperature_avg": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "core_body_temperature_avg",
+    "topic": "vitals",
+    "unit": "°C",
+    "label": "Core body temperature avg"
+  },
+  "withings.sleep.core_body_temperature_min": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "core_body_temperature_min",
+    "topic": "vitals",
+    "unit": "°C",
+    "label": "Core body temperature min"
+  },
+  "withings.sleep.core_body_temperature_max": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "core_body_temperature_max",
+    "topic": "vitals",
+    "unit": "°C",
+    "label": "Core body temperature max"
+  },
+  "withings.sleep.asleepduration": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "asleepduration",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Asleepduration"
+  },
+  "withings.sleep.sleep_latency": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "sleep_latency",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Sleep latency"
+  },
+  "withings.sleep.wakeup_latency": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "wakeup_latency",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Wakeup latency"
+  },
+  "withings.sleep.waso": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "waso",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Waso"
+  },
+  "withings.sleep.mvt_active_duration": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "mvt_active_duration",
+    "topic": "sleep",
+    "unit": "s",
+    "label": "Mvt active duration"
+  },
+  "withings.sleep.nb_rem_episodes": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "nb_rem_episodes",
+    "topic": "sleep",
+    "unit": "count",
+    "label": "Nb rem episodes"
+  },
+  "withings.sleep.out_of_bed_count": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "out_of_bed_count",
+    "topic": "sleep",
+    "unit": "count",
+    "label": "Out of bed count"
+  },
+  "withings.sleep.mvt_score_avg": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "mvt_score_avg",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "Mvt score avg"
+  },
+  "withings.sleep.breathing_disturbances_intensity": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "breathing_disturbances_intensity",
+    "topic": "sleep",
+    "unit": "score",
+    "label": "Breathing disturbances intensity"
+  },
+  "withings.sleep.chest_movement_rate_wellness_average": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "chest_movement_rate_wellness_average",
+    "topic": "vitals",
+    "unit": "breaths/min",
+    "label": "Chest movement rate wellness average"
+  },
+  "withings.sleep.chest_movement_rate_wellness_min": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "chest_movement_rate_wellness_min",
+    "topic": "vitals",
+    "unit": "breaths/min",
+    "label": "Chest movement rate wellness min"
+  },
+  "withings.sleep.chest_movement_rate_wellness_max": {
+    "source": "withings",
+    "endpoint": "sleep",
+    "field": "chest_movement_rate_wellness_max",
+    "topic": "vitals",
+    "unit": "breaths/min",
+    "label": "Chest movement rate wellness max"
+  },
+  "withings.heart.bloodpressure.systole": {
+    "source": "withings",
+    "endpoint": "heart",
+    "field": "bloodpressure.systole",
+    "topic": "heart",
+    "unit": "mmHg",
+    "label": "Systolic blood pressure"
+  },
+  "withings.heart.bloodpressure.diastole": {
+    "source": "withings",
+    "endpoint": "heart",
+    "field": "bloodpressure.diastole",
+    "topic": "heart",
+    "unit": "mmHg",
+    "label": "Diastolic blood pressure"
+  },
+  "apple_health.active_energy": {
+    "source": "apple_health",
+    "endpoint": "active_energy",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Active energy",
+    "unit": "kcal"
+  },
+  "apple_health.apple_exercise_time": {
+    "source": "apple_health",
+    "endpoint": "apple_exercise_time",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Exercise time",
+    "unit": "min"
+  },
+  "apple_health.apple_sleeping_wrist_temperature": {
+    "source": "apple_health",
+    "endpoint": "apple_sleeping_wrist_temperature",
+    "field": "qty",
+    "topic": "vitals",
+    "label": "Sleeping wrist temperature",
+    "unit": "°C"
+  },
+  "apple_health.apple_stand_hour": {
+    "source": "apple_health",
+    "endpoint": "apple_stand_hour",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Stand hours",
+    "unit": "count"
+  },
+  "apple_health.apple_stand_time": {
+    "source": "apple_health",
+    "endpoint": "apple_stand_time",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Stand time",
+    "unit": "min"
+  },
+  "apple_health.blood_oxygen_saturation": {
+    "source": "apple_health",
+    "endpoint": "blood_oxygen_saturation",
+    "field": "qty",
+    "topic": "vitals",
+    "label": "Blood oxygen saturation",
+    "unit": "%"
+  },
+  "apple_health.body_fat_percentage": {
+    "source": "apple_health",
+    "endpoint": "body_fat_percentage",
+    "field": "qty",
+    "topic": "body-composition",
+    "label": "Body fat",
+    "unit": "%"
+  },
+  "apple_health.body_mass_index": {
+    "source": "apple_health",
+    "endpoint": "body_mass_index",
+    "field": "qty",
+    "topic": "body-composition",
+    "label": "Body mass index",
+    "unit": "index"
+  },
+  "apple_health.breathing_disturbances": {
+    "source": "apple_health",
+    "endpoint": "breathing_disturbances",
+    "field": "qty",
+    "topic": "vitals",
+    "label": "Breathing disturbances",
+    "unit": "count"
+  },
+  "apple_health.cardio_recovery": {
+    "source": "apple_health",
+    "endpoint": "cardio_recovery",
+    "field": "qty",
+    "topic": "heart",
+    "label": "Cardio recovery",
+    "unit": "bpm"
+  },
+  "apple_health.environmental_audio_exposure": {
+    "source": "apple_health",
+    "endpoint": "environmental_audio_exposure",
+    "field": "qty",
+    "topic": "vitals",
+    "label": "Environmental audio exposure",
+    "unit": "dBASPL"
+  },
+  "apple_health.flights_climbed": {
+    "source": "apple_health",
+    "endpoint": "flights_climbed",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Flights climbed",
+    "unit": "count"
+  },
+  "apple_health.handwashing": {
+    "source": "apple_health",
+    "endpoint": "handwashing",
+    "field": "qty",
+    "topic": "vitals",
+    "label": "Handwashing time",
+    "unit": "s"
+  },
+  "apple_health.headphone_audio_exposure": {
+    "source": "apple_health",
+    "endpoint": "headphone_audio_exposure",
+    "field": "qty",
+    "topic": "vitals",
+    "label": "Headphone audio exposure",
+    "unit": "dBASPL"
+  },
+  "apple_health.heart_rate_variability": {
+    "source": "apple_health",
+    "endpoint": "heart_rate_variability",
+    "field": "qty",
+    "topic": "heart",
+    "label": "Heart rate variability",
+    "unit": "ms"
+  },
+  "apple_health.lean_body_mass": {
+    "source": "apple_health",
+    "endpoint": "lean_body_mass",
+    "field": "qty",
+    "topic": "body-composition",
+    "label": "Lean body mass",
+    "unit": "kg"
+  },
+  "apple_health.physical_effort": {
+    "source": "apple_health",
+    "endpoint": "physical_effort",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Physical effort",
+    "unit": "kcal/hr·kg"
+  },
+  "apple_health.respiratory_rate": {
+    "source": "apple_health",
+    "endpoint": "respiratory_rate",
+    "field": "qty",
+    "topic": "vitals",
+    "label": "Respiratory rate",
+    "unit": "breaths/min"
+  },
+  "apple_health.basal_energy_burned": {
+    "source": "apple_health",
+    "endpoint": "basal_energy_burned",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Resting energy",
+    "unit": "kcal"
+  },
+  "apple_health.resting_heart_rate": {
+    "source": "apple_health",
+    "endpoint": "resting_heart_rate",
+    "field": "qty",
+    "topic": "heart",
+    "label": "Resting heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.running_ground_contact_time": {
+    "source": "apple_health",
+    "endpoint": "running_ground_contact_time",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Running ground contact time",
+    "unit": "ms"
+  },
+  "apple_health.running_power": {
+    "source": "apple_health",
+    "endpoint": "running_power",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Running power",
+    "unit": "W"
+  },
+  "apple_health.running_speed": {
+    "source": "apple_health",
+    "endpoint": "running_speed",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Running speed",
+    "unit": "km/h"
+  },
+  "apple_health.running_stride_length": {
+    "source": "apple_health",
+    "endpoint": "running_stride_length",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Running stride length",
+    "unit": "m"
+  },
+  "apple_health.running_vertical_oscillation": {
+    "source": "apple_health",
+    "endpoint": "running_vertical_oscillation",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Running vertical oscillation",
+    "unit": "cm"
+  },
+  "apple_health.six_minute_walking_test_distance": {
+    "source": "apple_health",
+    "endpoint": "six_minute_walking_test_distance",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Six-minute walking test distance",
+    "unit": "m"
+  },
+  "apple_health.stair_speed_down": {
+    "source": "apple_health",
+    "endpoint": "stair_speed_down",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Stair speed down",
+    "unit": "m/s"
+  },
+  "apple_health.stair_speed_up": {
+    "source": "apple_health",
+    "endpoint": "stair_speed_up",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Stair speed up",
+    "unit": "m/s"
+  },
+  "apple_health.step_count": {
+    "source": "apple_health",
+    "endpoint": "step_count",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Steps",
+    "unit": "count"
+  },
+  "apple_health.time_in_daylight": {
+    "source": "apple_health",
+    "endpoint": "time_in_daylight",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Time in daylight",
+    "unit": "min"
+  },
+  "apple_health.vo2_max": {
+    "source": "apple_health",
+    "endpoint": "vo2_max",
+    "field": "qty",
+    "topic": "heart",
+    "label": "VO₂ max",
+    "unit": "ml/kg/min"
+  },
+  "apple_health.walking_running_distance": {
+    "source": "apple_health",
+    "endpoint": "walking_running_distance",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Walking and running distance",
+    "unit": "km"
+  },
+  "apple_health.walking_asymmetry_percentage": {
+    "source": "apple_health",
+    "endpoint": "walking_asymmetry_percentage",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Walking asymmetry",
+    "unit": "%"
+  },
+  "apple_health.walking_double_support_percentage": {
+    "source": "apple_health",
+    "endpoint": "walking_double_support_percentage",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Walking double support",
+    "unit": "%"
+  },
+  "apple_health.walking_heart_rate_average": {
+    "source": "apple_health",
+    "endpoint": "walking_heart_rate_average",
+    "field": "qty",
+    "topic": "heart",
+    "label": "Walking heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.walking_speed": {
+    "source": "apple_health",
+    "endpoint": "walking_speed",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Walking speed",
+    "unit": "km/h"
+  },
+  "apple_health.walking_step_length": {
+    "source": "apple_health",
+    "endpoint": "walking_step_length",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Walking step length",
+    "unit": "cm"
+  },
+  "apple_health.weight_body_mass": {
+    "source": "apple_health",
+    "endpoint": "weight_body_mass",
+    "field": "qty",
+    "topic": "weight",
+    "label": "Exported body mass",
+    "unit": "kg"
+  },
+  "apple_health.heart_rate.Avg": {
+    "source": "apple_health",
+    "endpoint": "heart_rate",
+    "field": "Avg",
+    "topic": "heart",
+    "label": "Average heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.heart_rate.Min": {
+    "source": "apple_health",
+    "endpoint": "heart_rate",
+    "field": "Min",
+    "topic": "heart",
+    "label": "Minimum heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.heart_rate.Max": {
+    "source": "apple_health",
+    "endpoint": "heart_rate",
+    "field": "Max",
+    "topic": "heart",
+    "label": "Maximum heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.sleep_analysis.asleep": {
+    "source": "apple_health",
+    "endpoint": "sleep_analysis",
+    "field": "asleep",
+    "topic": "sleep",
+    "label": "Unspecified sleep",
+    "unit": "hr"
+  },
+  "apple_health.sleep_analysis.awake": {
+    "source": "apple_health",
+    "endpoint": "sleep_analysis",
+    "field": "awake",
+    "topic": "sleep",
+    "label": "Awake",
+    "unit": "hr"
+  },
+  "apple_health.sleep_analysis.core": {
+    "source": "apple_health",
+    "endpoint": "sleep_analysis",
+    "field": "core",
+    "topic": "sleep",
+    "label": "Core sleep",
+    "unit": "hr"
+  },
+  "apple_health.sleep_analysis.deep": {
+    "source": "apple_health",
+    "endpoint": "sleep_analysis",
+    "field": "deep",
+    "topic": "sleep",
+    "label": "Deep sleep",
+    "unit": "hr"
+  },
+  "apple_health.sleep_analysis.inBed": {
+    "source": "apple_health",
+    "endpoint": "sleep_analysis",
+    "field": "inBed",
+    "topic": "sleep",
+    "label": "Time in bed",
+    "unit": "hr"
+  },
+  "apple_health.sleep_analysis.rem": {
+    "source": "apple_health",
+    "endpoint": "sleep_analysis",
+    "field": "rem",
+    "topic": "sleep",
+    "label": "REM sleep",
+    "unit": "hr"
+  },
+  "apple_health.sleep_analysis.totalSleep": {
+    "source": "apple_health",
+    "endpoint": "sleep_analysis",
+    "field": "totalSleep",
+    "topic": "sleep",
+    "label": "Total sleep",
+    "unit": "hr"
+  },
+  "apple_health.sleep_analysis.sleepStart": {
+    "source": "apple_health",
+    "endpoint": "sleep_analysis",
+    "field": "sleepStart",
+    "topic": "sleep",
+    "label": "Sleep start",
+    "unit": "timestamp"
+  },
+  "apple_health.sleep_analysis.sleepEnd": {
+    "source": "apple_health",
+    "endpoint": "sleep_analysis",
+    "field": "sleepEnd",
+    "topic": "sleep",
+    "label": "Sleep end",
+    "unit": "timestamp"
+  },
+  "apple_health.sleep_analysis.inBedStart": {
+    "source": "apple_health",
+    "endpoint": "sleep_analysis",
+    "field": "inBedStart",
+    "topic": "sleep",
+    "label": "In bed start",
+    "unit": "timestamp"
+  },
+  "apple_health.sleep_analysis.inBedEnd": {
+    "source": "apple_health",
+    "endpoint": "sleep_analysis",
+    "field": "inBedEnd",
+    "topic": "sleep",
+    "label": "In bed end",
+    "unit": "timestamp"
+  },
+  "apple_health.workout.duration": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "duration",
+    "topic": "activity",
+    "label": "Active duration",
+    "unit": "s"
+  },
+  "apple_health.workout.distance": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "distance",
+    "topic": "activity",
+    "label": "Distance",
+    "unit": "km"
+  },
+  "apple_health.workout.activeEnergyBurned": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "activeEnergyBurned",
+    "topic": "activity",
+    "label": "Active energy",
+    "unit": "kcal"
+  },
+  "apple_health.workout.totalEnergy": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "totalEnergy",
+    "topic": "activity",
+    "label": "Total energy",
+    "unit": "kcal"
+  },
+  "apple_health.workout.heartRate.min": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "heartRate.min",
+    "topic": "activity",
+    "label": "Minimum heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.workout.avgHeartRate": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "avgHeartRate",
+    "topic": "activity",
+    "label": "Average heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.workout.maxHeartRate": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "maxHeartRate",
+    "topic": "activity",
+    "label": "Maximum heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.workout.speed": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "speed",
+    "topic": "activity",
+    "label": "Speed",
+    "unit": "km/h"
+  },
+  "apple_health.workout.avgSpeed": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "avgSpeed",
+    "topic": "activity",
+    "label": "Average speed",
+    "unit": "km/h"
+  },
+  "apple_health.workout.maxSpeed": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "maxSpeed",
+    "topic": "activity",
+    "label": "Maximum speed",
+    "unit": "km/h"
+  },
+  "apple_health.workout.stepCadence": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "stepCadence",
+    "topic": "activity",
+    "label": "Step cadence",
+    "unit": "steps/min"
+  },
+  "apple_health.workout.intensity": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "intensity",
+    "topic": "activity",
+    "label": "Intensity",
+    "unit": "kcal/hr·kg"
+  },
+  "apple_health.workout.flightsClimbed": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "flightsClimbed",
+    "topic": "activity",
+    "label": "Flights climbed",
+    "unit": "count"
+  },
+  "apple_health.workout.temperature": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "temperature",
+    "topic": "activity",
+    "label": "Ambient temperature",
+    "unit": "°C"
+  },
+  "apple_health.workout.humidity": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "humidity",
+    "topic": "activity",
+    "label": "Humidity",
+    "unit": "%"
+  },
+  "apple_health.workout.elevationUp": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "elevationUp",
+    "topic": "activity",
+    "label": "Elevation gain",
+    "unit": "m"
+  },
+  "apple_health.workout.elevationDown": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "elevationDown",
+    "topic": "activity",
+    "label": "Elevation loss",
+    "unit": "m"
+  },
+  "apple_health.workout.heartRateData.Avg": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "heartRateData",
+    "topic": "activity",
+    "label": "Workout heart rate",
+    "unit": "bpm",
+    "series": true,
+    "sample_field": "Avg"
+  },
+  "apple_health.workout.heartRateData.Min": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "heartRateData",
+    "topic": "activity",
+    "label": "Workout heart rate minimum",
+    "unit": "bpm",
+    "series": true,
+    "sample_field": "Min"
+  },
+  "apple_health.workout.heartRateData.Max": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "heartRateData",
+    "topic": "activity",
+    "label": "Workout heart rate maximum",
+    "unit": "bpm",
+    "series": true,
+    "sample_field": "Max"
+  },
+  "apple_health.workout.heartRateRecovery.Avg": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "heartRateRecovery",
+    "topic": "activity",
+    "label": "Recovery heart rate",
+    "unit": "bpm",
+    "series": true,
+    "sample_field": "Avg"
+  },
+  "apple_health.workout.heartRateRecovery.Min": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "heartRateRecovery",
+    "topic": "activity",
+    "label": "Recovery heart rate minimum",
+    "unit": "bpm",
+    "series": true,
+    "sample_field": "Min"
+  },
+  "apple_health.workout.heartRateRecovery.Max": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "heartRateRecovery",
+    "topic": "activity",
+    "label": "Recovery heart rate maximum",
+    "unit": "bpm",
+    "series": true,
+    "sample_field": "Max"
+  },
+  "apple_health.workout.stepCount.qty": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "stepCount",
+    "topic": "activity",
+    "label": "Workout steps",
+    "unit": "count",
+    "series": true,
+    "sample_field": "qty"
+  },
+  "apple_health.workout.activeEnergy.qty": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "activeEnergy",
+    "topic": "activity",
+    "label": "Active energy samples",
+    "unit": "kcal",
+    "series": true,
+    "sample_field": "qty"
+  },
+  "apple_health.workout.basalEnergy.qty": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "basalEnergy",
+    "topic": "activity",
+    "label": "Resting energy samples",
+    "unit": "kcal",
+    "series": true,
+    "sample_field": "qty"
+  },
+  "apple_health.workout.walkingAndRunningDistance.qty": {
+    "source": "apple_health",
+    "endpoint": "workout",
+    "field": "walkingAndRunningDistance",
+    "topic": "activity",
+    "label": "Distance samples",
+    "unit": "km",
+    "series": true,
+    "sample_field": "qty"
+  },
+  "apple_health.workout.splits.index": {
+    "source": "apple_health",
+    "endpoint": "splits",
+    "field": "index",
+    "topic": "activity",
+    "label": "Splits · Number",
+    "unit": "count"
+  },
+  "apple_health.workout.splits.activeDuration": {
+    "source": "apple_health",
+    "endpoint": "splits",
+    "field": "activeDuration",
+    "topic": "activity",
+    "label": "Splits · Active duration",
+    "unit": "s"
+  },
+  "apple_health.workout.splits.elapsedDuration": {
+    "source": "apple_health",
+    "endpoint": "splits",
+    "field": "elapsedDuration",
+    "topic": "activity",
+    "label": "Splits · Elapsed duration",
+    "unit": "s"
+  },
+  "apple_health.workout.splits.metrics.distance": {
+    "source": "apple_health",
+    "endpoint": "splits",
+    "field": "metrics.distance",
+    "topic": "activity",
+    "label": "Splits · Distance",
+    "unit": "km"
+  },
+  "apple_health.workout.splits.metrics.speed": {
+    "source": "apple_health",
+    "endpoint": "splits",
+    "field": "metrics.speed",
+    "topic": "activity",
+    "label": "Splits · Speed",
+    "unit": "km/h"
+  },
+  "apple_health.workout.splits.metrics.heartRateAverage": {
+    "source": "apple_health",
+    "endpoint": "splits",
+    "field": "metrics.heartRateAverage",
+    "topic": "activity",
+    "label": "Splits · Average heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.workout.splits.metrics.heartRateMinimum": {
+    "source": "apple_health",
+    "endpoint": "splits",
+    "field": "metrics.heartRateMinimum",
+    "topic": "activity",
+    "label": "Splits · Minimum heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.workout.splits.metrics.heartRateMaximum": {
+    "source": "apple_health",
+    "endpoint": "splits",
+    "field": "metrics.heartRateMaximum",
+    "topic": "activity",
+    "label": "Splits · Maximum heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.workout.splits.metrics.activeEnergy": {
+    "source": "apple_health",
+    "endpoint": "splits",
+    "field": "metrics.activeEnergy",
+    "topic": "activity",
+    "label": "Splits · Active energy",
+    "unit": "kcal"
+  },
+  "apple_health.workout.splits.metrics.paceKilometre": {
+    "source": "apple_health",
+    "endpoint": "splits",
+    "field": "metrics.paceKilometre",
+    "topic": "activity",
+    "label": "Splits · Pace",
+    "unit": "s/km"
+  },
+  "apple_health.workout.segments.index": {
+    "source": "apple_health",
+    "endpoint": "segments",
+    "field": "index",
+    "topic": "activity",
+    "label": "Segments · Number",
+    "unit": "count"
+  },
+  "apple_health.workout.segments.activeDuration": {
+    "source": "apple_health",
+    "endpoint": "segments",
+    "field": "activeDuration",
+    "topic": "activity",
+    "label": "Segments · Active duration",
+    "unit": "s"
+  },
+  "apple_health.workout.segments.elapsedDuration": {
+    "source": "apple_health",
+    "endpoint": "segments",
+    "field": "elapsedDuration",
+    "topic": "activity",
+    "label": "Segments · Elapsed duration",
+    "unit": "s"
+  },
+  "apple_health.workout.segments.metrics.distance": {
+    "source": "apple_health",
+    "endpoint": "segments",
+    "field": "metrics.distance",
+    "topic": "activity",
+    "label": "Segments · Distance",
+    "unit": "km"
+  },
+  "apple_health.workout.segments.metrics.speed": {
+    "source": "apple_health",
+    "endpoint": "segments",
+    "field": "metrics.speed",
+    "topic": "activity",
+    "label": "Segments · Speed",
+    "unit": "km/h"
+  },
+  "apple_health.workout.segments.metrics.heartRateAverage": {
+    "source": "apple_health",
+    "endpoint": "segments",
+    "field": "metrics.heartRateAverage",
+    "topic": "activity",
+    "label": "Segments · Average heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.workout.segments.metrics.heartRateMinimum": {
+    "source": "apple_health",
+    "endpoint": "segments",
+    "field": "metrics.heartRateMinimum",
+    "topic": "activity",
+    "label": "Segments · Minimum heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.workout.segments.metrics.heartRateMaximum": {
+    "source": "apple_health",
+    "endpoint": "segments",
+    "field": "metrics.heartRateMaximum",
+    "topic": "activity",
+    "label": "Segments · Maximum heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.workout.segments.metrics.activeEnergy": {
+    "source": "apple_health",
+    "endpoint": "segments",
+    "field": "metrics.activeEnergy",
+    "topic": "activity",
+    "label": "Segments · Active energy",
+    "unit": "kcal"
+  },
+  "apple_health.workout.segments.metrics.paceKilometre": {
+    "source": "apple_health",
+    "endpoint": "segments",
+    "field": "metrics.paceKilometre",
+    "topic": "activity",
+    "label": "Segments · Pace",
+    "unit": "s/km"
+  },
+  "apple_health.workout.activities.index": {
+    "source": "apple_health",
+    "endpoint": "activities",
+    "field": "index",
+    "topic": "activity",
+    "label": "Activities · Number",
+    "unit": "count"
+  },
+  "apple_health.workout.activities.activeDuration": {
+    "source": "apple_health",
+    "endpoint": "activities",
+    "field": "activeDuration",
+    "topic": "activity",
+    "label": "Activities · Active duration",
+    "unit": "s"
+  },
+  "apple_health.workout.activities.elapsedDuration": {
+    "source": "apple_health",
+    "endpoint": "activities",
+    "field": "elapsedDuration",
+    "topic": "activity",
+    "label": "Activities · Elapsed duration",
+    "unit": "s"
+  },
+  "apple_health.workout.activities.metrics.distance": {
+    "source": "apple_health",
+    "endpoint": "activities",
+    "field": "metrics.distance",
+    "topic": "activity",
+    "label": "Activities · Distance",
+    "unit": "km"
+  },
+  "apple_health.workout.activities.metrics.speed": {
+    "source": "apple_health",
+    "endpoint": "activities",
+    "field": "metrics.speed",
+    "topic": "activity",
+    "label": "Activities · Speed",
+    "unit": "km/h"
+  },
+  "apple_health.workout.activities.metrics.heartRateAverage": {
+    "source": "apple_health",
+    "endpoint": "activities",
+    "field": "metrics.heartRateAverage",
+    "topic": "activity",
+    "label": "Activities · Average heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.workout.activities.metrics.heartRateMinimum": {
+    "source": "apple_health",
+    "endpoint": "activities",
+    "field": "metrics.heartRateMinimum",
+    "topic": "activity",
+    "label": "Activities · Minimum heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.workout.activities.metrics.heartRateMaximum": {
+    "source": "apple_health",
+    "endpoint": "activities",
+    "field": "metrics.heartRateMaximum",
+    "topic": "activity",
+    "label": "Activities · Maximum heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.workout.activities.metrics.activeEnergy": {
+    "source": "apple_health",
+    "endpoint": "activities",
+    "field": "metrics.activeEnergy",
+    "topic": "activity",
+    "label": "Activities · Active energy",
+    "unit": "kcal"
+  },
+  "apple_health.workout.activities.metrics.paceKilometre": {
+    "source": "apple_health",
+    "endpoint": "activities",
+    "field": "metrics.paceKilometre",
+    "topic": "activity",
+    "label": "Activities · Pace",
+    "unit": "s/km"
+  },
+  "apple_health.ecg.averageHeartRate": {
+    "source": "apple_health",
+    "endpoint": "ecg",
+    "field": "averageHeartRate",
+    "topic": "heart",
+    "label": "ECG average heart rate",
+    "unit": "bpm"
+  },
+  "apple_health.ecg.numberOfVoltageMeasurements": {
+    "source": "apple_health",
+    "endpoint": "ecg",
+    "field": "numberOfVoltageMeasurements",
+    "topic": "heart",
+    "label": "ECG sample count",
+    "unit": "count"
+  },
+  "apple_health.ecg.samplingFrequency": {
+    "source": "apple_health",
+    "endpoint": "ecg",
+    "field": "samplingFrequency",
+    "topic": "heart",
+    "label": "ECG sampling frequency",
+    "unit": "Hz"
+  },
+  "apple_health.ecg.duration": {
+    "source": "apple_health",
+    "endpoint": "ecg",
+    "field": "duration",
+    "topic": "heart",
+    "label": "ECG duration",
+    "unit": "s"
+  },
+  "apple_health.ecg.voltage": {
+    "source": "apple_health",
+    "endpoint": "ecg",
+    "field": "voltageMeasurements",
+    "topic": "heart",
+    "label": "ECG voltage",
+    "unit": "µV",
+    "series": true
+  }
+}

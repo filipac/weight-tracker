@@ -18,7 +18,7 @@ final class WithingsOAuth2Controller
 
         return redirect(Withings::oauth2()->getAuthorizationUrl(
             redirectUri: config('services.withings.redirect'),
-            scopes: ['user.info', 'user.metrics'],
+            scopes: ['user.info', 'user.metrics', 'user.activity'],
             state: Withings::oauth2()->generateState()
         ));
     }
@@ -49,6 +49,8 @@ final class WithingsOAuth2Controller
                 'access_token' => $resp['body']['access_token'],
                 'refresh_token' => $resp['body']['refresh_token'],
                 'expires_in' => $resp['body']['expires_in'],
+                'expires_at' => now()->timestamp + (int) $resp['body']['expires_in'],
+                'scopes' => ['user.info', 'user.metrics', 'user.activity'],
             ]);
 
             return redirect()->route('weight.index');

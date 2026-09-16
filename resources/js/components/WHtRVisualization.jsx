@@ -8,8 +8,8 @@ export default function WHtRVisualization({ waistCm, waistChartData = [] }) {
     const [isHistoricalView, setIsHistoricalView] = useState(false)
     const [isFutureView, setIsFutureView] = useState(false)
 
-    // Height hardcoded to 175cm
-    const heightCm = 175
+    // Height hardcoded to 173cm
+    const heightCm = 173
 
     // Healthy waist target (WHtR = 0.5)
     const healthyWaistTarget = heightCm * 0.5

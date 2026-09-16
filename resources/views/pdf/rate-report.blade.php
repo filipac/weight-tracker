@@ -34,11 +34,11 @@
 
         /* Transformation hero */
         .hero {
-            background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+            background: #eef2ff;
             border: 1px solid #c7d2fe;
             border-radius: 10px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             text-align: center;
         }
         .hero .big-number {
@@ -70,6 +70,63 @@
             color: #64748b;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+        }
+
+        /* Maintenance status */
+        .maintenance-box {
+            border-radius: 10px;
+            padding: 14px 16px;
+            margin-bottom: 18px;
+            border: 1px solid #bbf7d0;
+            background: #f0fdf4;
+        }
+        .maintenance-box.status-drift {
+            border-color: #bae6fd;
+            background: #f0f9ff;
+        }
+        .maintenance-box.status-alert {
+            border-color: #fed7aa;
+            background: #fff7ed;
+        }
+        .maintenance-status {
+            font-size: 18px;
+            font-weight: 800;
+            color: #15803d;
+            margin-bottom: 2px;
+        }
+        .status-drift .maintenance-status { color: #0369a1; }
+        .status-alert .maintenance-status { color: #c2410c; }
+        .maintenance-subtitle {
+            font-size: 10px;
+            color: #475569;
+            margin-bottom: 10px;
+        }
+        .maintenance-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .maintenance-table td {
+            width: 25%;
+            text-align: center;
+            padding: 5px 4px;
+            vertical-align: top;
+        }
+        .maintenance-table .value {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .maintenance-table .label {
+            font-size: 8px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .maintenance-note {
+            margin-top: 8px;
+            font-size: 8px;
+            color: #64748b;
+            text-align: center;
         }
 
         /* Section titles */
@@ -112,16 +169,19 @@
             color: #94a3b8;
             margin-top: 2px;
         }
+
         .green { color: #16a34a; }
         .red { color: #dc2626; }
         .blue { color: #2563eb; }
         .purple { color: #7c3aed; }
+        .amber { color: #d97706; }
         .slate { color: #64748b; }
 
         .card-green { background: #f0fdf4; border-color: #bbf7d0; }
         .card-red { background: #fef2f2; border-color: #fecaca; }
         .card-blue { background: #eff6ff; border-color: #bfdbfe; }
         .card-purple { background: #f5f3ff; border-color: #ddd6fe; }
+        .card-amber { background: #fffbeb; border-color: #fde68a; }
 
         /* Tables */
         table.data-table {
@@ -157,20 +217,43 @@
             background: #f1f5f9;
             margin: 6px 0;
         }
+        .progress-fill-blue {
+            height: 100%;
+            background: #3b82f6;
+            float: left;
+        }
         .progress-fill-green {
             height: 100%;
             background: #22c55e;
-            float: left;
-        }
-        .progress-fill-gray {
-            height: 100%;
-            background: #cbd5e1;
             float: left;
         }
         .progress-fill-red {
             height: 100%;
             background: #ef4444;
             float: left;
+        }
+        /* Chronological trend timeline: one cell per phase, in order */
+        .timeline-bar {
+            width: 100%;
+            height: 14px;
+            border-collapse: collapse;
+            table-layout: fixed;
+            background: #f1f5f9;
+            margin: 6px 0;
+        }
+        .timeline-bar td {
+            height: 14px;
+            padding: 0;
+            line-height: 14px;
+            font-size: 1px;
+        }
+        .timeline-losing { background: #3b82f6; }
+        .timeline-stable { background: #22c55e; }
+        .timeline-gaining { background: #ef4444; }
+        .timeline-ends {
+            width: 100%;
+            font-size: 9px;
+            color: #94a3b8;
         }
         .progress-labels {
             width: 100%;
@@ -228,6 +311,16 @@
             color: #64748b;
             font-size: 9px;
         }
+        .maintenance-stability {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 6px;
+            padding: 7px 9px;
+            margin-bottom: 7px;
+            color: #15803d;
+            font-size: 10px;
+            font-weight: 600;
+        }
 
         /* Page break */
         .page-break {
@@ -247,9 +340,25 @@
 </head>
 <body>
 
+    @php
+        $maintenanceStatus = $maintenance['status'];
+        $maintenanceBoxClass = 'maintenance-box';
+
+        if (str_contains($maintenanceStatus, 'IN RANGE') && $maintenance['trend'] === 'stable') {
+            $maintenanceBoxClass .= '';
+        } elseif (str_contains($maintenanceStatus, 'IN RANGE')) {
+            $maintenanceBoxClass .= ' status-drift';
+        } else {
+            $maintenanceBoxClass .= ' status-alert';
+        }
+
+        $currentTrendClass = $currentRate['trend'] === 'stable' ? 'card-green' : 'card-blue';
+        $currentTrendTextClass = $currentRate['trend'] === 'stable' ? 'green' : 'blue';
+    @endphp
+
     <!-- HEADER -->
     <div class="header">
-        <h1>Weight Rate Report</h1>
+        <h1>Weight Rate &amp; Maintenance Report</h1>
         <div class="date">Generated on {{ $reportDate }}</div>
     </div>
 
@@ -270,13 +379,48 @@
                     <div class="stat-label">BMI {{ $transformation['endBMI'] }} &middot; {{ $transformation['endDate'] }}</div>
                 </td>
                 <td>
-                    <div class="stat-label">Averages</div>
+                    <div class="stat-label">Lifetime averages</div>
                     <div class="stat-value">{{ $transformation['avgWeeklyLoss'] }} kg/wk</div>
                     <div class="stat-label">{{ $transformation['avgMonthlyLoss'] }} kg/month</div>
-                    <div class="stat-label" style="margin-top: 4px; color: #4338ca; font-weight: 600;">~{{ $transformation['avgDailyDeficit'] }} kcal/day deficit</div>
+                    <div class="stat-label" style="margin-top: 4px; color: #4338ca; font-weight: 600;">~{{ $transformation['avgDailyEnergyEquivalent'] }} kcal/day energy equivalent</div>
                 </td>
             </tr>
         </table>
+    </div>
+
+    <!-- MAINTENANCE STATUS -->
+    <div class="{{ $maintenanceBoxClass }}">
+        <div class="maintenance-status">{{ $maintenance['status'] }}</div>
+        <div class="maintenance-subtitle">
+            Target {{ $maintenance['targetWeight'] }} kg &middot; maintenance range {{ $maintenance['minWeight'] }}&ndash;{{ $maintenance['maxWeight'] }} kg
+        </div>
+        <table class="maintenance-table">
+            <tr>
+                <td>
+                    <div class="label">30-day trend</div>
+                    <div class="value">{{ $maintenance['weeklyTrend'] }} kg/wk</div>
+                    <div class="label">{{ ucfirst($maintenance['trend']) }}</div>
+                </td>
+                <td>
+                    <div class="label">In-range streak</div>
+                    <div class="value">{{ $maintenance['streakDays'] }} days</div>
+                    <div class="label">{{ $maintenance['streakEntries'] }} weigh-ins</div>
+                </td>
+                <td>
+                    <div class="label">Last 30 days</div>
+                    <div class="value">{{ $maintenance['last30InRangePct'] }}%</div>
+                    <div class="label">weigh-ins in range</div>
+                </td>
+                <td>
+                    <div class="label">Energy estimates</div>
+                    <div class="value">~{{ number_format($maintenance['sedentaryTdee']) }}</div>
+                    <div class="label">kcal/day sedentary TDEE</div>
+                </td>
+            </tr>
+        </table>
+        <div class="maintenance-note">
+            BMR ~{{ number_format($maintenance['bmr']) }} kcal/day &middot; Mifflin-St Jeor, male, age {{ $maintenance['age'] }}, {{ $maintenance['heightCm'] }} cm. Actual maintenance may be higher with exercise and daily activity.
+        </div>
     </div>
 
     <!-- FUN FACTS -->
@@ -291,7 +435,7 @@
                     @endforeach
                 </td>
                 <td style="width: 50%; vertical-align: top; padding-left: 12px; border-left: 1px solid #fde68a;">
-                    <div style="margin-bottom: 6px;">Body impact:</div>
+                    <div style="margin-bottom: 6px;">Rough body / energy context:</div>
                     @foreach($funFacts['bodyImpact'] as $impact)
                     <div style="padding: 3px 0;">&#8226; {{ $impact }}</div>
                     @endforeach
@@ -303,26 +447,26 @@
     <!-- CURRENT RATE + HISTORICAL SUMMARY -->
     <table class="cards">
         <tr>
-            <td class="card card-green" style="width: 25%;">
-                <div class="card-label">Current Daily Rate</div>
-                <div class="card-value green">{{ $currentRate['daily'] }} kg/day</div>
-                <div class="card-detail">{{ $currentRate['weekly'] }} kg/week</div>
-                <div class="card-detail">{{ $currentRate['date'] }} &middot; {{ $currentRate['entries'] }} entries</div>
+            <td class="card {{ $currentTrendClass }}" style="width: 25%;">
+                <div class="card-label">30-Day Trend</div>
+                <div class="card-value {{ $currentTrendTextClass }}">{{ $currentRate['weekly'] }} kg/week</div>
+                <div class="card-detail">{{ $currentRate['daily'] }} kg/day</div>
+                <div class="card-detail">{{ ucfirst($currentRate['trend']) }} &middot; {{ $currentRate['entries'] }} entries</div>
             </td>
             <td class="card card-green" style="width: 25%;">
-                <div class="card-label">Best Rate</div>
+                <div class="card-label">Fastest Loss Rate</div>
                 <div class="card-value green">{{ $historicalSummary['bestDaily'] }} kg/day</div>
                 <div class="card-detail">{{ $historicalSummary['bestWeekly'] }} kg/week</div>
                 <div class="card-detail">{{ $historicalSummary['bestDate'] }}</div>
             </td>
             <td class="card card-red" style="width: 25%;">
-                <div class="card-label">Worst Rate</div>
+                <div class="card-label">Highest Gain Rate</div>
                 <div class="card-value red">{{ $historicalSummary['worstDaily'] }} kg/day</div>
                 <div class="card-detail">{{ $historicalSummary['worstWeekly'] }} kg/week</div>
                 <div class="card-detail">{{ $historicalSummary['worstDate'] }}</div>
             </td>
             <td class="card card-blue" style="width: 25%;">
-                <div class="card-label">Average Rate</div>
+                <div class="card-label">Lifetime Avg Rate</div>
                 <div class="card-value blue">{{ $historicalSummary['avgDaily'] }} kg/day</div>
                 <div class="card-detail">{{ $historicalSummary['avgWeekly'] }} kg/week</div>
                 <div class="card-detail">{{ $historicalSummary['totalWindows'] }} windows</div>
@@ -330,22 +474,40 @@
         </tr>
     </table>
 
-    <!-- TREND DISTRIBUTION -->
-    <div class="section-title">Trend Distribution</div>
-    <div class="progress-bar">
-        <div class="progress-fill-green" style="width: {{ $distribution['losingPct'] }}%;"></div>
-        <div class="progress-fill-gray" style="width: {{ $distribution['stablePct'] }}%;"></div>
-        <div class="progress-fill-red" style="width: {{ $distribution['gainingPct'] }}%;"></div>
-    </div>
-    <table class="progress-labels">
+    <!-- TREND TIMELINE -->
+    <div class="section-title">Trend Timeline</div>
+    <table class="timeline-bar" cellpadding="0" cellspacing="0">
         <tr>
-            <td class="green" style="width: 33%;">&#9679; Losing {{ $distribution['losingPct'] }}% ({{ $distribution['losingCount'] }} windows)</td>
-            <td class="slate" style="width: 34%; text-align: center;">&#9679; Stable {{ $distribution['stablePct'] }}% ({{ $distribution['stableCount'] }} windows)</td>
-            <td class="red" style="width: 33%; text-align: right;">&#9679; Gaining {{ $distribution['gainingPct'] }}% ({{ $distribution['gainingCount'] }} windows)</td>
+            @foreach($timeline['segments'] as $seg)
+            <td class="timeline-{{ $seg['trend'] }}" style="width: {{ $seg['widthPct'] }}%;"></td>
+            @endforeach
         </tr>
     </table>
+    <table class="timeline-ends">
+        <tr>
+            <td style="width: 33%;">{{ $timeline['start'] }}</td>
+            <td style="width: 34%; text-align: center;">{{ $timeline['phaseCount'] }} phases, oldest to newest</td>
+            <td style="width: 33%; text-align: right;">{{ $timeline['end'] }}</td>
+        </tr>
+    </table>
+    <table class="progress-labels">
+        <tr>
+            <td class="blue" style="width: 33%;">&#183; Losing {{ $distribution['losingPct'] }}% ({{ $distribution['losingCount'] }} windows)</td>
+            <td class="green" style="width: 34%; text-align: center;">&#183; Stable {{ $distribution['stablePct'] }}% ({{ $distribution['stableCount'] }} windows)</td>
+            <td class="red" style="width: 33%; text-align: right;">&#183; Gaining {{ $distribution['gainingPct'] }}% ({{ $distribution['gainingCount'] }} windows)</td>
+        </tr>
+    </table>
+    @if(!empty($timeline['interruptions']))
+    <div style="font-size: 10px; color: #475569; margin-top: 4px;">
+        Longest interruptions:
+        @foreach($timeline['interruptions'] as $break)
+        <span class="{{ $break['trend'] === 'gaining' ? 'red' : 'green' }}">{{ $break['label'] }}</span>@if(!$loop->last) &middot; @endif
+        @endforeach
+    </div>
+    @endif
     <div style="font-size: 10px; color: #475569; margin-top: 6px;">
         Current streak: <strong>{{ $streak['count'] }} consecutive windows {{ $streak['label'] }}</strong>
+        &middot; Stable means within &plusmn;0.25 kg/week.
     </div>
 
     <!-- MILESTONES -->
@@ -371,33 +533,37 @@
                 <div class="card-label">Daily Volatility (Std Dev)</div>
                 <div class="card-value slate">{{ $volatility['stdDev'] }} kg</div>
             </td>
-            <td class="card card-green" style="width: 33%;">
+            <td class="card card-blue" style="width: 33%;">
                 <div class="card-label">Largest Single-Day Drop</div>
-                <div class="card-value green">{{ $volatility['maxDrop'] }} kg</div>
+                <div class="card-value blue">{{ $volatility['maxDrop'] }} kg</div>
                 <div class="card-detail">{{ $volatility['maxDropDate'] }}</div>
             </td>
-            <td class="card card-red" style="width: 33%;">
+            <td class="card card-blue" style="width: 33%;">
                 <div class="card-label">Largest Single-Day Gain</div>
-                <div class="card-value red">+{{ $volatility['maxGain'] }} kg</div>
+                <div class="card-value blue">+{{ $volatility['maxGain'] }} kg</div>
                 <div class="card-detail">{{ $volatility['maxGainDate'] }}</div>
             </td>
         </tr>
     </table>
 
     <!-- PLATEAUS & WHOOSHES side by side -->
-    <table class="cards">
+    <table class="cards" style="margin-top: 10px;">
         <tr>
             <td class="card" style="width: 50%; vertical-align: top;">
-                <div class="card-label" style="font-size: 11px; font-weight: 700; color: #1e1b4b; margin-bottom: 8px;">Plateau Analysis</div>
+                <div class="card-label" style="font-size: 11px; font-weight: 700; color: #1e1b4b; margin-bottom: 8px;">Plateau / Maintenance Stability</div>
                 @if(!empty($plateaus))
                 <div style="margin-bottom: 6px;">
                     <span style="font-size: 10px; color: #475569;">
-                        {{ count($plateaus) }} plateaus detected &middot; Longest: {{ $plateauStats['longest'] }} days &middot; Avg: {{ $plateauStats['avg'] }} days
+                        {{ count($plateaus) }} historical stable periods &middot; Longest: {{ $plateauStats['longest'] }} days &middot; Avg: {{ $plateauStats['avg'] }} days
                     </span>
-                    @if($plateauStats['currentlyInPlateau'])
-                    <br><span style="font-size: 10px; color: #dc2626; font-weight: 600;">Currently in plateau!</span>
-                    @endif
                 </div>
+
+                @if($plateauStats['maintenanceStability'])
+                <div class="maintenance-stability">Current stable period is inside the maintenance range &mdash; this is maintenance stability, not a problematic plateau.</div>
+                @elseif($plateauStats['currentlyInPlateau'])
+                <div style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 6px; padding: 7px 9px; margin-bottom: 7px; color: #c2410c; font-size: 10px; font-weight: 600;">Currently in a plateau outside the maintenance range.</div>
+                @endif
+
                 @foreach($plateaus as $p)
                 <div class="event-item">
                     <span class="event-title">{{ $p['start'] }} &ndash; {{ $p['end'] }}</span>
@@ -405,7 +571,7 @@
                 </div>
                 @endforeach
                 @else
-                <div style="font-size: 10px; color: #64748b;">No plateaus detected</div>
+                <div style="font-size: 10px; color: #64748b;">No stable periods detected</div>
                 @endif
             </td>
             <td class="card" style="width: 50%; vertical-align: top;">
@@ -432,6 +598,9 @@
     <!-- WEEKLY BREAKDOWN -->
     <div class="page-break"></div>
     <div class="section-title">Weekly Breakdown</div>
+    <div style="font-size: 8px; color: #64748b; margin-bottom: 8px;">
+        Weekly colors are maintenance-aware: green = stable / moving toward range, blue = movement while still in range, amber/red = needs attention. A single weigh-in does not infer a weekly rate.
+    </div>
     <table class="data-table">
         <thead>
             <tr>
@@ -451,8 +620,8 @@
                 <td>{{ $week['startWeight'] }} kg</td>
                 <td>{{ $week['endWeight'] }} kg</td>
                 <td style="color: {{ $week['changeColor'] }};">{{ $week['change'] }} kg</td>
-                <td style="color: {{ $week['changeColor'] }};">{{ $week['dailyRate'] }} kg</td>
-                <td style="color: {{ $week['changeColor'] }};">{{ $week['weeklyRate'] }} kg</td>
+                <td style="color: {{ $week['changeColor'] }};">{{ $week['dailyRate'] }}{{ $week['dailyRate'] !== 'n/a' ? ' kg' : '' }}</td>
+                <td style="color: {{ $week['changeColor'] }};">{{ $week['weeklyRate'] }}{{ $week['weeklyRate'] !== 'n/a' ? ' kg' : '' }}</td>
                 <td>{{ $week['entries'] }}</td>
             </tr>
             @endforeach
@@ -460,7 +629,7 @@
     </table>
 
     <div class="footer">
-        Weight Rate Report &middot; Generated {{ $reportDate }} &middot; {{ $transformation['durationDays'] }} days of tracking
+        Weight Rate &amp; Maintenance Report &middot; Generated {{ $reportDate }} &middot; {{ $transformation['durationDays'] }} days of tracking
     </div>
 
 </body>

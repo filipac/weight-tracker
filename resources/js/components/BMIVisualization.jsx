@@ -8,8 +8,8 @@ export default function BMIVisualization({ currentBMI, currentWeight, startingBM
     const [isHistoricalView, setIsHistoricalView] = useState(false)
     const [isFutureView, setIsFutureView] = useState(false)
 
-    // Height hardcoded to 175cm = 1.75m
-    const heightInMeters = 1.75
+    // Height hardcoded to 173cm = 1.73m
+    const heightInMeters = 1.73
 
     // Generate combined data with future predictions
     const combinedData = useMemo(() => {
@@ -150,7 +150,7 @@ export default function BMIVisualization({ currentBMI, currentWeight, startingBM
         { label: 'Obesity Class 3', min: 40, max: 50, color: 'bg-red-400 dark:bg-red-950' }
     ]
 
-    // Calculate healthy weight range (BMI 18.5 - 25 for 175cm height)
+    // Calculate healthy weight range (BMI 18.5 - 25 for 173cm height)
     const minHealthyWeight = 18.5 * (heightInMeters * heightInMeters)
     const maxHealthyWeight = 25 * (heightInMeters * heightInMeters)
 
@@ -687,7 +687,7 @@ export default function BMIVisualization({ currentBMI, currentWeight, startingBM
                     {/* Healthy Weight Range Info */}
                     <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg space-y-2">
                         <div className="font-medium text-green-800 dark:text-green-300 mb-2">
-                            Healthy Weight Range (for 175cm height)
+                            Healthy Weight Range (for 173cm height)
                         </div>
                         <div className="text-sm text-gray-700 dark:text-gray-300">
                             <span className="font-medium">Target Range:</span>{' '}

@@ -318,83 +318,18 @@ final class WeightController
 
     public function getFromWithings(Request $request)
     {
-        if (! Withings::isConfigured()) {
-            return response()->json([
-                'error' => 'Withings integration is not configured. Please set WITHINGS_CLIENT_ID, WITHINGS_CLIENT_SECRET, and WITHINGS_REDIRECT_URI in your .env file.',
-            ], 503);
-        }
-
+        $request->validate(['date' => 'nullable|date_format:Y-m-d']);
+        $date = $request->input('date') ?: now(config('health.timezone'))->toDateString();
         try {
-            app(RefreshWithingsAction::class)->execute();
-        } catch (\Exception|\Throwable|\Error $e) {
-
+            $reader = app(\App\Health\WithingsMeasurements::class);
+            $minimum = $reader->minimum($reader->forDay($date));
+            if (! $minimum) return response()->json(['error' => 'No weight measurements found for the selected date'], 404);
+            return response()->json(['weight' => number_format($minimum['weight'], 2, '.', '')]);
+        } catch (\App\Health\ProviderException $e) {
+            return response()->json(['error' => $e->getMessage()], 503);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => 'Withings could not be reached. Please retry.'], 503);
         }
-
-        $accessToken = cache()->get('withings')['access_token'];
-
-        $url = 'https://wbsapi.withings.net/measure';
-
-        $response = Http::withHeaders([
-            'Authorization' => 'Bearer '.$accessToken,
-        ])->post($url, [
-            'action' => 'getmeas',
-            'meastype' => 1,
-            'category' => 1,
-        ]);
-        $resp = $response->json();
-
-        $allMeasureGroups = Arr::get($resp, 'body.measuregrps', []);
-
-        if (empty($allMeasureGroups)) {
-            session()->flash('message', 'No weight data found from Withings');
-
-            return redirect()->back();
-        }
-
-        // Use provided date or default to today
-        $targetDate = $request->date ? Carbon::parse($request->date) : Carbon::today();
-
-        // Filter measure groups by the created timestamp matching the target date
-        $filteredGroups = array_filter($allMeasureGroups, function ($group) use ($targetDate) {
-            $createdTimestamp = $group['created'] ?? null;
-            if (! $createdTimestamp) {
-                return false;
-            }
-
-            $createdDate = Carbon::createFromTimestamp($createdTimestamp);
-
-            return $createdDate->isSameDay($targetDate);
-        });
-
-        if (empty($filteredGroups)) {
-            return response()->json([
-                'error' => 'No weight data found for the selected date',
-            ], 404);
-        }
-
-        // Extract all weight values from the filtered groups
-        $weights = [];
-        foreach ($filteredGroups as $group) {
-            $measures = Arr::get($group, 'measures', []);
-            foreach ($measures as $measure) {
-                if (isset($measure['value'])) {
-                    $weights[] = $measure['value'];
-                }
-            }
-        }
-
-        if (empty($weights)) {
-            return response()->json([
-                'error' => 'No weight measurements found for the selected date',
-            ], 404);
-        }
-
-        // Get the lowest weight value from that day
-        $lowestWeight = min($weights);
-
-        $resp = ['weight' => bcdiv($lowestWeight, 1000, 2)];
-
-        return $resp;
     }
 
     private function calculateWeightChanges()
@@ -408,8 +343,8 @@ final class WeightController
         $currentWeight = $latestEntry->weight_kg;
         $currentDate = $latestEntry->date;
 
-        // Calculate BMI (height hardcoded to 175cm = 1.75m)
-        $heightInMeters = 1.75;
+        // Calculate BMI (height hardcoded to 173cm = 1.73m)
+        $heightInMeters = 1.73; // Height hardcoded to 173cm
         $currentBMI = round($currentWeight / ($heightInMeters * $heightInMeters), 1);
 
         // Get first entry for starting BMI
@@ -565,8 +500,8 @@ final class WeightController
             $recentChange = round($currentWaist - $previousMeasurement->waist_cm, 1);
         }
 
-        // Calculate WHtR (height hardcoded to 175cm)
-        $heightCm = 175;
+        // Calculate WHtR (height hardcoded to 173cm)
+        $heightCm = 173;
         $currentWHtR = round($currentWaist / $heightCm, 3);
         $startingWHtR = $startingWaist ? round($startingWaist / $heightCm, 3) : null;
 

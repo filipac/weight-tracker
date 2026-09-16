@@ -36,6 +36,13 @@ function daysBetween(a, b) {
     return Math.round((b - a) / 86400000)
 }
 
+/**
+ * Classify a slope into a trend bucket (dead-band of 1g/day to avoid noise).
+ */
+function trendOf(slope) {
+    return slope < -0.001 ? 'losing' : slope > 0.001 ? 'gaining' : 'stable'
+}
+
 function formatDate(date) {
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
     return `${date.getUTCDate()} ${months[date.getUTCMonth()]} ${date.getUTCFullYear()}`
@@ -128,7 +135,7 @@ export default function DailyRateExplorer({ chartData = [] }) {
         let currentTrend = null
         let streakCount = 0
         for (let i = slopes.length - 1; i >= 0; i--) {
-            const trend = slopes[i] < -0.001 ? 'losing' : slopes[i] > 0.001 ? 'gaining' : 'stable'
+            const trend = trendOf(slopes[i])
             if (currentTrend === null) currentTrend = trend
             if (trend === currentTrend) {
                 streakCount++
@@ -137,7 +144,41 @@ export default function DailyRateExplorer({ chartData = [] }) {
             }
         }
 
+        // Chronological run-length encoding: merge consecutive windows sharing a
+        // trend into one segment. Each window is weighted by the calendar days it
+        // covers (gap until the next window) so a long phase with sparse weigh-ins
+        // isn't squeezed into a sliver next to a dense one.
+        const segments = []
+        for (let i = 0; i < allRates.length; i++) {
+            const trend = trendOf(allRates[i].slope)
+            const next = allRates[i + 1]
+            const spanDays = next ? Math.max(1, daysBetween(allRates[i].date, next.date)) : 1
+            const last = segments[segments.length - 1]
+
+            if (last && last.trend === trend) {
+                last.endDate = allRates[i].date
+                last.windows++
+                last.days += spanDays
+                last.slopeSum += allRates[i].slope
+            } else {
+                segments.push({
+                    trend,
+                    startDate: allRates[i].date,
+                    endDate: allRates[i].date,
+                    windows: 1,
+                    days: spanDays,
+                    slopeSum: allRates[i].slope,
+                })
+            }
+        }
+
+        const totalDays = segments.reduce((sum, seg) => sum + seg.days, 0)
+
         return {
+            segments,
+            totalDays,
+            timelineStart: allRates[0].date,
+            timelineEnd: allRates[allRates.length - 1].date,
             avgSlope,
             bestSlope: slopes[bestIdx],
             bestDate: allRates[bestIdx].date,
@@ -169,7 +210,7 @@ export default function DailyRateExplorer({ chartData = [] }) {
             slope: result.slope,
             dailyRate: Math.abs(result.slope),
             weeklyRate: Math.abs(result.slope * 7),
-            trend: result.slope < -0.001 ? 'losing' : result.slope > 0.001 ? 'gaining' : 'stable',
+            trend: trendOf(result.slope),
             pointCount: result.pointCount,
             avgWeight: result.avgWeight,
         }
@@ -227,6 +268,22 @@ export default function DailyRateExplorer({ chartData = [] }) {
         if (slope > 0.001) return 'text-red-600 dark:text-red-400'
         return 'text-slate-500 dark:text-slate-400'
     }
+
+    const segmentColor = (trend) => trend === 'losing'
+        ? 'bg-green-500 dark:bg-green-400'
+        : trend === 'gaining'
+            ? 'bg-red-500 dark:bg-red-400'
+            : 'bg-slate-300 dark:bg-slate-600'
+
+    const segmentLabel = (seg) => {
+        const name = seg.trend === 'losing' ? 'Losing' : seg.trend === 'gaining' ? 'Gaining' : 'Stable'
+        return `${name} ${seg.days} day${seg.days !== 1 ? 's' : ''}`
+    }
+
+    // Where the slider's date falls along the chronological bar
+    const markerPct = stats && rateData
+        ? Math.min(100, Math.max(0, (daysBetween(stats.timelineStart, rateData.date) / stats.totalDays) * 100))
+        : 0
 
     return (
         <Card>
@@ -354,27 +411,37 @@ export default function DailyRateExplorer({ chartData = [] }) {
                         <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
                             {/* Distribution */}
                             <div className="rounded-lg border border-slate-200 bg-slate-50/50 p-3 dark:border-slate-700 dark:bg-slate-900/30">
-                                <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">Trend Distribution</div>
-                                {/* Stacked bar */}
-                                <div className="flex h-3 w-full overflow-hidden rounded-full">
-                                    {stats.losingCount > 0 && (
+                                <div className="mb-2 flex items-baseline justify-between">
+                                    <span className="text-xs text-slate-500 dark:text-slate-400">Trend Timeline</span>
+                                    <span className="text-[10px] text-slate-400 dark:text-slate-500">oldest → newest</span>
+                                </div>
+                                {/* Chronological bar: one slice per trend phase, in order */}
+                                <div className="relative h-3 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                                    <div className="flex h-full w-full">
+                                        {stats.segments.map((seg, i) => (
+                                            <div
+                                                key={i}
+                                                title={`${segmentLabel(seg)}: ${formatDate(seg.startDate)} → ${formatDate(seg.endDate)} · ${formatSlope(seg.slopeSum / seg.windows)} kg/day`}
+                                                className={segmentColor(seg.trend)}
+                                                style={{
+                                                    flex: `0 1 ${(seg.days / stats.totalDays) * 100}%`,
+                                                    minWidth: '2px',
+                                                }}
+                                            />
+                                        ))}
+                                    </div>
+                                    {rateData && (
                                         <div
-                                            className="bg-green-500 dark:bg-green-400"
-                                            style={{ width: `${(stats.losingCount / stats.totalPeriods) * 100}%` }}
+                                            className="pointer-events-none absolute top-0 h-full w-0.5 -translate-x-1/2 bg-slate-900/70 dark:bg-white/80"
+                                            style={{ left: `${markerPct}%` }}
+                                            title={formatDate(rateData.date)}
                                         />
                                     )}
-                                    {stats.stableCount > 0 && (
-                                        <div
-                                            className="bg-slate-300 dark:bg-slate-600"
-                                            style={{ width: `${(stats.stableCount / stats.totalPeriods) * 100}%` }}
-                                        />
-                                    )}
-                                    {stats.gainingCount > 0 && (
-                                        <div
-                                            className="bg-red-500 dark:bg-red-400"
-                                            style={{ width: `${(stats.gainingCount / stats.totalPeriods) * 100}%` }}
-                                        />
-                                    )}
+                                </div>
+                                <div className="mt-1 flex justify-between text-[10px] text-slate-400 dark:text-slate-500">
+                                    <span>{formatDate(stats.timelineStart)}</span>
+                                    <span>{stats.segments.length} phase{stats.segments.length !== 1 ? 's' : ''}</span>
+                                    <span>{formatDate(stats.timelineEnd)}</span>
                                 </div>
                                 <div className="flex justify-between text-xs mt-1.5">
                                     <span className="text-green-600 dark:text-green-400">

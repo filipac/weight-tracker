@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input'
 import WeightChart from '@/components/WeightChart'
 import WaistChart from '@/components/WaistChart'
 import WeightEntryForm from '@/components/WeightEntryForm'
+import HealthPublisher from '@/components/HealthPublisher'
 import WeightHistoryList from '@/components/WeightHistoryList'
 import WaistHistoryList from '@/components/WaistHistoryList'
 import WeightPredictions from '@/components/WeightPredictions'
@@ -80,8 +81,8 @@ export default function WeightTracker({
         })
     }
 
-    // Calculate goal BMI from first active goal (height hardcoded to 175cm)
-    const heightInMeters = 1.75
+    // Calculate goal BMI from first active goal (height hardcoded to 173cm)
+    const heightInMeters = 1.73
     const firstGoal = goals[0]
     const goalBMI = firstGoal?.target_weight
         ? Math.round((firstGoal.target_weight / (heightInMeters * heightInMeters)) * 10) / 10
@@ -408,6 +409,7 @@ export default function WeightTracker({
                         </div>
                     </div>
 
+                    <HealthPublisher />
                     {viewMode === 'dashboard' ? renderDashboardView() : renderTabbedView()}
                 </div>
             </div>
