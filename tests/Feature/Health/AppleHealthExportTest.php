@@ -180,6 +180,38 @@ class AppleHealthExportTest extends TestCase
         $this->assertSame(['2026-09-16', '2026-09-15'], $result['checked_dates']);
     }
 
+    public function test_cycling_distance_and_waist_circumference_keep_dates_topics_and_convert_units(): void
+    {
+        $this->export('current', ['metrics' => [
+            $this->metric('cycling_distance', 12.5, unit: 'km'),
+            $this->metric('cycling_distance', 2500, at: '2026-09-15 12:00:00 AM +0300', unit: 'm'),
+            $this->metric('cycling_distance', 2, at: '2026-08-18 12:00:00 AM +0300', unit: 'mi'),
+            $this->metric('waist_circumference', 82, unit: 'cm'),
+            $this->metric('waist_circumference', .83, at: '2026-09-15 12:00:00 AM +0300', unit: 'm'),
+            $this->metric('waist_circumference', 32, at: '2026-08-18 12:00:00 AM +0300', unit: 'in'),
+        ]]);
+        $snapshot = $this->capture();
+        $this->assertSame('ok', $snapshot['state']);
+        $this->assertEmpty($snapshot['warnings']);
+        foreach ([
+            ['activity', 'cycling_distance', 'Cycling distance', 'km', ['2026-09-16' => 12.5, '2026-09-15' => 2.5, '2026-08-18' => 3.218688]],
+            ['body-composition', 'waist_circumference', 'Waist circumference', 'cm', ['2026-09-16' => 82, '2026-09-15' => 83, '2026-08-18' => 81.28]],
+        ] as [$topic, $name, $label, $unit, $dates]) {
+            foreach ($dates as $date => $expected) {
+                $result = app(AppleHealthExport::class)->fetchDay($snapshot, $topic, $date);
+                $entry = EntryContract::normalize($result['entries'][$topic.':'.$date]);
+                $metric = $entry['providers']['apple_health']['metrics'][0];
+                $this->assertSame('apple_health.'.$name, $metric['key']);
+                $this->assertSame($label, $metric['label']);
+                $this->assertSame($unit, $metric['unit']);
+                $this->assertEqualsWithDelta($expected, $metric['value'], .000001);
+                $this->assertSame($date, $entry['date']);
+                $this->assertStringNotContainsString('private device', json_encode($entry));
+            }
+        }
+        Http::assertNothingSent();
+    }
+
     public function test_richer_export_kept_and_duplicate_oura_scalars_removed_while_retries_keep_workouts(): void
     {
         $this->export('current', ['workouts' => [$this->workout('Oura')]]);

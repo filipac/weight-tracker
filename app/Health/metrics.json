@@ -2024,6 +2024,22 @@
     "label": "VO₂ max",
     "unit": "ml/kg/min"
   },
+  "apple_health.cycling_distance": {
+    "source": "apple_health",
+    "endpoint": "cycling_distance",
+    "field": "qty",
+    "topic": "activity",
+    "label": "Cycling distance",
+    "unit": "km"
+  },
+  "apple_health.waist_circumference": {
+    "source": "apple_health",
+    "endpoint": "waist_circumference",
+    "field": "qty",
+    "topic": "body-composition",
+    "label": "Waist circumference",
+    "unit": "cm"
+  },
   "apple_health.walking_running_distance": {
     "source": "apple_health",
     "endpoint": "walking_running_distance",

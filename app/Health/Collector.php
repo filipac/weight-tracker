@@ -15,22 +15,29 @@ class Collector
         return array_merge(['withings.weigh_in', 'withings.measurements', 'withings.activity', 'withings.workout', 'withings.sleep', 'withings.heart'], array_map(fn ($name) => 'oura.'.$name, array_keys(self::OURA)), array_map(fn ($name) => 'apple_health.'.$name, AppleHealthExport::TASKS));
     }
 
-    public function fetch(string $task, string $today, string $yesterday, string $fetchedAt, array $appleSnapshot = []): array
+    public function fetch(string $task, string $today, string $yesterday, string $fetchedAt, array $appleSnapshot = [], array $previous = []): array
     {
         $days = [];
-        $entries = [];
+        $entries = $previous['entries'] ?? [];
+        $previousDays = array_column($previous['days'] ?? [], null, 'date');
         foreach ([$today, $yesterday] as $date) {
+            // CLI retries only the limited dates; keep successful or unrelated failures frozen.
+            if (isset($previousDays[$date]) && $previousDays[$date]['state'] !== 'rate_limited') {
+                $days[] = $previousDays[$date];
+
+                continue;
+            }
             try {
                 $result = str_starts_with($task, 'apple_health.')
                     ? app(AppleHealthExport::class)->fetchDay($appleSnapshot, substr($task, strlen('apple_health.')), $date)
                     : $this->fetchDay($task, $date, $fetchedAt);
             } catch (ProviderException $e) {
-                $result = ['state' => $e->state, 'message' => $e->getMessage(), 'entries' => []];
+                $result = ['state' => $e->state, 'message' => $e->getMessage(), 'retry_after' => $e->retryAfter, 'entries' => []];
             } catch (\Throwable) {
                 $result = ['state' => 'error', 'message' => 'The provider could not complete this request. Fetch again to retry.', 'entries' => []];
             }
             // Both dates are independent: a populated or failed day never suppresses the other.
-            $days[] = ['date' => $date, 'state' => $result['state'], 'message' => $result['message']];
+            $days[] = ['date' => $date, 'state' => $result['state'], 'message' => $result['message'], 'retry_after' => $result['retry_after'] ?? null];
             $entries = array_merge($entries, $result['entries']);
         }
         $errors = array_values(array_filter($days, fn ($day) => ! in_array($day['state'], ['ok', 'empty'], true)));

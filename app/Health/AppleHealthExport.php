@@ -305,7 +305,7 @@ class AppleHealthExport
         if ($from === 'degF' && $to === '°C') {
             return ($value - 32) * 5 / 9;
         }
-        $factors = ['kJ:kcal' => 1 / 4.184, 'J:kcal' => 1 / 4184, 'm:km' => .001, 'mi:km' => 1.609344, 'ft:m' => .3048, 'cm:m' => .01, 'm:cm' => 100, 'lb:kg' => .45359237, 'lbs:kg' => .45359237, 'mph:km/h' => 1.609344, 'm/s:km/h' => 3.6, 'km/h:m/s' => 1 / 3.6, 'min:hr' => 1 / 60, 's:hr' => 1 / 3600, 'hr:min' => 60, 'min:s' => 60, 's:min' => 1 / 60, 'MET:kcal/hr·kg' => 1];
+        $factors = ['kJ:kcal' => 1 / 4.184, 'J:kcal' => 1 / 4184, 'm:km' => .001, 'mi:km' => 1.609344, 'ft:m' => .3048, 'cm:m' => .01, 'm:cm' => 100, 'in:cm' => 2.54, 'lb:kg' => .45359237, 'lbs:kg' => .45359237, 'mph:km/h' => 1.609344, 'm/s:km/h' => 3.6, 'km/h:m/s' => 1 / 3.6, 'min:hr' => 1 / 60, 's:hr' => 1 / 3600, 'hr:min' => 60, 'min:s' => 60, 's:min' => 1 / 60, 'MET:kcal/hr·kg' => 1];
 
         return isset($factors[$from.':'.$to]) ? $value * $factors[$from.':'.$to] : null;
     }

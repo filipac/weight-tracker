@@ -17,11 +17,12 @@ class PublishHealthCommand extends Command
     protected $signature = 'health:publish
         {--local : Use the local blog for this run instead of the remembered destination}
         {--prod : Use the production blog for this run instead of the remembered destination}
+        {--last30 : Fetch today and the previous 29 days from every source (CLI only)}
         {--direct : Publish all selected entries without confirmation or retry prompts}
         {--entry=* : Publish only these topic:YYYY-MM-DD entries (repeatable)}
         {--details : Print every numerical metric and time-series sample in the preview}';
 
-    protected $description = 'Preview and publish today and yesterday to the blog last selected in the web app';
+    protected $description = 'Preview and publish today and yesterday (or --last30) to the selected blog';
 
     public function handle(PublishingWorkflow $workflow, ConsoleFetcher $fetcher): int
     {
@@ -52,9 +53,9 @@ class PublishHealthCommand extends Command
             $url = config('health.blogs.'.$destination.'.url');
             $this->info('Destination: '.strtoupper($destination).' · '.$url);
             $this->line('Preparing preview and reading the newest local Apple Health export…');
-            $snapshot = $workflow->start($destination, $owner);
+            $snapshot = $workflow->start($destination, $owner, $this->option('last30') ? 30 : 2);
             $id = $snapshot['id'];
-            $this->line('Dates: '.$snapshot['today'].' and '.$snapshot['yesterday'].' · '.$snapshot['timezone']);
+            $this->line('Dates: '.($this->option('last30') ? end($snapshot['dates']).' to '.$snapshot['today'].' (30 days, inclusive)' : $snapshot['today'].' and '.$snapshot['yesterday']).' · '.$snapshot['timezone']);
             $apple = $snapshot['apple_health'];
             $this->line('Apple Health export: '.($apple['folder'] ?? 'No folder'));
             if ($apple['state'] === 'ok') {
@@ -66,10 +67,10 @@ class PublishHealthCommand extends Command
 
             $sourceFailures = false;
             $this->line('Fetching up to '.max(1, min(6, (int) config('health.fetch_concurrency', 4))).' source collections at once…');
-            foreach ($fetcher->fetch($workflow, $id, $owner, $snapshot['tasks']) as $task => $result) {
-                $days = $result['days'] ?: [['date' => 'Both dates', 'state' => $result['state'], 'message' => $result['message']]];
+            foreach ($fetcher->fetch($workflow, $id, $owner, $snapshot['tasks'], fn ($message) => $this->line($message)) as $task => $result) {
+                $days = $result['days'] ?: array_map(fn ($date) => ['date' => $date, 'state' => $result['state'], 'message' => $result['message']], $result['checked_dates']);
                 foreach ($days as $day) {
-                    $this->line($task.' · '.$day['date'].' · '.$day['state'].' · '.$day['message']);
+                    $this->line(explode('@', $task, 2)[0].' · '.$day['date'].' · '.$day['state'].' · '.$day['message']);
                     if (! in_array($day['state'], ['ok', 'empty', 'unavailable'], true)) {
                         $sourceFailures = true;
                     }
@@ -115,32 +116,40 @@ class PublishHealthCommand extends Command
             }
 
             $results = [];
+            $publishLimit = max(1, min(6, (int) config('health.publish_concurrency', 4)));
+            $this->line('Publishing up to '.$publishLimit.' blog entries at once…');
             do {
                 $retry = [];
-                foreach ($selected as $key) {
+                foreach (array_chunk($selected, $publishLimit) as $batch) {
                     if ($destinationOverride === null && PublishingWorkflow::rememberedDestination() !== $destination) {
                         $this->error('The destination selected in the web app changed during this run. Run the command again to review the new destination.');
 
                         return self::FAILURE;
                     }
-                    try {
-                        $result = $workflow->publish($id, $owner, $destination, $key);
-                        $results[$key] = $result['operation'];
-                        $this->info($key.' · '.$result['operation'].' · '.$result['url']);
-                    } catch (ProviderException $e) {
-                        $results[$key] = 'failed';
-                        $this->error($key.' · failed · '.$e->getMessage());
-                        if ($e->state !== 'stale') {
+                    $batchResults = $workflow->publishBatch($id, $owner, $destination, $batch);
+                    foreach ($batch as $key) {
+                        try {
+                            $result = $batchResults[$key];
+                            if ($result instanceof \Throwable) {
+                                throw $result;
+                            }
+                            $results[$key] = $result['operation'];
+                            $this->info($key.' · '.$result['operation'].' · '.$result['url']);
+                        } catch (ProviderException $e) {
+                            $results[$key] = 'failed';
+                            $this->error($key.' · failed · '.$e->getMessage());
+                            if ($e->state !== 'stale') {
+                                $retry[] = $key;
+                            }
+                        } catch (HttpExceptionInterface $e) {
+                            $results[$key] = 'failed';
+                            $this->error($key.' · failed · '.$e->getMessage());
+                            // Expiry, owner and destination guards require a new preview, not a blind retry.
+                        } catch (\Throwable) {
+                            $results[$key] = 'failed';
+                            $this->error($key.' · failed · Publishing could not complete. Retry this entry.');
                             $retry[] = $key;
                         }
-                    } catch (HttpExceptionInterface $e) {
-                        $results[$key] = 'failed';
-                        $this->error($key.' · failed · '.$e->getMessage());
-                        // Expiry, owner and destination guards require a new preview, not a blind retry.
-                    } catch (\Throwable) {
-                        $results[$key] = 'failed';
-                        $this->error($key.' · failed · Publishing could not complete. Retry this entry.');
-                        $retry[] = $key;
                     }
                 }
                 $selected = $retry;

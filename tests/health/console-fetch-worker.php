@@ -15,7 +15,7 @@ $app->instance(App\Health\Collector::class, new class extends App\Health\Collect
 {
     public function __construct() {}
 
-    public function fetch(string $task, string $today, string $yesterday, string $fetchedAt, array $appleSnapshot = []): array
+    public function fetch(string $task, string $today, string $yesterday, string $fetchedAt, array $appleSnapshot = [], array $previous = []): array
     {
         $cache = Illuminate\Support\Facades\Cache::getFacadeRoot();
         $cache->lock('test:counter-lock', 10)->block(5, function () use ($cache, $task, $today, $yesterday, $fetchedAt) {
@@ -36,6 +36,9 @@ $app->instance(App\Health\Collector::class, new class extends App\Health\Collect
         $cache->lock('test:counter-lock', 10)->block(5, fn () => $cache->decrement('test:active'));
         if ($task === $cache->get('test:crash')) {
             exit(7);
+        }
+        if ($cache->pull('test:rate-limit-once:'.$task)) {
+            throw new App\Health\ProviderException('rate_limited', 'Fixture temporary rate limit', 1);
         }
         if ($task === $cache->get('test:failure')) {
             throw new App\Health\ProviderException('rate_limited', 'Fixture rate limit');

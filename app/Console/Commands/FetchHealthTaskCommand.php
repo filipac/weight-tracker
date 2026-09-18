@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 
 class FetchHealthTaskCommand extends Command
 {
-    protected $signature = 'health:fetch-task {id} {task}';
+    protected $signature = 'health:fetch-task {id} {task} {--retry-rate-limited}';
 
     protected $description = 'Internal worker for a single frozen health preview collection';
 
@@ -22,7 +22,7 @@ class FetchHealthTaskCommand extends Command
         // Each worker is a fresh PHP process and does not inherit ini_set().
         ini_set('memory_limit', '-1');
         try {
-            $result = $workflow->fetch($this->argument('id'), $owner, $this->argument('task'));
+            $result = $workflow->fetch($this->argument('id'), $owner, $this->argument('task'), (bool) $this->option('retry-rate-limited'));
             $this->output->write(json_encode($result, JSON_THROW_ON_ERROR));
 
             return self::SUCCESS;

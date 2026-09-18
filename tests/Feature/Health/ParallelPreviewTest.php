@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\Health;
 
+use App\Health\AppleHealthExport;
 use App\Health\BlogClient;
 use App\Health\OuraClient;
 use App\Health\ProviderException;
+use App\Health\PublishingWorkflow;
 use App\Health\WithingsClient;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -78,6 +80,60 @@ class ParallelPreviewTest extends TestCase
         $this->assertCount(9, app(BlogClient::class)->readMany('local', $entries));
         $this->assertSame(4, $peak);
         $this->assertSame(0, $active);
+    }
+
+    public function test_parallel_writes_keep_successes_when_sibling_requests_fail(): void
+    {
+        Http::fake(fn ($request) => match ($request['topic']) {
+            'heart' => Http::failedConnection(),
+            'sleep' => Http::response([], 409),
+            'activity' => Http::response([], 503),
+            default => Http::response(['schema_version' => 1, 'operation' => 'updated', 'url' => 'https://pacurar.dev/health/fixture', 'revision' => 'new']),
+        });
+        $items = [];
+        foreach (['heart', 'weight', 'sleep', 'activity'] as $topic) {
+            $items[$topic] = ['entry' => ['topic' => $topic, 'date' => '2026-09-16'], 'expected_revision' => 'reviewed-'.$topic];
+        }
+        $results = app(BlogClient::class)->publishMany('production', $items);
+        $this->assertCount(4, $results);
+        $this->assertSame('connection', $results['heart']->state);
+        $this->assertSame('updated', $results['weight']['operation']);
+        $this->assertSame('stale', $results['sleep']->state);
+        $this->assertSame('error', $results['activity']->state);
+        Http::assertNotSent(fn ($r) => $r['expected_revision'] !== 'reviewed-'.$r['topic']
+            || ! $r->hasHeader('Authorization', 'Basic '.base64_encode('production-owner:production-secret')));
+    }
+
+    public function test_batch_locks_are_independent_and_released_after_partial_failure(): void
+    {
+        config(['health.publish_concurrency' => 4]);
+        $this->mock(AppleHealthExport::class)->shouldReceive('capture')->andReturn(['state' => 'empty', 'entries' => []]);
+        $workflow = app(PublishingWorkflow::class);
+        $snapshot = $workflow->start('local', 'owner');
+        $items = [];
+        foreach (['heart', 'weight', 'sleep'] as $topic) {
+            $items[$topic] = ['entry' => ['topic' => $topic, 'date' => $snapshot['today']], 'expected_revision' => 'reviewed'];
+        }
+        Cache::put('health:prepared:'.$snapshot['id'], ['entries' => $items], 60);
+        $busy = Cache::lock('health:publish:'.$snapshot['id'].':'.sha1('heart'), 30);
+        $this->assertTrue($busy->get());
+        Http::fake(fn ($r) => $r['topic'] === 'sleep' ? Http::response([], 503) : Http::response(['schema_version' => 1, 'operation' => 'created']));
+        try {
+            $results = $workflow->publishBatch($snapshot['id'], 'owner', 'local', array_keys($items));
+            $this->assertSame('busy', $results['heart']->state);
+            $this->assertSame('created', $results['weight']['operation']);
+            $this->assertSame('error', $results['sleep']->state);
+            $this->assertFalse(Cache::lock('health:publish:'.$snapshot['id'].':'.sha1('heart'), 30)->get());
+            foreach (['weight', 'sleep'] as $topic) {
+                $lock = Cache::lock('health:publish:'.$snapshot['id'].':'.sha1($topic), 30);
+                $this->assertTrue($lock->get());
+                $lock->release();
+            }
+            Http::assertSentCount(2);
+            Http::assertNotSent(fn ($r) => $r['topic'] === 'heart');
+        } finally {
+            $busy->release();
+        }
     }
 
     public function test_valid_provider_tokens_do_not_wait_for_refresh_locks(): void

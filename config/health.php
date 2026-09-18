@@ -5,6 +5,10 @@ return [
     'timezone' => 'Europe/Bucharest',
     'preview_minutes' => 30,
     'fetch_concurrency' => max(1, min(6, (int) env('HEALTH_FETCH_CONCURRENCY', 4))),
+    'publish_concurrency' => max(1, min(6, (int) env('HEALTH_PUBLISH_CONCURRENCY', 4))),
+    'withings_retry_attempts' => 3,
+    'withings_retry_seconds' => 60,
+    'withings_retry_budget_seconds' => 600,
     'console_lock_path' => storage_path('framework/health-publish.lock'),
     'oura' => [
         'client_id' => env('OURA_CLIENT_ID'),

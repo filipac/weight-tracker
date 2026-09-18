@@ -41,6 +41,26 @@ class HealthJournalTest extends TestCase
         ]]];
     }
 
+    public function test_web_preview_removes_memory_limit_before_reading_large_exports(): void
+    {
+        $previous = ini_get('memory_limit');
+        $this->mock(\App\Health\AppleHealthExport::class)->shouldReceive('capture')->once()->andReturnUsing(function () {
+            $this->assertSame('-1', ini_get('memory_limit'));
+
+            return ['state' => 'empty', 'entries' => []];
+        });
+        try {
+            ini_set('memory_limit', '128M');
+            $id = $this->postJson('/health/previews', ['destination' => 'local'])->assertOk()->json('id');
+            $this->assertSame('-1', ini_get('memory_limit'));
+            $this->withCookie(config('session.cookie'), app('session')->getId());
+            $this->deleteJson('/health/previews/'.$id)->assertNoContent();
+            Http::assertNothingSent();
+        } finally {
+            ini_set('memory_limit', $previous);
+        }
+    }
+
     public function test_oura_login_uses_exact_callback_and_single_use_state(): void
     {
         $response = $this->get('/login-oura')->assertRedirect();

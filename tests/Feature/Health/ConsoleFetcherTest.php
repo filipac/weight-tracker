@@ -27,6 +27,7 @@ class ConsoleFetcherTest extends TestCase
         mkdir($this->directory);
         $this->owner = hash('sha256', 'test-owner');
         config(['cache.default' => 'file', 'cache.stores.file.path' => $this->directory,
+            'health.withings_retry_attempts' => 0,
             'health.console_lock_path' => $this->directory.'/publish.lock',
             'cache.stores.file.lock_path' => $this->directory, 'health.fetch_concurrency' => 4,
             'health.blogs.local.username' => 'fixture', 'health.blogs.local.password' => 'fixture']);
@@ -112,6 +113,43 @@ class ConsoleFetcherTest extends TestCase
         $this->assertSame('empty', $preview['statuses']['withings.weigh_in']['state']);
         $this->assertSame('error', $preview['statuses']['withings.activity']['state']);
         $this->assertSame([], $preview['entries']);
+        Http::assertNothingSent();
+    }
+
+    public function test_historical_batches_run_in_parallel_with_distinct_dates_and_cache_keys(): void
+    {
+        $workflow = app(PublishingWorkflow::class);
+        $snapshot = $workflow->start('local', $this->owner, 30);
+        $tasks = array_slice(array_values(array_filter($snapshot['tasks'], fn ($task) => str_starts_with($task, 'withings.weigh_in@'))), 0, 6);
+        $results = iterator_to_array($this->fetcher()->fetch($workflow, $snapshot['id'], $this->owner, $tasks));
+        $this->assertCount(6, $results);
+        $this->assertSame(4, Cache::get('test:peak'));
+        $calls = Cache::get('test:calls');
+        $this->assertCount(6, $calls);
+        foreach ($calls as [$collection, $today, $yesterday, $fetchedAt]) {
+            $task = $collection.'@'.$today;
+            $this->assertSame($snapshot['task_dates'][$task], [$today, $yesterday]);
+            $this->assertSame([$today, $yesterday], $results[$task]['checked_dates']);
+            $this->assertSame('empty', Cache::get('health:task:'.$snapshot['id'].':'.$task)['state']);
+        }
+        $this->assertCount(1, array_unique(array_column($calls, 3)));
+        Http::assertNothingSent();
+    }
+
+    public function test_parallel_worker_retries_cached_rate_limit_and_keeps_other_results(): void
+    {
+        config(['health.fetch_concurrency' => 2, 'health.withings_retry_attempts' => 1, 'health.withings_retry_seconds' => 1]);
+        Cache::put('test:barrier', 2, 60);
+        Cache::put('test:rate-limit-once:withings.weigh_in', true, 60);
+        $workflow = app(PublishingWorkflow::class);
+        $snapshot = $workflow->start('local', $this->owner);
+        $results = iterator_to_array($this->fetcher()->fetch($workflow, $snapshot['id'], $this->owner, ['withings.weigh_in', 'oura.daily_activity']));
+        $this->assertCount(2, $results);
+        $this->assertSame(['empty', 'empty'], array_column(array_values($results), 'state'));
+        $calls = array_count_values(array_column(Cache::get('test:calls'), 0));
+        $this->assertSame(2, $calls['withings.weigh_in']);
+        $this->assertSame(1, $calls['oura.daily_activity']);
+        $this->assertSame('empty', Cache::get('health:task:'.$snapshot['id'].':withings.weigh_in')['state']);
         Http::assertNothingSent();
     }
 

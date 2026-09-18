@@ -2,6 +2,7 @@
 
 namespace App\Health;
 
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
@@ -25,6 +26,7 @@ class WithingsClient
                     'client_id' => config('services.withings.client_id'), 'client_secret' => config('services.withings.client_secret'),
                     'refresh_token' => $tokens['refresh_token'],
                 ]);
+                $this->checkRateLimit($response);
                 $body = $response->json('body');
                 if (! $response->successful() || $response->json('status') !== 0 || empty($body['access_token']) || empty($body['refresh_token'])) {
                     throw new ProviderException('reconnect', 'Withings authorization failed. Please reconnect.');
@@ -41,9 +43,7 @@ class WithingsClient
     {
         $response = Http::asForm()->withToken($this->token())->timeout(15)->connectTimeout(5)
             ->post('https://wbsapi.withings.net/'.$path, $parameters);
-        if ($response->status() === 429 || $response->json('status') === 601) {
-            throw new ProviderException('rate_limited', 'Withings rate limit reached. Retry later.');
-        }
+        $this->checkRateLimit($response);
         if ($response->status() === 401 || in_array($response->json('status'), [401, 503])) {
             throw new ProviderException('reconnect', 'Reconnect Withings to renew access.');
         }
@@ -55,6 +55,15 @@ class WithingsClient
         }
 
         return $response->json('body');
+    }
+
+    private function checkRateLimit(Response $response): void
+    {
+        if ($response->status() === 429 || (int) $response->json('status') === 601) {
+            $header = trim($response->header('Retry-After'));
+            $retryAfter = ctype_digit($header) ? (int) $header : (($at = strtotime($header)) !== false ? max(0, $at - now()->timestamp) : null);
+            throw new ProviderException('rate_limited', 'Withings rate limit reached. Retry later.', $retryAfter);
+        }
     }
 
     public function collection(string $path, array $parameters, string $field): array

@@ -2,6 +2,7 @@
 
 namespace App\Health;
 
+use GuzzleHttp\Promise\Utils;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
@@ -45,7 +46,7 @@ class BlogClient
         return $this->send($destination, 'post', $entry + ['expected_revision' => $revision]);
     }
 
-    /** Read-only preview checks; writes still run individually after confirmation. */
+    /** Read-only preview checks, before confirmation. */
     public function readMany(string $destination, array $entries): array
     {
         $connection = $this->connection($destination);
@@ -67,6 +68,38 @@ class BlogClient
             }
             foreach ($responses as $key => $response) {
                 $results[$key] = $this->decode($response);
+            }
+        }
+
+        return $results;
+    }
+
+    /** @return array<string, array|ProviderException> One independent outcome per entry. */
+    public function publishMany(string $destination, array $items): array
+    {
+        $connection = $this->connection($destination);
+        $results = [];
+        // A shared pool handler starts the requests together. Settle every promise
+        // so one transport failure cannot hide another entry's successful write.
+        $pool = new Pool(Http::getFacadeRoot());
+        $requests = [];
+        foreach ($items as $key => $item) {
+            try {
+                $requests[$key] = $pool->as($key)->withBasicAuth($connection['username'], $connection['password'])
+                    ->acceptJson()->timeout(20)->connectTimeout(5)->withoutRedirecting()
+                    ->post(
+                        rtrim($connection['url'], '/').'/wp-json/pacurar2020/v1/health-entries',
+                        $item['entry'] + ['expected_revision' => $item['expected_revision']]
+                    );
+            } catch (\Throwable) {
+                $results[$key] = new ProviderException('connection', 'The blog could not be reached. Check its HTTPS certificate and connection, then retry.');
+            }
+        }
+        foreach (Utils::settle($requests)->wait() as $key => $settled) {
+            try {
+                $results[$key] = $this->decode($settled['value'] ?? null);
+            } catch (ProviderException $e) {
+                $results[$key] = $e;
             }
         }
 

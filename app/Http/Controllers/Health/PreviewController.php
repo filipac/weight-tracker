@@ -89,6 +89,9 @@ class PreviewController
 
     private function respond(callable $action)
     {
+        // Match the private CLI workflow: large Apple Health JSON exports and
+        // ECG previews exceed PHP's 128 MB web default during decoding/merging.
+        ini_set('memory_limit', '-1');
         try {
             return response()->json($action());
         } catch (ProviderException $e) {

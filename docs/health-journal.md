@@ -178,6 +178,18 @@ entries with existing provider data and revisions. No private weight history or
 Notes data is changed.
 
 Console provider fetches use short-lived PHP processes, with no queue worker.
+Withings rate limits are retried automatically by `health:publish`, including
+`--direct`, `--no-interaction`, and `--last30`. New Withings tasks pause while
+Oura and Apple Health can continue. Only rate-limited dates are fetched again;
+successful dates remain frozen in the preview. The console prints retry and
+wait progress. `Retry-After` is respected (seconds or HTTP date); otherwise
+retries wait 60, 120, then 240 seconds, with at most three retries per task.
+The retry window is capped at 10 minutes from the first rate limit and ends
+before preview expiry. These limits are configured in `config/health.php`.
+If the limit persists, available entries can still publish, and the command
+returns exit code 1 to signal incomplete sources. Recovered rate limits do not
+cause a failure exit. The web UI does not wait or automatically retry.
+
 `HEALTH_FETCH_CONCURRENCY` controls the number of simultaneous fetches (default 4,
 maximum 6; set 1 for sequential fetching). Finished slots are reused immediately,
 and results appear as each collection completes. The child processes use the same
@@ -187,9 +199,19 @@ parent process. Each child fetch has a 120-second limit; a failed or timed-out c
 is reported as a source error while other sources continue. Publishing retains its
 existing confirmation and `--direct` behavior.
 
+Blog preview comparisons already run in parallel. After confirmation (or
+`--direct`), CLI publication also sends entries concurrently in bounded batches.
+Set `HEALTH_PUBLISH_CONCURRENCY=4` (default; range 1–6) independently of source
+fetching; use 1 for sequential publishing. Each entry keeps its own upsert,
+reviewed revision, lock, result, and retry handling. One failed request does not
+hide successful sibling writes. The destination, credentials, and preview expiry
+are checked before each batch; requests already dispatched may finish if the web
+destination changes, but subsequent batches stop. Payloads remain one entry per
+request, avoiding oversized bulk uploads. No blog theme update is required.
+
 The command displays each source/date outcome, create/update/unchanged actions,
 provider measurements, workout summaries and chart ranges. Choose entries from the
-numbered list (all are selected by default), then confirm publication. Confirmation
+numbered list (new and changed entries are selected by default), then confirm publication. Confirmation
 defaults to **No**. Use `--details` to print all numerical measurements and chart
 samples. The terminal shows chart values rather than rendering SVG charts.
 
@@ -199,6 +221,31 @@ new and changed entries:
 ```sh
 php artisan health:publish --direct --no-interaction
 ```
+
+For a **CLI-only 30-day backfill**, including today and the previous 29 calendar
+days in Europe/Bucharest:
+
+```sh
+php artisan health:publish --last30
+php artisan health:publish --last30 --direct --no-interaction
+php artisan health:publish --last30 --local --direct --no-interaction
+php artisan health:publish --last30 --prod --direct --no-interaction
+```
+
+The default command and web UI still fetch only today and yesterday. `--last30`
+freezes all 30 dates at startup, checks every Withings, Oura and Apple Health
+collection for each date, and schedules parallel two-day batches with the same
+concurrency and worker timeouts as a normal run. The newest Apple Health export
+is captured once; historical Apple data must be present in that export (older
+folders are not combined). The printed export coverage shows which dates it has.
+
+Only available measurements create entries. Existing topic/date entries are
+updated without duplicates, unchanged entries are skipped by default, and partial
+results retain previously published provider data. `--entry` can restrict publication
+to any entry in the 30-day preview. Confirmation, `--direct`, remembered destination,
+`--local`/`--prod`, stale-revision checks and the 30-minute preview lifetime are
+unchanged. Source failures still permit successful entries to publish and produce
+a nonzero exit code. Rerunning safely fills remaining data and updates changed entries.
 
 Both modes accept repeatable entry keys to limit what gets published:
 
