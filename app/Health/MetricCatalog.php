@@ -10,6 +10,25 @@ class MetricCatalog
 
     public const TOPICS = ['weight' => 'Weight', 'body-composition' => 'Body composition', 'activity' => 'Activity', 'heart' => 'Heart', 'sleep' => 'Sleep', 'recovery' => 'Recovery', 'vitals' => 'Vitals', 'mindfulness' => 'Mindfulness'];
 
+    /** Only the exported activity name is public; never copy notes or device metadata. */
+    public static function originalWorkoutType(mixed $name): ?string
+    {
+        if (! is_string($name)) {
+            return null;
+        }
+        $name = strip_tags($name);
+        $name = preg_replace('/[\p{Cc}\p{Cf}\p{Z}\s]+/u', ' ', $name);
+        $name = trim(mb_substr($name ?? '', 0, 80));
+
+        return $name !== '' ? $name : null;
+    }
+
+    public static function workoutLabel(array $workout): string
+    {
+        return self::originalWorkoutType($workout['original_type'] ?? null)
+            ?? self::WORKOUT_TYPES[$workout['type']];
+    }
+
     public static function all(): array
     {
         static $catalog;

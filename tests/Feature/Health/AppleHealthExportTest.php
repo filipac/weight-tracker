@@ -113,6 +113,29 @@ class AppleHealthExportTest extends TestCase
         $this->assertSame(456.0, $s['entries']['activity']['2026-09-16']['providers']['apple_health']['metrics'][0]['value']);
     }
 
+    public function test_original_workout_name_survives_import_contract_and_partial_retries(): void
+    {
+        $workout = $this->workout();
+        $workout['name'] = " <b>Boxing</b>\n\t🥊 ";
+        $this->export('current', ['workouts' => [$workout]]);
+        $snapshot = $this->capture();
+        $this->assertSame('ok', $snapshot['state']);
+        $entry = EntryContract::normalize($snapshot['entries']['workouts']['2026-09-15']);
+        $published = $entry['providers']['apple_health']['workouts'][0];
+        $this->assertSame('other', $published['type']);
+        $this->assertSame('Boxing 🥊', $published['original_type']);
+        $this->assertSame('Boxing 🥊', \App\Health\MetricCatalog::workoutLabel($published));
+        $this->assertNotEmpty($published['metrics']);
+        $legacy = $entry;
+        unset($legacy['providers']['apple_health']['workouts'][0]['original_type']);
+        $this->assertSame('Workout', \App\Health\MetricCatalog::workoutLabel($legacy['providers']['apple_health']['workouts'][0]));
+        $this->assertSame($entry, EntryContract::merge($entry, $legacy));
+        $this->assertSame($entry, EntryContract::merge($legacy, $entry));
+        $this->assertNotSame(EntryContract::fingerprint($legacy), EntryContract::fingerprint($entry));
+        $this->assertSame(80, mb_strlen(\App\Health\MetricCatalog::originalWorkoutType(str_repeat('é', 100))));
+        $this->assertNull(\App\Health\MetricCatalog::originalWorkoutType("<br>\n"));
+    }
+
     public function test_today_and_yesterday_exported_data_keep_actual_dates(): void
     {
         $this->export('current', ['metrics' => [$this->metric(value: 0), $this->metric(value: 600, at: '2026-09-15 12:00:00 AM +0300')], 'workouts' => [$this->workout()]]);
@@ -178,6 +201,63 @@ class AppleHealthExportTest extends TestCase
         $this->assertSame('error', $s['state']);
         $result = app(Collector::class)->fetch('apple_health.activity', '2026-09-16', '2026-09-15', now()->toIso8601String(), $s);
         $this->assertSame(['2026-09-16', '2026-09-15'], $result['checked_dates']);
+    }
+
+    public function test_combined_blood_pressure_export_keeps_both_values_precision_and_dates(): void
+    {
+        $readings = [
+            '2026-09-16' => [117, 72], '2026-09-17' => [107, 68],
+            '2026-09-18' => [104, 63.5], '2026-09-19' => [116.85714285714, 74.571428571429],
+            '2026-09-20' => [120, 71], '2026-09-21' => [114, 69],
+        ];
+        $rows = [];
+        foreach ($readings as $date => [$systolic, $diastolic]) {
+            $rows[] = ['date' => $date." 12:00:00\u{202F}AM +0300", 'systolic' => $systolic,
+                'diastolic' => $diastolic, 'source' => 'Healthy Heart'];
+        }
+        $this->export('current', ['metrics' => [['name' => 'blood_pressure', 'units' => 'mmHg', 'data' => $rows]]]);
+        $snapshot = $this->capture();
+        $this->assertSame('ok', $snapshot['state']);
+        $this->assertEmpty($snapshot['warnings']);
+        $this->assertSame(1, $snapshot['metric_types']);
+        foreach ($readings as $date => [$systolic, $diastolic]) {
+            $result = app(AppleHealthExport::class)->fetchDay($snapshot, 'heart', $date);
+            $entry = $result['entries']['heart:'.$date];
+            $metrics = array_column($entry['providers']['apple_health']['metrics'], null, 'key');
+            $this->assertCount(2, $metrics);
+            foreach (['systolic' => $systolic, 'diastolic' => $diastolic] as $field => $value) {
+                $metric = $metrics['apple_health.blood_pressure.'.$field];
+                $this->assertSame((float) $value, $metric['value']);
+                $this->assertSame('mmHg', $metric['unit']);
+                $this->assertSame(ucfirst($field).' blood pressure', $metric['label']);
+                $this->assertSame($date.'T00:00:00+03:00', $metric['at']);
+            }
+            $this->assertStringNotContainsString('Healthy Heart', json_encode($entry));
+        }
+        Http::assertNothingSent();
+    }
+
+    public function test_blood_pressure_does_not_invent_missing_or_invalid_components(): void
+    {
+        $this->export('current', ['metrics' => [
+            ['name' => 'blood_pressure', 'units' => 'mmHg', 'data' => [
+                ['date' => '2026-09-16T08:00:00+03:00', 'systolic' => 117],
+                ['date' => '2026-09-16T09:00:00+03:00', 'systolic' => 'invalid', 'diastolic' => 63.5],
+            ]],
+            ['name' => 'blood_pressure', 'units' => 'unknown', 'data' => [
+                ['date' => '2026-09-15T08:00:00+03:00', 'systolic' => 120, 'diastolic' => 70],
+            ]],
+        ]]);
+        $snapshot = $this->capture();
+        $this->assertSame('ok', $snapshot['state']);
+        $metrics = array_column($snapshot['entries']['heart']['2026-09-16']['providers']['apple_health']['metrics'], null, 'key');
+        $this->assertCount(2, $metrics);
+        $this->assertSame(117.0, $metrics['apple_health.blood_pressure.systolic']['value']);
+        $this->assertSame('2026-09-16T08:00:00+03:00', $metrics['apple_health.blood_pressure.systolic']['at']);
+        $this->assertSame(63.5, $metrics['apple_health.blood_pressure.diastolic']['value']);
+        $this->assertSame('2026-09-16T09:00:00+03:00', $metrics['apple_health.blood_pressure.diastolic']['at']);
+        $this->assertArrayNotHasKey('2026-09-15', $snapshot['entries']['heart']);
+        $this->assertNotEmpty($snapshot['warnings']);
     }
 
     public function test_cycling_distance_and_waist_circumference_keep_dates_topics_and_convert_units(): void

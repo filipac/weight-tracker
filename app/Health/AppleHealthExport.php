@@ -140,6 +140,9 @@ class AppleHealthExport
                 }
                 $workout = ['type' => $this->workoutType($row['name'] ?? ''), 'start' => $start, 'end' => $end,
                     'origin' => $this->origin($row['source'] ?? []), 'metrics' => [], 'series' => []];
+                if (($name = MetricCatalog::originalWorkoutType($row['name'] ?? null)) !== null) {
+                    $workout['original_type'] = $name;
+                }
                 foreach (MetricCatalog::all() as $key => $def) {
                     if ($def['source'] !== 'apple_health' || $def['endpoint'] !== 'workout') {
                         continue;

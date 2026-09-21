@@ -37,7 +37,7 @@ function EntryDetails({ entry, workoutTypes }) {
         <p className="hp-muted">Fetched {section.fetched_at}</p>
         <Measurements section={section} />
         {!!section.workouts?.length && <p>{section.workouts.length} workouts · Oura-origin sessions use these richer exported details; duplicate Oura API values are omitted.</p>}
-        {section.workouts?.map(workout => <section className="hp-workout" key={`${workout.start}-${workout.type}`}><h5>{workoutTypes[workout.type]}</h5><p>{time(workout.start)} – {time(workout.end)} · {sources[workout.origin]}</p><Measurements section={workout} /></section>)}
+        {section.workouts?.map(workout => <section className="hp-workout" key={`${workout.start}-${workout.type}`}><h5>{workout.original_type || workoutTypes[workout.type]}</h5><p>{time(workout.start)} – {time(workout.end)} · {sources[workout.origin]}</p><Measurements section={workout} /></section>)}
     </section>)}</>
 }
 

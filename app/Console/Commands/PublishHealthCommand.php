@@ -199,7 +199,7 @@ class PublishHealthCommand extends Command
                 $this->line('  '.MetricCatalog::SOURCES[$source].' · fetched '.$section['fetched_at']);
                 $this->showMeasurements($section);
                 foreach ($section['workouts'] ?? [] as $workout) {
-                    $this->line('  '.MetricCatalog::WORKOUT_TYPES[$workout['type']].' · '.$workout['start'].' to '.$workout['end'].' · '.MetricCatalog::SOURCES[$workout['origin']]);
+                    $this->line('  '.MetricCatalog::workoutLabel($workout).' · '.$workout['start'].' to '.$workout['end'].' · '.MetricCatalog::SOURCES[$workout['origin']]);
                     $this->showMeasurements($workout);
                 }
             }

@@ -185,7 +185,7 @@ class PublishingWorkflow
             }
             foreach ($section['workouts'] ?? [] as $workout) {
                 if (! in_array($workout['start'], array_column($incoming['providers'][$source]['workouts'] ?? [], 'start'), true)) {
-                    $retained[] = 'Apple Health: '.MetricCatalog::WORKOUT_TYPES[$workout['type']].' '.$workout['start'];
+                    $retained[] = 'Apple Health: '.MetricCatalog::workoutLabel($workout).' '.$workout['start'];
                 }
             }
         }

@@ -75,9 +75,19 @@ class EntryContract
                     if (! is_array($workout)) {
                         self::invalid();
                     }
-                    self::keys($workout, ['type', 'start', 'end', 'origin', 'metrics', 'series']);
+                    self::keys($workout, ['type', 'original_type', 'start', 'end', 'origin', 'metrics', 'series']);
                     if (! isset(MetricCatalog::WORKOUT_TYPES[$workout['type'] ?? '']) || ! isset(MetricCatalog::SOURCES[$workout['origin'] ?? ''])) {
                         self::invalid();
+                    }
+                    if (array_key_exists('original_type', $workout)) {
+                        if (! is_string($workout['original_type'])) {
+                            self::invalid();
+                        }
+                        $name = MetricCatalog::originalWorkoutType($workout['original_type']);
+                        unset($workout['original_type']);
+                        if ($name !== null) {
+                            $workout['original_type'] = $name;
+                        }
                     }
                     self::timestamp($workout['start'] ?? null);
                     self::timestamp($workout['end'] ?? null);
@@ -92,7 +102,7 @@ class EntryContract
                         }
                     }
                     $key = $workout['start'].'|'.$workout['type'];
-                    $workouts[$key] = array_intersect_key($workout, array_flip(['type', 'start', 'end', 'origin'])) + ['metrics' => $nested['metrics'], 'series' => $nested['series']];
+                    $workouts[$key] = array_intersect_key($workout, array_flip(['type', 'original_type', 'start', 'end', 'origin'])) + ['metrics' => $nested['metrics'], 'series' => $nested['series']];
                 }
                 ksort($workouts);
                 if ($workouts) {
@@ -140,6 +150,9 @@ class EntryContract
             $workouts = [];
             foreach (array_merge($previous['workouts'] ?? [], $incoming['providers'][$source]['workouts'] ?? []) as $workout) {
                 $identity = $workout['start'].'|'.$workout['type'];
+                if (MetricCatalog::originalWorkoutType($workout['original_type'] ?? null) === null && isset($workouts[$identity]['original_type'])) {
+                    $workout['original_type'] = $workouts[$identity]['original_type'];
+                }
                 foreach (['metrics', 'series'] as $kind) {
                     $keys = array_column($workout[$kind], 'key');
                     foreach ($workouts[$identity][$kind] ?? [] as $metric) {
