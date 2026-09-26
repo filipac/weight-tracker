@@ -1824,6 +1824,22 @@
     "label": "Blood oxygen saturation",
     "unit": "%"
   },
+  "apple_health.blood_pressure.systolic": {
+    "source": "apple_health",
+    "endpoint": "blood_pressure",
+    "field": "systolic",
+    "topic": "heart",
+    "label": "Systolic blood pressure",
+    "unit": "mmHg"
+  },
+  "apple_health.blood_pressure.diastolic": {
+    "source": "apple_health",
+    "endpoint": "blood_pressure",
+    "field": "diastolic",
+    "topic": "heart",
+    "label": "Diastolic blood pressure",
+    "unit": "mmHg"
+  },
   "apple_health.body_fat_percentage": {
     "source": "apple_health",
     "endpoint": "body_fat_percentage",
